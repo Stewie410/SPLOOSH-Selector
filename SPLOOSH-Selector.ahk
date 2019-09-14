@@ -64,6 +64,8 @@ bg_app := "FFFFFF"                                              ; Application/Pa
 bg_topbar := "FF8E77"                                           ; TopBar
 bg_sidebar := "6DFF79"                                          ; SideBar
 bg_form := "93D7FF"                                             ; Element, UIColor & Player
+bg_app_og := "002D52"
+bg_button_og := "004A7E"
 
 ; Foreground Colors
 fg_app := "000000"                                              ; Application/Parent
@@ -147,7 +149,7 @@ GuiParent() {
     Gui, Parent: +HWNDhParent                                   ; Define Parent GUI, Assign Window Handle to %hParent%
     ;Gui, Parent: +MinSize%w_app%x%h_app%                        ; Define Parent GUI's Minimum Size to %parentW% and %parentH%\
     Gui, Parent: +LastFound                                     ; Place Parent GUI in coordinates previously known coordinates, or center of display
-    Gui, Parent: +Resize                                        ; Allow Parent GUI to be resize
+    Gui, Parent: -Resize                                        ; Allow Parent GUI to be resize
     Gui, Parent: Margin, 0, 0                                   ; Disable Parent GUI's Margin
     Gui, Parent: Color, %bg_app%                                ; Set Parent GUI's Background Color
 }
@@ -263,7 +265,9 @@ GuiUIColor() {
     Gui, UIColorForm: Color, %bg_form%                          ; Set Background Color
 
     ; Define local variables
-    
+    local cx_items := 2                                         ; Number of Items per Row
+    local cy_items := 3                                         ; Number of Items per Row
+    local w_text
 }
 
 ; ##-----------------------------##
@@ -869,18 +873,19 @@ resetSkin(type := "") {
 
     ; Handle skin not found
     if (skin = "") {
-        MsgBox,,RESET ERROR, Cannot locate skin in `"%src%`"      ; Notify user of error
+        MsgBox,,RESET ERROR, Cannot locate skin in `"%src%`"    s; Notify user of error
         return 1                                                ; return
     }
 
     ; Update local vars
-    src += skin                                                 ; Update source directory
-    dst += skin                                                 ; Update destination directory
+    src := src "\" skin "\" d_conf                              ; Update source directory
+    dst := dst "\" skin                                         ; Update destination directory
     
     ; Reset Skin
-    if ((StringLower,,type) = "gameplay") {                     ; If type is gameplay
+    StringLower,type,type                                       ; Set all characters in type to lowercase
+    if (type = "gameplay") {                                    ; If type is gameplay
         FileCopy, %src%\%d_reset_gameplay%\*.*, %dst%, 1        ; Copy reset-gameplay elements to dst
-    } else if ((StringLower,,type) = "uicolor") {               ; If type is uicolor
+    } else if (type = "uicolor") {                              ; If type is uicolor
         FileCopy, %src%\%d_reset_uicolor%\*.*, %dst%, 1         ; Copy reset-uicolor elements to dst
     } else {
         MsgBox,,RESET ERROR, Unknown Reset Type: %type%         ; Notify Error
@@ -1136,3 +1141,7 @@ Class PlayerOptions Extends Player {
         }
     }
 }
+
+; ##----------------------------------##
+; #|        Included Libraries        |#
+; ##----------------------------------##
