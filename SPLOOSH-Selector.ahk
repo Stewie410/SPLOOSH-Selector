@@ -108,6 +108,9 @@ l_sliderballs := []                                             ; List of Slider
 l_uicolors := []                                                ; List of UI Colors
 l_players := []                                                 ; List of Players
 
+; Variables
+var_selected_form := "Element"                                  ; Selected Form
+
 ; ##----------------##
 ; #|        Run     |#
 ; ##----------------##
@@ -121,6 +124,9 @@ Gui, ElementForm: Show, % "x" x_form " y" y_form " w" w_form " h" h_form
 Gui, UIColorForm: Show, % "x" x_form " y" y_form " w" w_form " h" h_form " Hide"
 Gui, PlayerForm: Show, % "x" x_form " y" y_form " w" w_form " h" h_form " Hide"
 Gui, Parent: Show, % "w" w_app " h" h_app, %n_app%
+
+; Check GameDirectory now, if there's an issue finding the skin, notify the user
+initCheckPath()
 
 ; ##--------------------------------##
 ; #|        Message Listeners       |#
@@ -148,7 +154,7 @@ GuiParent() {
     ; Define the GUI's Parameters
     Gui, Parent: +HWNDhParent                                   ; Define Parent GUI, Assign Window Handle to %hParent%
     ;Gui, Parent: +MinSize%w_app%x%h_app%                        ; Define Parent GUI's Minimum Size to %parentW% and %parentH%\
-    Gui, Parent: +LastFound                                     ; Place Parent GUI in coordinates previously known coordinates, or center of display
+    Gui, Parent: +LastFound                                     ; Make Parent the LastFound window
     Gui, Parent: -Resize                                        ; Allow Parent GUI to be resize
     Gui, Parent: Margin, 0, 0                                   ; Disable Parent GUI's Margin
     Gui, Parent: Color, %bg_app%                                ; Set Parent GUI's Background Color
@@ -168,7 +174,7 @@ GuiTopBar() {
     Gui, TopBar: -DpiScale                                      ; Disable Windows Scaling
     Gui, TopBar: Margin, 0, 0                                   ; Disable Margin
     Gui, TopBar: Color, %bg_topbar%                             ; Set Background Color
-    Gui, TopBar: Font, s%fs_topbar%, %ff_topbar%                ; Set Font to Arial
+    Gui, TopBar: Font, s%fs_topbar%, %ff_topbar%                ; Set font
 
     ; Define Local Variables for sizing and placement
     local cx_items := 4                                         ; Number of Items per Row
@@ -223,7 +229,7 @@ GuiSideBar() {
     Gui, SideBar: -DpiScale                                     ; Disable Windows Scaling
     Gui, SideBar: Margin, 0, 0                                  ; Disable Margin
     Gui, SideBar: Color, %bg_sidebar%                           ; Set Background Color
-    Gui, SideBar: Font, s%fs_sidebar%, %ff_sidebar%             ; Set Font to Arial
+    Gui, SideBar: Font, s%fs_sidebar%, %ff_sidebar%             ; Set font
 
     ; Define Local Variables for sizing and placement
     local cx_items := 1                                         ; number of items per row
@@ -242,7 +248,7 @@ GuiSideBar() {
 
     ; Add Labels to GUI
     ; Add Controls to GUI (Standalone)
-    Gui, SideBar: Add, Button, % "x" x_apply " y" y_apply " w" w_apply " h" h_apply " +gSubmitForm +AltSubmit", &APPLY
+    Gui, SideBar: Add, Button, % "x" x_apply " y" y_apply " w" w_apply " h" h_apply " +gSubmitForm", &APPLY
     Gui, SideBar: Add, GroupBox, % "x" x_group " y" y_group " w" w_group " h" h_group " +Section", RESET
     Gui, SideBar: Add, Button, % "x" x_reset " ys+" (py_sidebar * 2) " w" w_reset " h" h_reset " +gResetAll +AltSubmit", ALL
     Gui, SideBar: Add, Button, % "x" x_reset " ys+" ((py_sidebar * 3) + h_reset) " w" w_reset " h" h_reset " +gResetGameplay +AltSubmit", GAMEPLAY
@@ -263,11 +269,62 @@ GuiUIColor() {
     Gui, UIColorForm: -DpiScale                                 ; Disable Windows Scaling
     Gui, UIColorForm: Margin, 0, 0                              ; Disable Margin
     Gui, UIColorForm: Color, %bg_form%                          ; Set Background Color
+    Gui, UIColorForm: Font, s%fs_form%, %ff_form%               ; Set font
 
     ; Define local variables
-    local cx_items := 2                                         ; Number of Items per Row
-    local cy_items := 3                                         ; Number of Items per Row
-    local w_text
+    local cx_items := 2                                         ; Number of items per row
+    local cy_items := 2                                         ; Number of items per column
+    local w_text := (w_form / cx_items) - (px_form * 2)         ; Text width
+    local w_ddl := w_text                                       ; DropDownList width
+    local w_check := w_text                                     ; CheckBox width
+    local h_text := (h_form / cy_items) - (py_form * 2)         ; Text height
+    local h_ddl := h_text                                       ; DropDownList height
+    local h_check := h_text                                     ; CheckBox height
+    local a_x := []                                             ; x positions
+    local a_y := []                                             ; y positions
+    local o_color := ""                                         ; color options
+    local def_color := ""                                       ; default color selection
+
+    ; Add positions to x/y arrays
+    for k, v in [1, 2] {
+        if (k = 1) {
+            a_x.push(px_form)
+            a_y.push(py_form)
+        } else {
+            a_x.push(((w_form / cx_items) * v) - (w_form / cx_items) + (px_form * 1))
+            a_y.push(((h_form / cy_items) * v) - (h_form / cy_items) + (py_form * 1))
+        }
+    }
+
+    ; Get Options
+    for k, v in l_uicolors {
+        if (o_color = "") {
+            o_color := v.name
+        } else {
+            o_color := o_color "|" v.name
+        }
+        if (v.original = 1) {
+            def_color := v.name
+        }
+    }
+
+    ; Sort Options Alphabetically
+    Sort, o_color, CL D|
+
+    ; Determine default choices
+    for k, v in (StrSplit(o_color, "|")) {
+        if (v = def_color) {
+            def_color := k
+        }
+    }
+
+    ; Add labels to GUI
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE, COLOR:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE, INSTAFADE CIRCLES:
+
+    ; Add controls to GUI
+    Gui, UIColorForm: Add, DropDownList, % "x" a_x[2] " y" a_y[1] " w" w_ddl " h" h_ddl " +Choose" def_color " +vUIColorOptionColor", %o_color%
+    Gui, UIColorForm: Add, CheckBox, % "x" a_x[2] " y" a_y[2] " w" w_check " +vUIColorOptionInstafade", Enabled
 }
 
 ; ##-----------------------------##
@@ -284,6 +341,146 @@ GuiElement() {
     Gui, ElementForm: -DpiScale                                 ; Disable Windows Scaling
     Gui, ElementForm: Margin, 0, 0                              ; Disable Margin
     Gui, ElementForm: Color, %bg_form%                          ; Set Background Color
+    Gui, ElementForm: Font, s%fs_form%, %ff_form%               ; Set font
+
+    ; Define local variables
+    local cx_items := 2                                         ; Number of Items per Row
+    local cy_items := 4                                         ; Number of Items per column
+    local w_text := (w_form / cx_items) - (px_form * 2)         ; Text width
+    local w_ddl := w_text                                       ; DropDownList width
+    local h_text := (h_form / cy_items) - (py_form * 2)         ; Text height
+    local h_ddl := h_text                                       ; DropDownList height
+    local a_x := []                                             ; x positions
+    local a_y := []                                             ; y positions
+    local o_element := "Cursor|Hitburst|Reverse Arrow|Sliderball"   ; Element Options
+    local o_cursor := ""                                        ; Cursor Options
+    local o_ctrail := "None"                                    ; Cursor Trail Options
+    local o_csmoke := ""                                        ; Cusror Smoke Options
+    local o_hitburst := ""                                      ; Hitburst Options
+    local o_revarrow := ""                                      ; ReverseArrow Options
+    local o_sliderball := ""                                    ; Sliderball Options
+    local def_cursor := ""                                      ; Default Cursor Selection
+    local def_ctrail := ""                                      ; Default CursorTrail Color Selection
+    local def_csmoke := ""                                      ; Default CusorSmoke Color Selection
+    local def_hitburst := ""                                    ; Default Hitburst Selection
+    local def_revarrow := ""                                    ; Default ReverseArrow Selection
+    local def_sliderball := ""                                  ; Default Sliderball Selection
+
+    ; Add positions to x/y arrays
+    for k, v in [1, 2, 3, 4] {
+        if (k = 1) {
+            a_x.push(px_form)
+            a_y.push(py_form)
+        } else {
+            a_x.push(((w_form / cx_items) * v) - (w_form / cx_items) + (px_form * 1))
+            a_y.push(((h_form / cy_items) * v) - (h_form / cy_items) + (py_form * 1))
+        }
+    }
+
+    ; Get Options
+    for k, v in l_cursors {
+        if (o_cursor = ""){
+            o_cursor := v.name
+        } else {
+            o_cursor := o_cursor "|" v.name
+            o_ctrail := o_ctrail "|" v.name
+        }
+        if (v.original = 1) {
+            def_cursor := v.name
+            def_ctrail := v.name
+        }
+    }
+    o_csmoke := o_cursor
+    for k, v in l_hitbursts {
+        if (o_hitburst = "") {
+            o_hitburst := v.name
+        } else {
+            o_hitburst := o_hitburst "|" v.name
+        }
+        if (v.original = 1) {
+            def_hitburst := v.name
+        }
+    }
+    for k, v in l_reversearrows {
+        if (o_revarrow = ""){
+            o_revarrow := v.name
+        } else {
+            o_revarrow := o_revarrow "|" v.name
+        }
+        if (v.original = 1) {
+            def_revarrow := v.name
+        }
+    }
+    for k, v in l_sliderballs {
+        if (o_sliderball = ""){
+            o_sliderball := v.name
+        } else {
+            o_sliderball := o_sliderball "|" v.name
+        }
+        if (v.original = 1) {
+            def_sliderball := v.name
+        }
+    }
+
+    ; Sort Options Alphabetically
+    Sort, o_cursor, CL D|
+    Sort, o_ctrail, CL D|
+    Sort, o_csmoke, CL, D|
+    Sort, o_hitburst, CL D|
+    Sort, o_revarrow, CL D|
+    Sort, o_sliderball, CL D|
+
+    ; Determine default choices
+    for k, v in (StrSplit(o_cursor, "|")) {
+        if (v = def_cursor) {
+            def_cursor := k
+            def_csmoke := k
+        }
+    }
+    for k, v in (StrSplit(o_ctrail, "|")) {
+        if (v = def_ctrail) {
+            def_ctrail := k
+        }
+    }
+    for, k, v in (StrSplit(o_csmoke, "|")) {
+        if (v = def_csmoke) {
+            def_csmoke = k
+        }
+    }
+    for k, v in (StrSplit(o_hitburst, "|")) {
+        if (v = def_hitburst) {
+            def_hitburst := k
+        }
+    }
+    for k, v in (StrSplit(o_revarrow, "|")) {
+        if (v = def_revarrow) {
+            def_revarrow := k
+        }
+    }
+    for k, v in (StrSplit(o_sliderball, "|")) {
+        if (v = def_sliderball) {
+            def_sliderball := k
+        }
+    }
+
+    ; Add Labels to GUI
+    Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE, ELEMENT:
+    Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +vCursorElementOptionColorText", COLOR:
+    Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +vOtherElementOptionTypeText +Hidden1", TYPE:
+    Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[3] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +vCursorElementOptionTrailText", TRAIL COLOR:
+    Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[4] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +vCursorElementOptionSmokeText", SMOKE COLOR:
+
+    ; Add Controls to GUI
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[1] " w" w_ddl " h" h_ddl " +Choose1 +gGetElementType +vElementType +Sort", %o_element%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " h" h_ddl " +Choose" def_cursor " +vCursorElementOptionColor", %o_cursor%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " h" h_ddl " +Choose" def_hitburst " +vHitburstElementOptionType +Hidden1", %o_hitburst%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " h" h_ddl " +Choose" def_revarrow " +vReverseArrowElementOptionType +Hidden1", %o_revarrow%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " h" h_ddl " +Choose" def_sliderball " +vSliderballElementOptionType +Hidden1", %o_sliderball%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[3] " w" w_ddl " h" h_ddl " +Choose" def_ctrail " +vCursorElementOptionTrail", %o_ctrail%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[4] " w" w_ddl " h" h_ddl " +Choose" def_csmoke " +vCursorElementOptionSmoke", %o_csmoke%
+
+    ; Update Element Form
+    GetElementType()
 }
 
 ; ##----------------------------##
@@ -300,6 +497,57 @@ GuiPlayer() {
     Gui, PlayerForm: -DpiScale                                  ; Disable Windows Scaling
     Gui, PlayerForm: Margin, 0, 0                               ; Disable Margin
     Gui, PlayerForm: Color, %bg_form%                           ; Set Background Color
+    Gui, PlayerForm: Font, s%fs_form%, %ff_form%                ; Set font
+
+    ; Define local variables
+    local cx_items := 2                                         ; Number of items per row
+    local cy_items := 2                                         ; Number of items per column
+    local w_text := (w_form / cx_items) - (px_form * 2)         ; Text width
+    local w_ddl := w_text                                       ; DropDownList width
+    local h_text := (h_form / cy_items) - (py_form * 2)         ; Text height
+    local h_ddl := h_text                                       ; DropDownList height
+    local a_x := []                                             ; x positions
+    local a_y := []                                             ; y positions
+    local a_version := []                                       ; player versions
+    local o_player := ""                                        ; player names
+    local o_version := ""                                       ; player versions (ddl)
+    local def_player := 1                                       ; default player selection
+    local def_version := 1                                      ; default version selection
+
+    ; Add positions to x/y arrays
+    for k, v in [1, 2, 3] {
+        if (k = 1) {
+            a_x.push(px_form)
+            a_y.push(py_form)
+        } else {
+            a_x.push(((w_form / cx_items) * v) - (w_form / cx_items) + (px_form * 1))
+            a_y.push(((h_form / cy_items) * v) - (h_form / cy_items) + (py_form * 1))
+        }
+    }
+
+    ; Get Options
+    for k, v in l_players {
+        if (o_player = "") {
+            o_player := v.name
+        } else {
+            o_player := o_player "|" v.name
+        }
+    }
+
+    ; Sort Options Alphabetically
+    Sort, o_player, CL D|
+    Sort, o_version, CL D|
+
+    ; Add Labels to the GUI
+    Gui, PlayerForm: Add, Text, % "x" a_x[1] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE, PLAYER:
+    Gui, PlayerForm: Add, Text, % "x" a_x[1] " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +vPlayerOptionVersionText +Hidden1", VERSION:
+
+    ; Add Controls to the GUI
+    Gui, PlayerForm: Add, DropDownList, % "x" a_x[2] " y" a_y[1] " w" w_ddl " h" h_ddl " +Choose" def_player " +gGetPlayerOptionVersion +vPlayerOptionName", %o_player%
+    Gui, PlayerForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " h" h_ddl " +Choose" def_version " +vPlayerOptionVersion +Hidden1", %o_version%
+
+    ; Update UI for PlayerOptionVersion controls/labels
+    GetPlayerOptionVersion()
 }
 
 ; ##--------------------------------##
@@ -308,26 +556,36 @@ GuiPlayer() {
 ; TopBar --> Get PlayerForm GUI
 GetPlayerForm() {
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
-    MsgBox,,, Player
+    toggleForm("ALL")                                           ; Hide all forms
+    toggleForm("Player", 1)                                     ; Show PlayerForm
+    global var_selected_form := "Player"                        ; Update Selected Form
 }
 
 ; TopBar --> Get UIColorForm GUI
 GetUIColorForm() {
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
-    MsgBox,,, UIColor
+    toggleForm("ALL")                                           ; Hide all forms
+    toggleForm("UIColor", 1)                                    ; Show UIColorForm
+    global var_selected_form := "UIColor"                       ; Update Selected Form
 }
 
 ; TopBar --> Get ElementForm GUI
 GetElementForm() {
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
-    MsgBox,,, Element
+    toggleForm("ALL")                                           ; Hide all forms
+    toggleForm("Element", 1)                                    ; Show ElementForm
+    global var_selected_form := "Element"                       ; Update Selected Form
 }
 
 ; SideBar --> Submit Form
 SubmitForm() {
+    global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
     Gui, SideBar: Submit, NoHide                                ; Get vVar values without hiding GUI
-    MsgBox,,, APPLY
+    Gui, ElementForm: Submit, NoHide                            ; Get vVar values without hiding GUI
+    Gui, UIColorForm: Submit, NoHide                            ; Get vVar values without hiding GUI
+    Gui, PlayerForm: Submit, NoHide                             ; Get vVar values without hiding GUI
+    applyForm()                                                 ; Apply Configuration, based on selected form
 }
 
 ; SideBar --> Reset All Elements
@@ -353,9 +611,150 @@ ResetUIColor() {
     resetSkin("uicolor")                                        ; Reset UIColor
 }
 
+; ElementForm --> Get Element Type (options)
+GetElementType() {
+    global                                                      ; Set global Scope inside Function
+    Gui, ElementForm: Submit, NoHide                            ; Get +vVar values without hiding GUI
+    toggleElementForm("ALL")                                    ; Hide all ElementForm options
+    toggleElementForm(ElementType, 1)                           ; Display ElementOptions, if any
+}
+
+; PlayerForm --> Get Player Versions (options)
+GetPlayerOptionVersion() {
+    global                                                      ; Set global Scope inside Function
+    Gui, PlayerForm: Submit, NoHide                             ; Get +vVar values without hiding GUI
+    togglePlayerForm("ALL")                                     ; Hide all PlayerForm options
+    togglePlayerForm(PlayerOptionName, 1)                       ; Display PlayerOptions, if any
+}
+
 ; ##------------------------------------##
 ; #|        Functions: UI Updates       |#
 ; ##------------------------------------##
+; TopBar --> Toggle Visibility of a Form -- Args: $1: Name; $2: Visible (def: 0)
+toggleForm(name, vis := 0) {
+    global                                                      ; Set global Scope inside Function
+
+    ; If Name not passed, return
+    if (name = "") {
+        return
+    }
+
+    ; Handler for "ALL" name
+    if (name = "ALL") {
+        Gui, PlayerForm: Show, Hide                             ; Hide PlayerForm
+        Gui, ElementForm: Show, Hide                            ; Hide ElementForm
+        Gui, UIColorForm: Show, Hide                            ; Hide UIColorForm
+    }
+
+    ; Update visibility
+    if (vis = 1) {                                              ; If visibility set to 1
+        Gui, %name%Form: Show                                   ; Show window
+    } else {                                                    ; Otherwise
+        Gui, %name%Form: Show, Hide                             ; Hide Window
+    }
+}
+
+; ElementForm --> Toggle Visibility of Element Options -- Args: $1: Name, $2: Visible (def: 0)
+toggleElementForm(name, vis := 0) {
+    global                                                      ; Set global Scope inside Function
+
+    ; If Name not passed, return
+    if (name = "") {
+        return
+    }
+
+    ; Define/update local vars
+    StringLower, name, name                                     ; Set %name% to lowercase
+    local visCmd := vis = 1 ? "Show" : "Hide"                   ; Set visibility command
+
+    ; Handler for "ALL" name
+    if (name = "all") {
+        GuiControl, %visCmd%, CursorElementOptionColorText
+        GuiControl, %visCmd%, CursorElementOptionTrailText
+        GuiControl, %visCmd%, CursorElementOptionSmokeText
+        GuiControl, %visCmd%, OtherElementOptionTypeText
+        GuiControl, %visCmd%, CursorElementOptionColor
+        GuiControl, %visCmd%, CursorElementOptionTrail
+        GuiControl, %visCmd%, CursorElementOptionSmoke
+        GuiControl, %visCmd%, HitburstElementOptionType
+        GuiControl, %visCmd%, ReverseArrowElementOptionType
+        GuiControl, %visCmd%, SliderballElementOptionType
+        return
+    } else if (name = "cursor") {
+        GuiControl, %visCmd%, CursorElementOptionColorText
+        GuiControl, %visCmd%, CursorElementOptionTrailText
+        GuiControl, %visCmd%, CursorElementOptionSmokeText
+        GuiControl, %visCmd%, CursorElementOptionColor
+        GuiControl, %visCmd%, CursorElementOptionTrail
+        GuiControl, %visCmd%, CursorElementOptionSmoke
+    } else if (name = "hitburst") {
+        GuiControl, %visCmd%, OtherElementOptionTypeText
+        GuiControl, %visCmd%, HitburstElementOptionType
+    } else if (name = "reverse arrow") {
+        GuiControl, %visCmd%, OtherElementOptionTypeText
+        GuiControl, %visCmd%, ReverseArrowElementOptionType
+    } else if (name = "sliderball") {
+        GuiControl, %visCmd%, OtherElementOptionTypeText
+        GuiControl, %visCmd%, SliderballElementOptionType
+    }
+}
+
+; PlayerForm --> Toggle Visibility of Version Options && update Version Options -- Args: $1: name; $2: visibility (def: 0)
+togglePlayerForm(name, vis := 0) {
+    global                                                      ; Set global Scope inside Function
+
+    ; Return if no index passed
+    if (name = "") {
+        return
+    }
+
+    ; Define local vars
+    local visCmd := vis = 1 ? "Show" : "Hide"                   ; Set visibility command
+    local optStr := ""                                          ; Set Options String
+    local sortPlayers := ""                                     ; Sorted Players
+
+    ; Handler for "ALL"
+    if (name = "ALL") {
+        GuiControl, %visCmd%, PlayerOptionVersionText           ; Hide Version Text
+        GuiControl, %visCmd%, PlayerOptionVersion               ; Hide Version DDL
+        return                                                  ; return
+    }
+
+    ; Get the list of players into a string
+    for k, v in l_players {
+        if (sortPlayers = "") {
+            sortPlayers := v.name
+        } else {
+            sortPlayers := sortPlayers "|" v.name
+        }
+    }
+
+    ; Sort the list of players alphabetically
+    Sort, sortPlayers, CL D|
+
+    ; Split string into array, and search for %name%
+    for i, j in StrSplit(sortPlayers, "|") {
+        if (j = name) {                                     ; When name is found, search for name in %l_players%, as position may have changed
+            for k, l in l_players {
+                if (name = l.name) {                        ; If name is found, set %optStr% to the listNames 
+                    optStr := StrReplace(l.listNames, ",", "|")
+                    Sort, optStr, CL D|                     ; Sort the options string
+                    break
+                }
+            }
+            break
+        }
+    }
+
+    if (optStr = "") {
+        return
+    }
+
+    GuiControl, PlayerForm:, PlayerOptionVersion, |%optStr%
+    GuiControl, PlayerForm: Choose, PlayerOptionVersion, 1
+    GuiControl, %visCmd%, PlayerOptionVersionText               ; Hide Version Text
+    GuiControl, %visCmd%, PlayerOptionVersion                   ; Hide Version DDL
+}
 
 ; ##---------------------------------------##
 ; #|        Functions: Event Handlers      |#
@@ -392,7 +791,14 @@ InitEnv() {
     GuiPlayer()
 }
 
-; 
+; Check if default game directory exists
+initCheckPath() {
+    global                                                      ; Set global Scope inside Function
+    Gui, TopBar: Submit, NoHide                                 ; Get vVar values without hiding GUI
+    if (getDirectoryName(n_skin, GameDirectory "\Skins") = "") {
+        MsgBox,, %n_app%, WARNING: Please update Game Path before continuing!
+    }
+}
 
 ; Cleanup Environment
 Cleanup() {
@@ -407,7 +813,7 @@ defineCursors() {
     global                                                      ; Set global Scope inside Function
     /*
         To define a new Cursor, follow the follow pattern:
-        c_<color> := new Cursor(name, dir, original)
+        co_<color> := new Cursor(name, dir, original)
 
         Definitions:
             name                            The Name or Color of the Cursor to be display in the GUI, eg "Cyan"
@@ -417,16 +823,16 @@ defineCursors() {
 
         See defineGuiSections() for more information
     */
-    c_cyan := new Cursor("Cyan", "CYAN", 0)
-    c_eclipse := new Cursor("Eclipse", "ECLIPSE", 0)
-    c_green := new Cursor("Green", "GREEN", 0)
-    c_hotpink := new Cursor("Hot Pink", "HOT PINK", 0)
-    c_orange := new Cursor("Orange", "ORANGE", 0)
-    c_pink := new Cursor("Pink", "PINK", 0)
-    c_purple := new Cursor("Purple", "PURPLE", 0)
-    c_red := new Cursor("Red", "RED", 0)
-    c_turquoise := new Cursor("Turquoise", "TURQUOISE", 0)
-    c_yellow := new Cursor("Yellow", "YELLOW (ORIGINAL)", 1)
+    co_cyan := new Cursor("Cyan", "CYAN", 0)
+    co_eclipse := new Cursor("Eclipse", "ECLIPSE", 0)
+    co_green := new Cursor("Green", "GREEN", 0)
+    co_hotpink := new Cursor("Hot Pink", "HOT PINK", 0)
+    co_orange := new Cursor("Orange", "ORANGE", 0)
+    co_pink := new Cursor("Pink", "PINK", 0)
+    co_purple := new Cursor("Purple", "PURPLE", 0)
+    co_red := new Cursor("Red", "RED", 0)
+    co_turquoise := new Cursor("Turquoise", "TURQUOISE", 0)
+    co_yellow := new Cursor("Yellow", "YELLOW (ORIGINAL)", 1)
 
     /*
         To make additions to this script easier to manage going forward, each Skin customization
@@ -436,25 +842,25 @@ defineCursors() {
 
         To ensure proper implementation of additions, simply add the item to the approporate list:
 
-        Cursors         -->         l_cursors.push(c_<name>)
-        Hitbursts       -->         l_hitbursts.push(h_<name>)
-        ReverseArrows   -->         l_reversearrows.push(r_<name>)
-        Sliderballs     -->         l_sliderballs.push(s_<name>)
-        UIColors        -->         l_uicolors.push(u_<name>)
-        Players         -->         l_players.push(p_<name>)
+        Cursors         -->         l_cursors.push(co_<name>)
+        Hitbursts       -->         l_hitbursts.push(ho_<name>)
+        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
+        Sliderballs     -->         l_sliderballs.push(so_<name>)
+        UIColors        -->         l_uicolors.push(uo_<name>)
+        Players         -->         l_players.push(po_<name>)
     */
 
     ; Add Cursors to List of Cursor Objects
-    l_cursors.push(c_cyan)
-    l_cursors.push(c_eclipse)
-    l_cursors.push(c_green)
-    l_cursors.push(c_hotpink)
-    l_cursors.push(c_orange)
-    l_cursors.push(c_pink)
-    l_cursors.push(c_purple)
-    l_cursors.push(c_red)
-    l_cursors.push(c_turquoise)
-    l_cursors.push(c_yellow)
+    l_cursors.push(co_cyan)
+    l_cursors.push(co_eclipse)
+    l_cursors.push(co_green)
+    l_cursors.push(co_hotpink)
+    l_cursors.push(co_orange)
+    l_cursors.push(co_pink)
+    l_cursors.push(co_purple)
+    l_cursors.push(co_red)
+    l_cursors.push(co_turquoise)
+    l_cursors.push(co_yellow)
 }
 
 ; Define Hitburst Objects
@@ -462,13 +868,13 @@ defineHitbursts() {
     global                                                      ; Set global Scope inside Function
     /*
         To define a new Hitburst, follow the following pattern:
-        h_<type> := new Hitburst(name, dir, original)
+        ho_<type> := new Hitburst(name, dir, original)
 
         See defineCursors() & defineGuiSections() for more information
     */
-    h_numbers := new Hitburst("Numbers", "NUMBERS", 0)
-    h_smallbars := new Hitburst("Small Bars", "SMALLER BARS", 0)
-    h_bars := new Hitburst("Bars", "BARS", 1)
+    ho_numbers := new Hitburst("Numbers", "NUMBERS", 0)
+    ho_smallbars := new Hitburst("Small Bars", "SMALLER BARS", 0)
+    ho_bars := new Hitburst("Bars", "BARS", 1)
 
     /*
         To make additions to this script easier to manage going forward, each Skin customization
@@ -478,18 +884,18 @@ defineHitbursts() {
 
         To ensure proper implementation of additions, simply add the item to the approporate list:
 
-        Cursors         -->         l_cursors.push(c_<name>)
-        Hitbursts       -->         l_hitbursts.push(h_<name>)
-        ReverseArrows   -->         l_reversearrows.push(r_<name>)
-        Sliderballs     -->         l_sliderballs.push(s_<name>)
-        UIColors        -->         l_uicolors.push(u_<name>)
-        Players         -->         l_players.push(p_<name>)
+        Cursors         -->         l_cursors.push(co_<name>)
+        Hitbursts       -->         l_hitbursts.push(ho_<name>)
+        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
+        Sliderballs     -->         l_sliderballs.push(so_<name>)
+        UIColors        -->         l_uicolors.push(uo_<name>)
+        Players         -->         l_players.push(po_<name>)
     */
 
     ; Add Hitbursts to list of Hitburst Objects
-    l_hitbursts.push(h_numbers)
-    l_hitbursts.push(h_smallbars)
-    l_hitbursts.push(h_bars)
+    l_hitbursts.push(ho_numbers)
+    l_hitbursts.push(ho_smallbars)
+    l_hitbursts.push(ho_bars)
 }
 
 ; Define ReverseArrow Objects
@@ -497,13 +903,13 @@ defineReverseArrows() {
     global                                                      ; Set global Scope inside Function
     /*
         To define a new ReverseArrow, follow the following pattern:
-        r_<type> := new ReverseArrow(name, dir, original)
+        ro_<type> := new ReverseArrow(name, dir, original)
 
         See defineCursors() & defineGuiSections() for more information
     */
-    r_arrow := new ReverseArrow("Arrow", "ARROW", 0)
-    r_half := new ReverseArrow("Half", "HALF", 0)
-    r_bar := new ReverseArrow("Bar", "BAR", 1)
+    ro_arrow := new ReverseArrow("Arrow", "ARROW", 0)
+    ro_half := new ReverseArrow("Half", "HALF", 0)
+    ro_bar := new ReverseArrow("Bar", "BAR", 1)
 
     /*
         To make additions to this script easier to manage going forward, each Skin customization
@@ -513,18 +919,18 @@ defineReverseArrows() {
 
         To ensure proper implementation of additions, simply add the item to the approporate list:
 
-        Cursors         -->         l_cursors.push(c_<name>)
-        Hitbursts       -->         l_hitbursts.push(h_<name>)
-        ReverseArrows   -->         l_reversearrows.push(r_<name>)
-        Sliderballs     -->         l_sliderballs.push(s_<name>)
-        UIColors        -->         l_uicolors.push(u_<name>)
-        Players         -->         l_players.push(p_<name>)
+        Cursors         -->         l_cursors.push(co_<name>)
+        Hitbursts       -->         l_hitbursts.push(ho_<name>)
+        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
+        Sliderballs     -->         l_sliderballs.push(so_<name>)
+        UIColors        -->         l_uicolors.push(uo_<name>)
+        Players         -->         l_players.push(po_<name>)
     */
 
     ; Add ReverseArrows to list of ReverseArrow Objects
-    l_reversearrows.push(r_arrow)
-    l_reversearrows.push(r_half)
-    l_reversearrows.push(r_bar)
+    l_reversearrows.push(ro_arrow)
+    l_reversearrows.push(ro_half)
+    l_reversearrows.push(ro_bar)
 }
 
 ; Define Sliderball Objects
@@ -532,13 +938,13 @@ defineSliderballs() {
     global                                                      ; Set global Scope inside Function
     /*
         To define a new Sliderball, follow the following pattern:
-        h_<type> := new Sliderball(name, dir, original)
+        ho_<type> := new Sliderball(name, dir, original)
 
         See defineCursors() & defineGuiSections() for more information
     */
-    s_single := new Sliderball("Single", "SINGLE", 0)
-    s_double := new Sliderball("Double", "DOUBLE", 0)
-    s_default := new Sliderball("Default", "DEFAULT", 1)
+    so_single := new Sliderball("Single", "SINGLE", 0)
+    so_double := new Sliderball("Double", "DOUBLE", 0)
+    so_default := new Sliderball("Default", "DEFAULT", 1)
 
     /*
         To make additions to this script easier to manage going forward, each Skin customization
@@ -548,18 +954,18 @@ defineSliderballs() {
 
         To ensure proper implementation of additions, simply add the item to the approporate list:
 
-        Cursors         -->         l_cursors.push(c_<name>)
-        Hitbursts       -->         l_hitbursts.push(h_<name>)
-        ReverseArrows   -->         l_reversearrows.push(r_<name>)
-        Sliderballs     -->         l_sliderballs.push(s_<name>)
-        UIColors        -->         l_uicolors.push(u_<name>)
-        Players         -->         l_players.push(p_<name>)
+        Cursors         -->         l_cursors.push(co_<name>)
+        Hitbursts       -->         l_hitbursts.push(ho_<name>)
+        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
+        Sliderballs     -->         l_sliderballs.push(so_<name>)
+        UIColors        -->         l_uicolors.push(uo_<name>)
+        Players         -->         l_players.push(po_<name>)
     */
 
     ; Add Sliderballs to list of Sliderball Objects
-    l_sliderballs.push(s_single)
-    l_sliderballs.push(s_double)
-    l_sliderballs.push(s_default)
+    l_sliderballs.push(so_single)
+    l_sliderballs.push(so_double)
+    l_sliderballs.push(so_default)
 }
 
 ; Define UIColor Objects
@@ -567,19 +973,19 @@ defineUIColors() {
     global                                                      ; Set global Scope inside Function
     /*
         To define a new UIColor, follow the following pattern:
-        h_<type> := new UIColor(name, dir, original)
+        ho_<type> := new UIColor(name, dir, original)
 
         See defineCursors() & defineGuiSections() for more information
     */
-    u_cyan := new UIColor("Cyan", "CYAN", 0)
-    u_darkgray := new UIColor("Dark Gray", "DARK GRAY", 0)
-    u_evergreen := new UIColor("Evergreen", "EVERGREEN", 0)
-    u_hotpink := new UIColor("Hot Pink", "HOT PINK", 0)
-    u_lightgray := new UIColor("Light Gray", "LIGHT GRAY", 0)
-    u_orange := new UIColor("Orange", "ORANGE", 0)
-    u_red := new UIColor("Red", "RED", 0)
-    u_yellow := new UIColor("Yellow", "YELLOW", 0)
-    u_blue := new UIColor("Blue", "BLUE", 1)
+    uo_cyan := new UIColor("Cyan", "CYAN", 0)
+    uo_darkgray := new UIColor("Dark Gray", "DARK GRAY", 0)
+    uo_evergreen := new UIColor("Evergreen", "EVERGREEN", 0)
+    uo_hotpink := new UIColor("Hot Pink", "HOT PINK", 0)
+    uo_lightgray := new UIColor("Light Gray", "LIGHT GRAY", 0)
+    uo_orange := new UIColor("Orange", "ORANGE", 0)
+    uo_red := new UIColor("Red", "RED", 0)
+    uo_yellow := new UIColor("Yellow", "YELLOW", 0)
+    uo_blue := new UIColor("Blue", "BLUE", 1)
 
     /*
         To make additions to this script easier to manage going forward, each Skin customization
@@ -589,24 +995,24 @@ defineUIColors() {
 
         To ensure proper implementation of additions, simply add the item to the approporate list:
 
-        Cursors         -->         l_cursors.push(c_<name>)
-        Hitbursts       -->         l_hitbursts.push(h_<name>)
-        ReverseArrows   -->         l_reversearrows.push(r_<name>)
-        Sliderballs     -->         l_sliderballs.push(s_<name>)
-        UIColors        -->         l_uicolors.push(u_<name>)
-        Players         -->         l_players.push(p_<name>)
+        Cursors         -->         l_cursors.push(co_<name>)
+        Hitbursts       -->         l_hitbursts.push(ho_<name>)
+        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
+        Sliderballs     -->         l_sliderballs.push(so_<name>)
+        UIColors        -->         l_uicolors.push(uo_<name>)
+        Players         -->         l_players.push(po_<name>)
     */
 
     ; Ad UIColors to list of UIColor Objects
-    l_uicolors.push(u_cyan)
-    l_uicolors.push(u_darkgray)
-    l_uicolors.push(u_evergreen)
-    l_uicolors.push(u_hotpink)
-    l_uicolors.push(u_lightgray)
-    l_uicolors.push(u_orange)
-    l_uicolors.push(u_red)
-    l_uicolors.push(u_yellow)
-    l_uicolors.push(u_blue)
+    l_uicolors.push(uo_cyan)
+    l_uicolors.push(uo_darkgray)
+    l_uicolors.push(uo_evergreen)
+    l_uicolors.push(uo_hotpink)
+    l_uicolors.push(uo_lightgray)
+    l_uicolors.push(uo_orange)
+    l_uicolors.push(uo_red)
+    l_uicolors.push(uo_yellow)
+    l_uicolors.push(uo_blue)
 }
 
 ; Define Player Objects
@@ -614,55 +1020,55 @@ definePlayers() {
     global                                                      ; Set global Scope inside Function
     /*
         To define a new player with no additional options:
-            p_<name> := new Player(name, dir)
+            po_<name> := new PlayerOptions(name, dir)
 
         To define a new player with additional options:
-            p_<name> := new PlayerOptions(name, dir)
+            po_<name> := new PlayerOptions(name, dir)
 
         See defineCursors() & defineGuiSections() for more information
 
         See below on how to add additional options to PlayerOptions objects
     */
-    p_404aimnotfound := new Player("404AimNotFound", "404ANF")
-    p_abyssal := new PlayerOptions("Abyssal", "ABYSSAL")
-    p_angelsim := new Player("Angelsim", "ANGELSIM")
-    p_axarious := new PlayerOptions("Axarious", "AXARIOUS")
-    p_azer := new PlayerOptions("Azer", "AZER X2")
-    p_azr8 := new PlayerOptions("azr8 + GayzMcGee", "AZR8 + MCGEE")
-    p_badeu := new Player("Badeu", "BADEU")
-    p_breastrollmc := new PlayerOptions("BeastrollMC", "BEASTROLLMC X5")
-    p_bikko := new PlayerOptions("Bikko", "BIKKO")
-    p_bubbleman := new Player("Bubbleman", "BUBBLEMAN")
-    p_comfort := new PlayerOptions("Comfort", "COMFORT")
-    p_cookiezi := new PlayerOptions("Cookiezi", "COOKIEZI X5")
-    p_doomsday := new Player("Doomsday", "DOOMSDAY")
-    p_dustice := new PlayerOptions("Dustice", "DUSTICE")
-    p_emilia := new Player("Emilia", "EMILIA")
-    p_flyingtuna := new Player("FlyingTuna", "FLYINGTUNA")
-    p_freddiebenson := new Player("Freddie Benson", "FREDDIE BENSON")
-    p_funorange := new Player("FunOrange", "FUNORANGE")
-    p_gn := new Player("-GN", "GN")
-    p_hvick225 := new Player("Hvick225", "HVICK225")
-    p_idke := new PlayerOptions("Idke", "IDKE")
-    p_informous := new Player("Informous", "INFORMOUS")
-    p_karthy := new Player("Karthy", "KARTHY")
-    p_mathi := new PlayerOptions("Mathi", "MATHI")
-    p_monko2k := new Player("Monko2k", "MONKO2K")
-    p_rafis := new PlayerOptions("Rafis", "RAFIS X2")
-    p_rohulk := new PlayerOptions("Rohulk", "ROHULK")
-    p_rrtyui := new Player("rrtyui", "RRTYUI")
-    p_rustbell := new PlayerOptions("Rustbell", "RUSTBELL")
-    p_ryuk := new Player("RyuK", "RYUK")
-    p_seysant := new Player("Seysant", "SEYSANT")
-    p_sotarks := new Player("Sotarks", "SOTARKS")
-    p_sweden := new Player("Sweden", "SWEDEN")
-    p_talala := new PlayerOptions("Talala", "TALALA")
-    p_toy := new Player("Toy", "TOY")
-    p_tranquility := new Player("Tranquil-ity", "TRANQUIL-ITY")
-    p_varvalian := new Player("Varvalian", "VARVALIAN")
-    p_vaxei := new PlayerOptions("Vaxei", "VAXEI")
-    p_wubwoofwolf := new Player("WubWoofWolf", "WWW")
-    p_xilver := new PlayerOptions("Xilver X Recia", "XILVER X RECIA")
+    po_404aimnotfound := new PlayerOptions("404AimNotFound", "404ANF")
+    po_abyssal := new PlayerOptions("Abyssal", "ABYSSAL")
+    po_angelsim := new PlayerOptions("Angelsim", "ANGELSIM")
+    po_axarious := new PlayerOptions("Axarious", "AXARIOUS")
+    po_azer := new PlayerOptions("Azer", "AZER X2")
+    po_azr8 := new PlayerOptions("azr8 + GayzMcGee", "AZR8 + MCGEE")
+    po_badeu := new PlayerOptions("Badeu", "BADEU")
+    po_breastrollmc := new PlayerOptions("BeastrollMC", "BEASTROLLMC X5")
+    po_bikko := new PlayerOptions("Bikko", "BIKKO")
+    po_bubbleman := new PlayerOptions("Bubbleman", "BUBBLEMAN")
+    po_comfort := new PlayerOptions("Comfort", "COMFORT")
+    po_cookiezi := new PlayerOptions("Cookiezi", "COOKIEZI X5")
+    po_doomsday := new PlayerOptions("Doomsday", "DOOMSDAY")
+    po_dustice := new PlayerOptions("Dustice", "DUSTICE")
+    po_emilia := new PlayerOptions("Emilia", "EMILIA")
+    po_flyingtuna := new PlayerOptions("FlyingTuna", "FLYINGTUNA")
+    po_freddiebenson := new PlayerOptions("Freddie Benson", "FREDDIE BENSON")
+    po_funorange := new PlayerOptions("FunOrange", "FUNORANGE")
+    po_gn := new PlayerOptions("-GN", "GN")
+    po_hvick225 := new PlayerOptions("Hvick225", "HVICK225")
+    po_idke := new PlayerOptions("Idke", "IDKE")
+    po_informous := new PlayerOptions("Informous", "INFORMOUS")
+    po_karthy := new PlayerOptions("Karthy", "KARTHY")
+    po_mathi := new PlayerOptions("Mathi", "MATHI")
+    po_monko2k := new PlayerOptions("Monko2k", "MONKO2K")
+    po_rafis := new PlayerOptions("Rafis", "RAFIS X2")
+    po_rohulk := new PlayerOptions("Rohulk", "ROHULK")
+    po_rrtyui := new PlayerOptions("rrtyui", "RRTYUI")
+    po_rustbell := new PlayerOptions("Rustbell", "RUSTBELL")
+    po_ryuk := new PlayerOptions("RyuK", "RYUK")
+    po_seysant := new PlayerOptions("Seysant", "SEYSANT")
+    po_sotarks := new PlayerOptions("Sotarks", "SOTARKS")
+    po_sweden := new PlayerOptions("Sweden", "SWEDEN")
+    po_talala := new PlayerOptions("Talala", "TALALA")
+    po_toy := new PlayerOptions("Toy", "TOY")
+    po_tranquility := new PlayerOptions("Tranquil-ity", "TRANQUIL-ITY")
+    po_varvalian := new PlayerOptions("Varvalian", "VARVALIAN")
+    po_vaxei := new PlayerOptions("Vaxei", "VAXEI")
+    po_wubwoofwolf := new PlayerOptions("WubWoofWolf", "WWW")
+    po_xilver := new PlayerOptions("Xilver X Recia", "XILVER X RECIA")
 
     /*
         To add additional options to a player:
@@ -695,67 +1101,67 @@ definePlayers() {
                 for application
     */
     ; Add Mandatory Options to PlayerOptions Objects
-    p_azer.add("2017", "2017")
-    p_azer.add("2018", "2018")
-    p_azer.require := 1
+    po_azer.add("2017", "2017")
+    po_azer.add("2018", "2018")
+    po_azer.require := 1
 
-    p_beastrollmc.add("v1.3", "V1.3")
-    p_beastrollmc.add("v3", "V3")
-    p_beastrollmc.add("v4", "V4")
-    p_beastrollmc.add("v5", "V5")
-    p_beastrollmc.add("v6", "V6")
-    p_beastrollmc.require := 1
+    po_beastrollmc.add("v1.3", "V1.3")
+    po_beastrollmc.add("v3", "V3")
+    po_beastrollmc.add("v4", "V4")
+    po_beastrollmc.add("v5", "V5")
+    po_beastrollmc.add("v6", "V6")
+    po_beastrollmc.require := 1
 
-    p_cookiezi.add("Burakku Shippu", "BURRAKU SHIPU")
-    p_cookiezi.add("nathan on osu", "NATHAN ON OSU")
-    p_cookiezi.add("Panimi", "PANIMI")
-    p_cookiezi.add("Seoul", "SEOUL")
-    p_cookiezi.add("Shigetora", "SHIGETORA")
-    p_cookiezi.require := 1
+    po_cookiezi.add("Burakku Shippu", "BURRAKU SHIPU")
+    po_cookiezi.add("nathan on osu", "NATHAN ON OSU")
+    po_cookiezi.add("Panimi", "PANIMI")
+    po_cookiezi.add("Seoul", "SEOUL")
+    po_cookiezi.add("Shigetora", "SHIGETORA")
+    po_cookiezi.require := 1
 
-    p_rafis.add("Blue", "BLUE")
-    p_rafis.add("White", "WHITE")
-    p_rafis.require := 1
+    po_rafis.add("Blue", "BLUE")
+    po_rafis.add("White", "WHITE")
+    po_rafis.require := 1
 
     ; Add Optional Options to PlayerOptions Objects
-    p_abyssal.add("Purple & Pink Combo", ".")
-    p_abyssal.add("Blue & Red Combo", "BLUE+RED COMBO VER")
+    po_abyssal.add("Purple & Pink Combo", ".")
+    po_abyssal.add("Blue & Red Combo", "BLUE+RED COMBO VER")
 
-    p_axarious.add("Without Slider Ends", ".")
-    p_axarious.add("With Slider Ends", "+SLIDERENDS")
+    po_axarious.add("Without Slider Ends", ".")
+    po_axarious.add("With Slider Ends", "+SLIDERENDS")
 
-    p_azr8.add("Red & Orange Slider Head", ".")
-    p_azr8.add("Blue & Cyan Slider Head", "SPLOOSH SLIDER")
+    po_azr8.add("Red & Orange Slider Head", ".")
+    po_azr8.add("Blue & Cyan Slider Head", "SPLOOSH SLIDER")
 
-    p_bikko.add("Without Slider Ends", ".")
-    p_bikko.add("With Slider Ends", "+SLIDERENDS")
+    po_bikko.add("Without Slider Ends", ".")
+    po_bikko.add("With Slider Ends", "+SLIDERENDS")
 
-    p_comfort.add("Standard", ".")
-    p_comfort.add("Nautz Version", "NAUTZ VERSION")
+    po_comfort.add("Standard", ".")
+    po_comfort.add("Nautz Version", "NAUTZ VERSION")
 
-    p_dustice.add("Outer Circle", ".")
-    p_dustice.add("No Outer Circle", "NO OUTER CIRCLE")
+    po_dustice.add("Outer Circle", ".")
+    po_dustice.add("No Outer Circle", "NO OUTER CIRCLE")
 
-    p_idke.add("Without Slider Ends", ".")
-    p_idke.add("With Slider Ends", "+SLIDERENDS")
+    po_idke.add("Without Slider Ends", ".")
+    po_idke.add("With Slider Ends", "+SLIDERENDS")
 
-    p_mathi.add("Flat Hitcircle", ".")
-    p_mathi.add("Shaded Hitcircle", "SHADERED HITCIRCLE")
+    po_mathi.add("Flat Hitcircle", ".")
+    po_mathi.add("Shaded Hitcircle", "SHADERED HITCIRCLE")
 
-    p_rohulk.add("Flat Approach Circle", ".")
-    p_rohulk.add("Gamma Approach Circle", "GAMMA ACIRCLE")
+    po_rohulk.add("Flat Approach Circle", ".")
+    po_rohulk.add("Gamma Approach Circle", "GAMMA ACIRCLE")
 
-    p_rustbell.add("Without 300 Explosions", ".")
-    p_rustbell.add("With 300 Explosions", "HIT300 EXPLOSIONS")
+    po_rustbell.add("Without 300 Explosions", ".")
+    po_rustbell.add("With 300 Explosions", "HIT300 EXPLOSIONS")
 
-    p_talala.add("White Numbers", ".")
-    p_talala.add("Cyan Numbers", "CYAN NUMBERS")
+    po_talala.add("White Numbers", ".")
+    po_talala.add("Cyan Numbers", "CYAN NUMBERS")
 
-    p_vaxei.add("Blue Slider Border", ".")
-    p_vaxei.add("Red Slider Border", "RED SLIDERBORDER")
+    po_vaxei.add("Blue Slider Border", ".")
+    po_vaxei.add("Red Slider Border", "RED SLIDERBORDER")
 
-    p_xilver.add("Orange & Dots", ".")
-    p_xilver.add("Blue & Plus", "XILVER X SPLOOSH")
+    po_xilver.add("Orange & Dots", ".")
+    po_xilver.add("Blue & Plus", "XILVER X SPLOOSH")
 
     /*
         To make additions to this script easier to manage going forward, each Skin customization
@@ -774,46 +1180,46 @@ definePlayers() {
     */
 
     ; Add Players to list of Player Objects
-    l_players.push(p_404aimnotfound)
-    l_players.push(p_abyssal)
-    l_players.push(p_angelsim)
-    l_players.push(p_axarious)
-    l_players.push(p_azer)
-    l_players.push(p_azr8)
-    l_players.push(p_badeu)
-    l_players.push(p_breastrollmc)
-    l_players.push(p_bikko)
-    l_players.push(p_bubbleman)
-    l_players.push(p_comfort)
-    l_players.push(p_cookiezi)
-    l_players.push(p_doomsday)
-    l_players.push(p_dustice)
-    l_players.push(p_emilia)
-    l_players.push(p_flyingtuna)
-    l_players.push(p_freddiebenson)
-    l_players.push(p_funorange)
-    l_players.push(p_gn)
-    l_players.push(p_hvick225)
-    l_players.push(p_idke)
-    l_players.push(p_informous)
-    l_players.push(p_karthy)
-    l_players.push(p_mathi)
-    l_players.push(p_monko2k)
-    l_players.push(p_rafis)
-    l_players.push(p_rohulk)
-    l_players.push(p_rrtyui)
-    l_players.push(p_rustbell)
-    l_players.push(p_ryuk)
-    l_players.push(p_seysant)
-    l_players.push(p_sotarks)
-    l_players.push(p_sweden)
-    l_players.push(p_talala)
-    l_players.push(p_toy)
-    l_players.push(p_tranquility)
-    l_players.push(p_varvalian)
-    l_players.push(p_vaxei)
-    l_players.push(p_wubwoofwolf)
-    l_players.push(p_xilver)
+    l_players.push(po_404aimnotfound)
+    l_players.push(po_abyssal)
+    l_players.push(po_angelsim)
+    l_players.push(po_axarious)
+    l_players.push(po_azer)
+    l_players.push(po_azr8)
+    l_players.push(po_badeu)
+    l_players.push(po_breastrollmc)
+    l_players.push(po_bikko)
+    l_players.push(po_bubbleman)
+    l_players.push(po_comfort)
+    l_players.push(po_cookiezi)
+    l_players.push(po_doomsday)
+    l_players.push(po_dustice)
+    l_players.push(po_emilia)
+    l_players.push(po_flyingtuna)
+    l_players.push(po_freddiebenson)
+    l_players.push(po_funorange)
+    l_players.push(po_gn)
+    l_players.push(po_hvick225)
+    l_players.push(po_idke)
+    l_players.push(po_informous)
+    l_players.push(po_karthy)
+    l_players.push(po_mathi)
+    l_players.push(po_monko2k)
+    l_players.push(po_rafis)
+    l_players.push(po_rohulk)
+    l_players.push(po_rrtyui)
+    l_players.push(po_rustbell)
+    l_players.push(po_ryuk)
+    l_players.push(po_seysant)
+    l_players.push(po_sotarks)
+    l_players.push(po_sweden)
+    l_players.push(po_talala)
+    l_players.push(po_toy)
+    l_players.push(po_tranquility)
+    l_players.push(po_varvalian)
+    l_players.push(po_vaxei)
+    l_players.push(po_wubwoofwolf)
+    l_players.push(po_xilver)
 }
 
 ; Browse for a Directory
@@ -822,7 +1228,9 @@ BrowseDirectory(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
 
     ; Provide a Directory/Tree Browser
     try {
+        Gui, TopBar: +OwnDialogs                                ; Make Dialog Modal
         FileSelectFolder, d_select, %d_game%, 0, Select Game Folder
+        Gui, TopBar: -OwnDialogs                                ; Disable Modal Dialogs
     } catch e {
         MsgBox,,, An Exception was thrown!`nSpecifically: %e%
         return
@@ -873,7 +1281,7 @@ resetSkin(type := "") {
 
     ; Handle skin not found
     if (skin = "") {
-        MsgBox,,RESET ERROR, Cannot locate skin in `"%src%`"    s; Notify user of error
+        MsgBox,,RESET ERROR, Cannot locate skin in `"%src%`"    ; Notify user of error
         return 1                                                ; return
     }
 
@@ -885,6 +1293,7 @@ resetSkin(type := "") {
     StringLower,type,type                                       ; Set all characters in type to lowercase
     if (type = "gameplay") {                                    ; If type is gameplay
         FileCopy, %src%\%d_reset_gameplay%\*.*, %dst%, 1        ; Copy reset-gameplay elements to dst
+        FileDelete, %dst%\cursormiddle@2x.png                   ; Delete CursorMiddle
     } else if (type = "uicolor") {                              ; If type is uicolor
         FileCopy, %src%\%d_reset_uicolor%\*.*, %dst%, 1         ; Copy reset-uicolor elements to dst
     } else {
@@ -892,6 +1301,241 @@ resetSkin(type := "") {
         return 1
     }
     return 0
+}
+
+; Apply Form Configuration --> Args: $1: Form Name
+applyForm() {
+    global                                                      ; Set global Scope inside Function
+
+    ; Define local variables
+    local src := GamePath "\Skins"                              ; Source Directory
+    local dst := GamePath "\Skins"                              ; Destination Directory
+    local skin := getDirectoryName(n_skin, src)                 ; Skin Name
+    local form := var_selected_form
+    StringLower, form, form                                     ; Convert %form% to all lowercase
+
+    ; Handle skin not found
+    if (skin = "") {
+        Gui, SideBar: +OwnDialogs                               ; Make Dialogs Modal
+        MsgBox,,APPLY ERROR, Cannot locate skin in `"%src%`"    ; Notify user of error
+        Gui, SideBar: +OwnDialogs                               ; Disable Modal Dialogs
+        return 1                                                ; Return
+    }
+
+    ; Update local vars
+    src := src "\" skin "\" d_conf                              ; Update source
+    dst := dst "\" skin                                         ; Update destination
+
+    if (form = "element") {
+        local etype := ElementType                              ; Define %etype% as current ElementType
+        StringLower, etype, etype                               ; Convert %etype% to all lowercase
+        if (etype = "cursor") {
+            local d_opt1 := ""                                  ; Directory of Option1
+            local d_opt2 := ""                                  ; Directory of Option2
+            local d_opt3 := ""                                  ; Directory of Option3
+            
+            ; Get Directories for Options
+            for i, j in l_cursors {
+                if (j.name = CursorElementOptionColor) {
+                    d_opt1 := j.elementsDir "\" j.cursorsDir "\" j.dir
+                }
+                if (j.name = CursorElementOptionTrail) {
+                    d_opt2 := j.elementsDir "\" j.cursorsDir "\" j.dir
+                }
+                if (j.name = CursorElementOptionSmoke) {
+                    d_opt3 := j.elementsDir "\" j.cursorsDir "\" j.dir
+                }
+            }
+            
+            ; If %d_opt2% is still blank
+            if (d_opt2 = "") {
+                if (CursorElementOptionTrail = "None") {        ; If "None" is selected
+                    d_opt2 := d_opt1 "\..\" d_cursor_notrail    ; Set path to one directory higher than opt1, followed by d_cursor_notrail
+                }
+            }
+
+            ; Verify Paths Exist
+            if (FileExist(src "\" d_opt1) = "") {
+                Gui, SideBar: +OwnDialogs                       ; Make Dialogs Modal
+                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                Gui, SideBar: +OwnDialogs                       ; Disable Modal Dialogs
+                return
+            }
+            if (FileExist(src "\" d_opt2) = "") {
+                Gui, SideBar: +OwnDialogs                       ; Make Dialogs Modal
+                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt2%
+                Gui, SideBar: +OwnDialogs                       ; Disable Modal Dialogs
+                return
+            }
+            if (FileExist(src "\" d_opt3) = "") {
+                Gui, SideBar: +OwnDialogs                       ; Make Dialogs Modal
+                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt3%
+                Gui, SideBar: +OwnDialogs                       ; Disable Modal Dialogs
+                return
+            }
+            
+            ; Copy Base Cursor Files to Destination
+            FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
+
+            ; If ColorDir & TrailDir differ
+            if (d_opt1 <> d_opt2) {
+                ; Copy Trail to Destination
+                FileCopy, %src%\%d_opt2%\cursortrail@2x.png, %dst%, 1
+            }
+
+            ; If ColorDir & SmokeDir differ
+            if (d_opt1 <> d_opt2) {
+                ; Copy Smoke to Destination
+                FileCopy, %src%\%d_opt3%\cursor-smoke@2x.png, %dst%, 1
+            }
+        } else if (etype = "hitburst") {
+            local d_opt1 := ""                                  ; Directory of Option 1
+
+            ; Get Directories for Options
+            for i, j in l_hitbursts {
+                if (j.name = HitburstElementOptionType) {
+                    d_opt1 := j.elementsDir "\" j.hitburstsDir "\" j.dir
+                }
+            }
+
+            ; Verify Paths Exist
+            if (FileExist(src "\" d_opt1) = "") {
+                Gui, SideBar: +OwnDialogs                       ; Make Dialogs Modal
+                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                Gui, SideBar: +OwnDialogs                       ; Disable Modal Dialogs
+                return
+            }
+
+            ; Copy Base Hitburst to Destination
+            FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
+        } else if (etype = "reverse arrow") {
+            local d_opt1 := ""                                  ; Directory of Option 1
+
+            ; Get Directories for Options
+            for i, j in l_reversearrows {
+                if (j.name = ReverseArrowElementOptionType) {
+                    d_opt1 := j.elementsDir "\" j.reverseArrowDir "\" j.dir
+                }
+            }
+
+            ; Verify Paths Exist
+            if (FileExist(src "\" d_opt1) = "") {
+                Gui, SideBar: +OwnDialogs                       ; Make Dialogs Modal
+                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                Gui, SideBar: +OwnDialogs                       ; Disable Modal Dialogs
+                return
+            }
+
+            ; Copy Base Hitburst to Destination
+            FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
+        } else if (etype = "sliderball") {
+            local d_opt1 := ""                                  ; Directory of Option 1
+
+            ; Get Directories for Options
+            for i, j in l_sliderballs {
+                if (j.name = SliderballElementOptionType) {
+                    d_opt1 := j.elementsDir "\" j.sliderballDir "\" j.dir
+                }
+            }
+
+            ; Verify Paths Exist
+            if (FileExist(src "\" d_opt1) = "") {
+                Gui, SideBar: +OwnDialogs                       ; Make Dialogs Modal
+                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                Gui, SideBar: +OwnDialogs                       ; Disable Modal Dialogs
+                return
+            }
+
+            ; Copy Base Hitburst to Destination
+            FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
+        }
+    } else if (form = "uicolor") {
+        local d_opt1 := ""                                      ; Directory of Option 1
+        local d_opt2 := d_uicolor_instafade                     ; Directory of Option 2
+
+        ; Get Directories for Options
+        for i, j in l_uicolors {
+            if (j.name = UIColorOptionColor) {
+                d_opt1 := j.uiColorDir "\" j.dir
+            }
+        }
+
+        ; Verify Paths Exist
+        if (FileExist(src "\" d_opt1) = "") {
+            Gui, SideBar: +OwnDialogs                           ; Make Dialogs Modal
+            MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+            Gui, SideBar: +OwnDialogs                           ; Disable Modal Dialogs
+            return
+        }
+
+        ; Copy Base UIColor to Destination
+        FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
+
+        ; If Instafade Enabled
+        if (vUIColorOptionInstafade = 1) {
+            FileCopy, %src%\%d_opt1%\%d_opt2%\skin.ini, %dst%, 1
+            }
+    } else if (form = "player") {
+        local d_opt1 := ""                                      ; Directory of Option 1
+        local d_opt2 := ""                                      ; Directory of Option 2
+        local b_opt2 := ""                                      ; Boolean of Option 2 (required)
+
+        ; Get Directories for Options
+        for i, j in l_players {
+            if (j.name = PlayerOptionName) {
+                d_opt1 := j.playersDir "\" j.dir
+                if (j.listNames <> "") {
+                    for k, l in j.getArray("listNames") {
+                        if (l = PlayerOptionVersion) {
+                            local arr := j.getArray("listDirs")
+                            if (arr[k] = ".") {
+                                d_opt2 := d_opt1
+                            } else {
+                                d_opt2 := d_opt1 "\" arr[k]
+                            }
+                        }
+                    }
+                    b_opt2 := j.require
+                }
+            }
+        }
+
+        ; Verify Paths Exist
+        if (FileExist(src "\" d_opt1) = "") {
+            Gui, SideBar: +OwnDialogs                           ; Make Dialogs Modal
+            MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+            Gui, SideBar: +OwnDialogs                           ; Disable Modal Dialogs
+            return
+        }
+        if (d_opt2 <> "" && FileExist(src "\" d_opt2) = "") {
+            Gui, SideBar: +OwnDialogs                           ; Make Dialogs Modal
+            MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt2%
+            Gui, SideBar: +OwnDialogs                           ; Disable Modal Dialogs
+            return
+        }
+
+        ; Reset Gameplay Elements, to prevent unintended mixing
+        resetSkin("gameplay")
+
+        ; If option is defined && required
+        if (d_opt2 <> "") {
+            if (b_opt2 = 0) {
+                FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
+            }
+            FileCopy, %src%\%d_opt2%\*.*, %dst%, 1
+        } else {
+            FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
+        }
+
+        ; Remove Files if necessary
+        if (PlayerOptionName = "Bikko") {
+            FileDelete, %dst%\cursormiddle@2x.png
+        } else if (PlayerOptionName = "Cookiezi") {
+            if (PlayerOptionVersion = "Shigetora") {
+                FileDelete, %dst%\cursormiddle@2x.png
+            }
+        }
+    }
 }
 
 ; ##----------------------------##
@@ -915,7 +1559,7 @@ Class Element {
         ; Check contents of o, and apply where applicable
         if (o is integer) {
             if (o >= 0 && o <= 1) {
-                this.original := 0
+                this.original := o
             }
         }
     }
@@ -935,7 +1579,7 @@ Class Element {
 }
 
 ; ##------------------------------------##
-; #|        Class: ElementForm: Cursor      |#
+; #|        Class: Element: Cursor      |#
 ; ##------------------------------------##
 Class Cursor Extends Element {
     ; Instance Variables
@@ -954,7 +1598,7 @@ Class Cursor Extends Element {
 }
 
 ; ##--------------------------------------##
-; #|        Class: ElementForm: Hitburst      |#
+; #|        Class: Element: Hitburst      |#
 ; ##--------------------------------------##
 Class Hitburst Extends Element {
     ; Instance Variables
@@ -965,7 +1609,7 @@ Class Hitburst Extends Element {
     Static hitburstsDir := "HITBURSTS"                          ; Name of the Hitburst Directory
 
     ; Constructor
-    __new(nanme, d, o) {
+    __new(n, d, o) {
         base.__new("hitburst", hitburstsDir, o)
         this.name := n
         this.dir := d
@@ -973,7 +1617,7 @@ Class Hitburst Extends Element {
 }
 
 ; ##-------------------------------------------##
-; #|        Class: ElementForm: Reverse Arrow      |#
+; #|        Class: Element: Reverse Arrow      |#
 ; ##-------------------------------------------##
 Class ReverseArrow Extends Element {
     ; Instance Variables
@@ -992,7 +1636,7 @@ Class ReverseArrow Extends Element {
 }
 
 ; ##----------------------------------------##
-; #|        Class: ElementForm: Sliderball      |#
+; #|        Class: Element: Sliderball      |#
 ; ##----------------------------------------##
 Class Sliderball Extends Element {
     ; Instance Variables
@@ -1062,39 +1706,20 @@ Class Player {
 }
 
 ; ##------------------------------------##
-; #|        Class: PlayerForm: Options      |#
+; #|        Class: Player: Options      |#
 ; ##------------------------------------##
 Class PlayerOptions Extends Player {
     ; Instance Variables
-    listNames :=                                                ; Array of Strings: Name of Options
-    listDirs :=                                                 ; Array of Strings: Directory Names of Options
+    listNames :=                                                ; Name of Options
+    listDirs :=                                                 ; Directory Names of Options
     require :=                                                  ; Integer: 1/0 (T/F) are options required to select skin?
 
     ; Constructor
-    __new(n, d, ln, ld, r) {
+    __new(n, d) {
         base.__new(n, d)
-        this.listNames := []
-        this.listDirs := []
+        this.listNames := ""
+        this.listDirs := ""
         this.require := 0
-
-        ; Check contents of ln & ld
-        if (ln <> "") {
-            if (ln.length <> 0) {
-                this.listNames := ln
-            }
-        }
-        if (ld <> "") {
-            if (ld.length <> 0) {
-                this.listDirs := ld
-            }
-        }
-
-        ; Check contents of r
-        if (r is integer) {
-            if (r >= 0 && r <= 1) {
-                this.require := r
-            }
-        }
     }
 
     ; Methods
@@ -1104,40 +1729,31 @@ Class PlayerOptions Extends Player {
     }
 
     ; Add an option to lists
-    add(name, dir, index) {
-        if (name <> "" && dir <> "") {
-            for key, value in lsitNames {
-                if (value = name && listDirs[index] = dir) {
-                    return
-                }
-            }
-            if (index <> "") {
-                listNames.InsertAt(index, name)
-                listDirs.InsertAt(index, dir)
-                return
-            }
-            listNames.Push(name)
-            listDirs.Push(dir)
+    add(n, d) {
+        if (n = "" || d = "") {
+            return
+        }
+        if (this.listNames = "" && this.listDirs = "") {
+            this.listNames := n
+            this.listDirs := d
+        } else {
+            this.listNames := this.listNames "," n
+            this.listDirs := this.listDirs "," d
         }
     }
 
-    ; Remove Option from lists
-    rem(name, dir, index) {
-        if (index <> "") {
-            listNames.RemoveAt(index)
-            listDirs.RemoveAt(index)
-            return
-        }
-        num := ""
-        for key, value in listNames {
-            if (value = name && listDirs[key] = dir) {
-                num := key
-                break
+    ; Get array of listX
+    getArray(v) {
+        if (v = "listNames") {
+            if (this.listNames <> "") {
+                return StrSplit(this.listNames, ",")
             }
-        }
-        if (num <> "") {
-            listNames.RemoveAt(num)
-            listDirs.RemoveAt(num)
+            return []
+        } else if (v = "listDirs") {
+            if (this.listDirs <> "") {
+                return StrSplit(this.listDirs, ",")
+            }
+            return []
         }
     }
 }
@@ -1145,3 +1761,4 @@ Class PlayerOptions Extends Player {
 ; ##----------------------------------##
 ; #|        Included Libraries        |#
 ; ##----------------------------------##
+#Include %A_ScriptDir%\assets\lib\tf.ahk
