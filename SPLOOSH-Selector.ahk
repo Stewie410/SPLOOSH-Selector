@@ -1,6 +1,6 @@
 ; SPLOOSHSelector.ahk
 ; Author:       u/stewie410 <stewie410@gmail.com>
-; Date:         2019-09-10
+; Date:         2019-09-15
 ; Name:         SPLOOSH-Selector
 ; Description:  Sploosh Asset Selector for AutoHotKey
 
@@ -93,12 +93,12 @@ d_conf := "ASSET PACKS"                                         ; Directory cont
 d_reset_gameplay := "!RESET (ORIGINAL GAMEPLAY ASSETS)"         ; Directory containing Original Gameplay Elements
 d_reset_uicolor := "!RESET (ORIGINAL UI COLOR)"                 ; Directory containing Original UI Color Elements
 d_cursor_notrail := "!NO CURSOR TRAIL"                          ; Directory containing ELements to disable Cursor Trails
+d_cursor_solidtrail := "SOLID CURSOR TRAIL"                     ; Directory containing Elements to enable a solid cursor trail
 d_uicolor_instafade := "SKIN.INI FOR INSTAFADE HITCIRCLE"       ; Directory containing Elements to enable instant-fade circles
 
 ; Names
 n_app := "SPLOOSH Selector"                                     ; Application Name
 n_skin := "SPLOOSH"                                             ; Skin Name
-n_ver := skinName " ( + )"                                      ; Expected Skin Name for customizations
 
 ; Object Lists
 l_cursors := []                                                 ; List of Cursors
@@ -153,9 +153,9 @@ GuiParent() {
 
     ; Define the GUI's Parameters
     Gui, Parent: +HWNDhParent                                   ; Define Parent GUI, Assign Window Handle to %hParent%
-    ;Gui, Parent: +MinSize%w_app%x%h_app%                        ; Define Parent GUI's Minimum Size to %parentW% and %parentH%\
+    ;Gui, Parent: +MinSize%w_app%x%h_app%                        ; Define Parent GUI's Minimum Size to %parentW% and %parentH%
     Gui, Parent: +LastFound                                     ; Make Parent the LastFound window
-    Gui, Parent: -Resize                                        ; Allow Parent GUI to be resize
+    Gui, Parent: -Resize                                        ; Disallow Parent GUI to be resize
     Gui, Parent: Margin, 0, 0                                   ; Disable Parent GUI's Margin
     Gui, Parent: Color, %bg_app%                                ; Set Parent GUI's Background Color
 }
@@ -204,15 +204,15 @@ GuiTopBar() {
     w_edit := a_x[4] - a_x[3] + w_button
 
     ; Add Label(s) to the GUI
-    Gui, TopBar: Add, Text, % "x" a_x[1] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE, CATEGORY:     ; Row 1
-    Gui, TopBar: Add, Text, % "x" a_x[1] " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE, GAME PATH:    ; Row 2
+    Gui, TopBar: Add, Text, % "x" a_x[1] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE, CATEGORY:
+    Gui, TopBar: Add, Text, % "x" a_x[1] " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE, GAME PATH:
 
     ; Add Controls to Row 1 of the GUI
-    Gui, TopBar: Add, Button, % "x" a_x[2] " y" a_y[1] " w" w_button " h" h_button " +gGetPlayerForm +AltSubmit", &PLAYER         ; Row 1
-    Gui, TopBar: Add, Button, % "x" a_x[3] " y" a_y[1] " w" w_button " h" h_button " +gGetUIColorForm +AltSubmit", &UI COLOR      ; Row 1
-    Gui, TopBar: Add, Button, % "x" a_x[4] " y" a_y[1] " w" w_button " h" h_button " +gGetElementForm +AltSubmit", &ELEMENT       ; Row 1
-    Gui, TopBar: Add, Edit, % "x" a_x[2] " y" a_y[2] " w" w_edit " h" h_edit " r" r_edit " +vGamePath", %d_game%                              ; Row 2
-    Gui, TopBar: Add, Button, % "x" a_x[4] " y" a_y[2] " w" w_button " h" h_button " +gBrowseDirectory +AltSubmit", &BROWSE...    ; Row 2
+    Gui, TopBar: Add, Button, % "x" a_x[2] " y" a_y[1] " w" w_button " h" h_button " +gGetPlayerForm +AltSubmit", &PLAYER
+    Gui, TopBar: Add, Button, % "x" a_x[3] " y" a_y[1] " w" w_button " h" h_button " +gGetUIColorForm +AltSubmit", &UI COLOR
+    Gui, TopBar: Add, Button, % "x" a_x[4] " y" a_y[1] " w" w_button " h" h_button " +gGetElementForm +AltSubmit", &ELEMENT
+    Gui, TopBar: Add, Edit, % "x" a_x[2] " y" a_y[2] " w" w_edit " h" h_edit " r" r_edit " +vGamePath", %d_game%
+    Gui, TopBar: Add, Button, % "x" a_x[4] " y" a_y[2] " w" w_button " h" h_button " +gBrowseDirectory +AltSubmit", &BROWSE...
 }
 
 ; ##----------------------------##
@@ -286,13 +286,14 @@ GuiUIColor() {
     local def_color := ""                                       ; default color selection
 
     ; Add positions to x/y arrays
-    for k, v in [1, 2] {
-        if (k = 1) {
+    Loop, %cy_items%
+    {
+        if (A_Index = 1) {
             a_x.push(px_form)
             a_y.push(py_form)
         } else {
-            a_x.push(((w_form / cx_items) * v) - (w_form / cx_items) + (px_form * 1))
-            a_y.push(((h_form / cy_items) * v) - (h_form / cy_items) + (py_form * 1))
+            a_x.push(((w_form / cx_items) * A_Index) - (w_form / cx_items) + (px_form * 1))
+            a_y.push(((h_form / cy_items) * A_Index) - (h_form / cy_items) + (py_form * 1))
         }
     }
 
@@ -345,11 +346,13 @@ GuiElement() {
 
     ; Define local variables
     local cx_items := 2                                         ; Number of Items per Row
-    local cy_items := 4                                         ; Number of Items per column
+    local cy_items := 5                                         ; Number of Items per column
     local w_text := (w_form / cx_items) - (px_form * 2)         ; Text width
     local w_ddl := w_text                                       ; DropDownList width
+    local w_check := w_text                                     ; Checkbox Width
     local h_text := (h_form / cy_items) - (py_form * 2)         ; Text height
     local h_ddl := h_text                                       ; DropDownList height
+    local h_check := h_text                                     ; CheckBox Height
     local a_x := []                                             ; x positions
     local a_y := []                                             ; y positions
     local o_element := "Cursor|Hitburst|Reverse Arrow|Sliderball"   ; Element Options
@@ -361,19 +364,21 @@ GuiElement() {
     local o_sliderball := ""                                    ; Sliderball Options
     local def_cursor := ""                                      ; Default Cursor Selection
     local def_ctrail := ""                                      ; Default CursorTrail Color Selection
+    local def_csolid := 1                                       ; Default CursorTrail Solid State
     local def_csmoke := ""                                      ; Default CusorSmoke Color Selection
     local def_hitburst := ""                                    ; Default Hitburst Selection
     local def_revarrow := ""                                    ; Default ReverseArrow Selection
     local def_sliderball := ""                                  ; Default Sliderball Selection
 
     ; Add positions to x/y arrays
-    for k, v in [1, 2, 3, 4] {
-        if (k = 1) {
+    Loop, %cy_items%
+    {
+        if (A_Index = 1) {
             a_x.push(px_form)
             a_y.push(py_form)
         } else {
-            a_x.push(((w_form / cx_items) * v) - (w_form / cx_items) + (px_form * 1))
-            a_y.push(((h_form / cy_items) * v) - (h_form / cy_items) + (py_form * 1))
+            a_x.push(((w_form / cx_items) * A_Index) - (w_form / cx_items) + (px_form * 1))
+            a_y.push(((h_form / cy_items) * A_Index) - (h_form / cy_items) + (py_form * 1))
         }
     }
 
@@ -469,6 +474,7 @@ GuiElement() {
     Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +vOtherElementOptionTypeText +Hidden1", TYPE:
     Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[3] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +vCursorElementOptionTrailText", TRAIL COLOR:
     Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[4] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +vCursorElementOptionSmokeText", SMOKE COLOR:
+    Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[5] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +vCursorElementOptionTrailSolidText", SOLID TRAIL:
 
     ; Add Controls to GUI
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[1] " w" w_ddl " h" h_ddl " +Choose1 +gGetElementType +vElementType +Sort", %o_element%
@@ -476,8 +482,9 @@ GuiElement() {
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " h" h_ddl " +Choose" def_hitburst " +vHitburstElementOptionType +Hidden1", %o_hitburst%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " h" h_ddl " +Choose" def_revarrow " +vReverseArrowElementOptionType +Hidden1", %o_revarrow%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " h" h_ddl " +Choose" def_sliderball " +vSliderballElementOptionType +Hidden1", %o_sliderball%
-    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[3] " w" w_ddl " h" h_ddl " +Choose" def_ctrail " +vCursorElementOptionTrail", %o_ctrail%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[3] " w" w_ddl " h" h_ddl " +Choose" def_ctrail " +vCursorElementOptionTrail +gCheckCursorTrailSolidState", %o_ctrail%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[4] " w" w_ddl " h" h_ddl " +Choose" def_csmoke " +vCursorElementOptionSmoke", %o_csmoke%
+    Gui, ElementForm: Add, CheckBox, % "x" a_x[2] " y" a_y[5] " w" w_check " +Checked" def_csolid " +vCursorElementOptionTrailSolid", Enable
 
     ; Update Element Form
     GetElementType()
@@ -515,13 +522,14 @@ GuiPlayer() {
     local def_version := 1                                      ; default version selection
 
     ; Add positions to x/y arrays
-    for k, v in [1, 2, 3] {
-        if (k = 1) {
+    Loop, %cy_items%
+    {
+        if (A_Index = 1) {
             a_x.push(px_form)
             a_y.push(py_form)
         } else {
-            a_x.push(((w_form / cx_items) * v) - (w_form / cx_items) + (px_form * 1))
-            a_y.push(((h_form / cy_items) * v) - (h_form / cy_items) + (py_form * 1))
+            a_x.push(((w_form / cx_items) * A_Index) - (w_form / cx_items) + (px_form * 1))
+            a_y.push(((h_form / cy_items) * A_Index) - (h_form / cy_items) + (py_form * 1))
         }
     }
 
@@ -619,6 +627,13 @@ GetElementType() {
     toggleElementForm(ElementType, 1)                           ; Display ElementOptions, if any
 }
 
+; ElementForm --> Check state of CursorTrailSolid checkbox (en/dis)
+CheckCursorTrailSolidState() {
+    global                                                      ; Set global Scope inside Function
+    Gui, ElementForm: Submit, NoHide                            ; Get +vVar values without hiding GUI
+    toggleCursorTrailSolidState(CursorElementOptionTrail)       ; Toggle state of CursorTrailSolid based on CursorTrail DDL Choice
+}
+
 ; PlayerForm --> Get Player Versions (options)
 GetPlayerOptionVersion() {
     global                                                      ; Set global Scope inside Function
@@ -672,10 +687,12 @@ toggleElementForm(name, vis := 0) {
         GuiControl, %visCmd%, CursorElementOptionColorText
         GuiControl, %visCmd%, CursorElementOptionTrailText
         GuiControl, %visCmd%, CursorElementOptionSmokeText
+        GuiControl, %visCmd%, CursorElementOptionTrailSolidText
         GuiControl, %visCmd%, OtherElementOptionTypeText
         GuiControl, %visCmd%, CursorElementOptionColor
         GuiControl, %visCmd%, CursorElementOptionTrail
         GuiControl, %visCmd%, CursorElementOptionSmoke
+        GuiControl, %visCmd%, CursorElementOptionTrailSolid
         GuiControl, %visCmd%, HitburstElementOptionType
         GuiControl, %visCmd%, ReverseArrowElementOptionType
         GuiControl, %visCmd%, SliderballElementOptionType
@@ -684,9 +701,11 @@ toggleElementForm(name, vis := 0) {
         GuiControl, %visCmd%, CursorElementOptionColorText
         GuiControl, %visCmd%, CursorElementOptionTrailText
         GuiControl, %visCmd%, CursorElementOptionSmokeText
+        GuiControl, %visCmd%, CursorElementOptionTrailSolidText
         GuiControl, %visCmd%, CursorElementOptionColor
         GuiControl, %visCmd%, CursorElementOptionTrail
         GuiControl, %visCmd%, CursorElementOptionSmoke
+        GuiControl, %visCmd%, CursorElementOptionTrailSolid
     } else if (name = "hitburst") {
         GuiControl, %visCmd%, OtherElementOptionTypeText
         GuiControl, %visCmd%, HitburstElementOptionType
@@ -699,11 +718,28 @@ toggleElementForm(name, vis := 0) {
     }
 }
 
+; ElementForm --> Toggle state of CursorElementOptionTrailSolid checkbox
+toggleCursorTrailSolidState(state := "") {
+    global                                                      ; Set global Scope inside Function
+
+    ; If if state passed, 
+    if (state = "") {
+        return
+    }
+
+    if (state = "None") {
+        GuiControl, ElementForm:, CursorElementOptionTrailSolid, 0
+        GuiControl, ElementForm: Disable, CursorElementOptionTrailSolid
+        return
+    }
+    GuiControl, ElementForm: Enable, CursorElementOptionTrailSolid
+}
+
 ; PlayerForm --> Toggle Visibility of Version Options && update Version Options -- Args: $1: name; $2: visibility (def: 0)
 togglePlayerForm(name, vis := 0) {
     global                                                      ; Set global Scope inside Function
 
-    ; Return if no index passed
+    ; Return if no name passed
     if (name = "") {
         return
     }
@@ -1257,9 +1293,11 @@ getDirectoryName(name := "", path := "") {
     ; Loop through a given path
     Loop, Files, %path%\*, D                                    ; Return only directories
     {
-        if (RegExMatch(A_LoopFileName, "i)"%name%) <> 0) {      ; If skin name is found
-            dir := A_LoopFileName                               ; Set return val to name
-            break                                               ; Break loop
+        if (RegExMatch(A_LoopFileName, "i)"name) <> 0) {        ; If skin name is found
+            if (FileExist(path "\" A_LoopFileName "\" d_conf) <> "") {
+                dir := A_LoopFileName                           ; Set return val to name
+                break                                           ; Break loop
+            }
         }
     }
     return dir                                                  ; Return value
@@ -1333,6 +1371,7 @@ applyForm() {
             local d_opt1 := ""                                  ; Directory of Option1
             local d_opt2 := ""                                  ; Directory of Option2
             local d_opt3 := ""                                  ; Directory of Option3
+            local d_opt4 := ""                                  ; Directory of Option4
             
             ; Get Directories for Options
             for i, j in l_cursors {
@@ -1345,6 +1384,11 @@ applyForm() {
                 if (j.name = CursorElementOptionSmoke) {
                     d_opt3 := j.elementsDir "\" j.cursorsDir "\" j.dir
                 }
+            }
+
+            ; Get Directory for Option 4, if enabled
+            if (CursorElementOptionTrailSolid = 1) {
+                d_opt4 := d_cursor_solidtrail
             }
             
             ; If %d_opt2% is still blank
@@ -1387,6 +1431,14 @@ applyForm() {
             if (d_opt1 <> d_opt2) {
                 ; Copy Smoke to Destination
                 FileCopy, %src%\%d_opt3%\cursor-smoke@2x.png, %dst%, 1
+            }
+
+            ; If SolidTrail enabled
+            if (d_opt4 <> "" && CursorElementOptionTrail <> "None") {
+                ; Copy SolidTrail elements to destiantion
+                FileCopy, %src%\%d_opt1%\..\%d_opt4%\*.*, %dst%, 1
+            } else {
+                FileDelete, %dst%\cursormiddle@2x.png           ; Delete CursorMiddle
             }
         } else if (etype = "hitburst") {
             local d_opt1 := ""                                  ; Directory of Option 1
