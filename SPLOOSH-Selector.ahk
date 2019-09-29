@@ -24,16 +24,16 @@ OnExit("Cleanup")                                               ; Call Cleanup()
 ; #|        Global Variables -- Configuration        |#
 ; ##-------------------------------------------------##
 ; Width Definitions
-;w_app := 624													; Application/Parent
-w_app := 624                                                    ; Application/Parent
+w_app := 624                                                    ; Application/Parent -- Default: 624
+w_picker := 600                                                 ; ColorPicker
 w_topbar := w_app                                               ; TopBar
 w_sidebar := w_app / 4                                          ; SideBar
 w_preview := w_app - w_sidebar                                  ; Preview
 w_form := w_app - w_sidebar                                     ; Element, UIColor & Player
 
 ; Height Defintions
-;h_app := 685													; Application/Parent
-h_app := 685                                                    ; Application/Parent
+h_app := 685                                                    ; Application/Parent -- Default: 685
+h_picker := 600                                                 ; ColorPicker
 h_topbar := h_app / 5                                           ; TopBar
 h_sidebar := h_app - h_topbar                                   ; SideBar
 h_preview := h_app / 8                                          ; Preview
@@ -68,7 +68,7 @@ py_preview := 10                                                ; Preview
 py_form := 10                                                   ; Element, UIColor & Player
 
 ; Background Colors
-bg_app := "FFFFFF"                                              ; Application/Parent
+bg_app := "002D52"                                              ; Application/Parent
 bg_topbar := "002D52"                                           ; TopBar
 bg_sidebar := "002D52"                                          ; SideBar
 bg_preview := "002D52"                                          ; Preview
@@ -131,15 +131,27 @@ l_cursors := []                                                 ; List of Cursor
 l_hitbursts := []                                               ; List of Hitbursts
 l_reversearrows := []                                           ; List of ReverseArrows
 l_sliderballs := []                                             ; List of Sliderballs
+l_maniaarrows := []                                             ; list of ManiaArrows
+l_maniabars := []                                               ; List of ManiaBars
+l_maniadots := []                                               ; List of ManiaDots
 l_uicolors := []                                                ; List of UI Colors
 l_players := []                                                 ; List of Players
 
 ; Variables
 var_selected_form := "Player"									; Selected Form (Element|Player|UIColor) -- Determines Default Form too
+var_cursor_changed := 0                                         ; Flag to indicate if the cursor has been changed
 var_picker_selected_color := "FFFFFF"                           ; ColorPicker Selected Color
-var_picker_preview_color := "FFFFFF"                            ; ColorPicker Preview Color
+var_picker_hover_color := "FFFFFF"                              ; ColorPicker Preview Color
 var_picker_cursor_changed := 0                                  ; ColorPicker SystemCursor Changed
 var_picker_cursor_current := ""                                 ; ColorPicker Current Cursor
+var_combo_color_1 := "1978FF"                                   ; Combo Color 1
+var_combo_color_2 := "1978FF"                                   ; Combo Color 2
+var_combo_color_3 := "1978FF"                                   ; Combo Color 3
+var_combo_color_4 := "1978FF"                                   ; Combo Color 4
+var_combo_color_5 := "1978FF"                                   ; Combo Color 5
+var_slider_border_color := "DEDEDE"                             ; Slider Border Color
+var_slider_track_color := "212121"                              ; Slider Track Color
+var_picker_count := 0                                           ; Flag to indicate which TreeView to update
 
 ; ##----------------##
 ; #|        Run     |#
@@ -180,9 +192,21 @@ ParentGuiEscape(GuiHwnd) {
     ExitApp
 }
 
+; ColorPicker Window Escape
+ColorPickerGuiEscape(GuiHwnd) {
+    Gui, ColorPicker: Destroy
+    toggleParentWindow(1)
+}
+
 ; Main Window Closed
 ParentGuiClose(GuiHwnd) {
     ExitApp
+}
+
+; ColorPicker Window Closed
+ColorPickerGuiClose(GuiHwnd) {
+    Gui, ColorPicker: Destroy
+    toggleParentWindow(1)
 }
 
 ; ##------------------------##
@@ -368,16 +392,18 @@ GuiUIColor() {
 
     ; Define local variables
     local cx_items := 2                                         ; Number of items per row
-    local cy_items := 2                                         ; Number of items per column
+    local cy_items := 10                                        ; Number of items per column
     local w_bg := w_form - (px_form * 2)                        ; Width of BG
     local w_inner := w_bg - (px_form * 6)                       ; Inner-Width of BG
     local w_text := (w_inner / cx_items) - (px_form * 2)        ; Width of Text
     local w_ddl := w_text                                       ; Width of DropDownList
     local w_check := w_text                                     ; CheckBox width
+    local w_tree := w_text                                      ; TreeView width
     local h_bg := h_form - (py_form * 2)                        ; Height of BG
     local h_inner := h_bg - (py_form * 6)                       ; Inner-Height of BG
     local h_text := (h_inner / cy_items) - (py_form * 2)        ; Height of Text
     local h_check := h_text                                     ; CheckBox height
+    local h_tree := h_text                                      ; TreeView height
     local x_bg := px_form * 0.75                                ; X position of BG
     local x_inner := x_bg + (px_form * 3)                       ; Inner-X of BG (offset)
     local a_x := []                                             ; x positions
@@ -386,6 +412,13 @@ GuiUIColor() {
     local a_y := []                                             ; y positions
     local o_color := ""                                         ; color options
     local def_color := ""                                       ; default color selection
+    local def_combo1 := var_combo_color_1                       ; default combo color 1
+    local def_combo2 := var_combo_color_2                       ; default combo color 2
+    local def_combo3 := var_combo_color_3                       ; default combo color 3
+    local def_combo4 := var_combo_color_4                       ; default combo color 4
+    local def_combo5 := var_combo_color_5                       ; default combo color 5
+    local def_slborder := var_slider_border_color               ; default sliderborder color
+    local def_sltrack := var_slider_track_color                 ; default slidertrack color
     local formBG := d_asset "\formBG.png"                       ; Form Background
 
     ; Add positions to x/y arrays
@@ -396,7 +429,7 @@ GuiUIColor() {
             a_y.push(y_inner + py_form)
         } else {
             a_x.push(((w_inner / cx_items) * A_Index) - (w_inner / cx_items) + (px_form * 5))
-            a_y.push(((h_inner / cy_items) * A_Index) - (h_inner / cy_items) + (py_form * 3))
+            a_y.push(((h_inner / cy_items) * A_Index) - (h_inner / cy_items) + (py_form * 5))
         }
     }
 
@@ -427,15 +460,33 @@ GuiUIColor() {
 
     ; Add labels to GUI
     Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", COLOR:
-    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", INSTAFADE CIRCLES:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", INSTAFADE:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[3] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", COMBO COLOR 1:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[4] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", COMBO COLOR 2:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[5] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", COMBO COLOR 3:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[6] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", COMBO COLOR 4:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[7] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", COMBO COLOR 5:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[8] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", Sliderborder:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[9] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", Slidertrack:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[10] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", Skin.ini:
 
 	; Add CheckBox to GUI
-    Gui, UIColorForm: Add, Text, % "x" (a_x[2] + 20) " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +gToggleUIColorOptionInstafade", Enable
     Gui, UIColorForm: Add, CheckBox, % "x" a_x[2] " y" (a_y[2] + 3) " w15 h15 -Wrap +vUIColorOptionInstafade"
+    Gui, UIColorForm: Add, Text, % "x" (a_x[2] + 20) " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vUIColorOptionInstafadeText +gToggleUIColorOptionInstafade", Enable
+
+    Gui, UIColorForm: Add, CheckBox, % "x" a_x[2] " y" (a_y[10] + 3) " w15 h15 -Wrap +vUIColorOptionSaveIni"
+    Gui, UIColorForm: Add, Text, % "x" (a_x[2] + 20) " y" a_y[10] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vUIColorOptionSaveIniText +gToggleUIColorOptionSaveIni", Overwrite
 
     ; Add controls to GUI
     Gui, UIColorForm: Font, s%fs_input% c%fg_input%, %ff_input% ; Font for Edit Box
     Gui, UIColorForm: Add, DropDownList, % "x" a_x[2] " y" a_y[1] " w" w_ddl " +Choose" def_color " +vUIColorOptionColor", %o_color%
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[3] " w" w_tree " h" h_tree " +Background" def_combo1 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor1 +gChangeComboColorFirst +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[4] " w" w_tree " h" h_tree " +Background" def_combo2 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor2 +gChangeComboColorSecond +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[5] " w" w_tree " h" h_tree " +Background" def_combo3 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor3 +gChangeComboColorThird +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[6] " w" w_tree " h" h_tree " +Background" def_combo4 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor4 +gChangeComboColorFourth +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[7] " w" w_tree " h" h_tree " +Background" def_combo5 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor5 +gChangeComboColorFifth +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[8] " w" w_tree " h" h_tree " +Background" def_slborder " +" SS_CENTERIMAGE " +ReadOnly +vUIColorSliderborderColor +gChangeSliderborderColor +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[9] " w" w_tree " h" h_tree " +Background" def_sltrack " +" SS_CENTERIMAGE " +ReadOnly +vUIColorSlidertrackColor +gChangeSlidertrackColor +AltSubmit"
 }
 
 ; ##-----------------------------##
@@ -472,7 +523,11 @@ GuiElement() {
     local y_bg := py_form                                       ; Y Position of BG
     local y_inner := y_bg + (py_form * 3)                       ; Inner-Y of BG (offset)
     local a_y := []                                             ; y positions
-    local o_element := "Cursor|Hitburst|Reverse Arrow|Sliderball"   ; Element Options
+    local o_element := "Cursor|Hitburst|Reverse Arrow|Sliderball|Mania"   ; Element Options
+    local o_mania := "Arrow|Bar|Dot"                            ; Mania Options
+    local o_mania_arrow_color := ""                             ; ManiaArrow Color Options
+    local o_mania_bar_color := ""                               ; ManiaBar Color Options
+    local o_mania_dot_color := ""                               ; ManiaDot Color Options
     local o_cursor := ""                                        ; Cursor Options
     local o_ctrail := "None"                                    ; Cursor Trail Options
     local o_csmoke := ""                                        ; Cusror Smoke Options
@@ -486,6 +541,8 @@ GuiElement() {
     local def_hitburst := ""                                    ; Default Hitburst Selection
     local def_revarrow := ""                                    ; Default ReverseArrow Selection
     local def_sliderball := ""                                  ; Default Sliderball Selection
+    local def_mania := 1                                        ; Default Mania
+    local def_mania_color := 1                                  ; Default mania Color 
     local formBG := d_asset "\formBG.png"                       ; Form Background
 
     ; Add positions to x/y arrays
@@ -505,8 +562,8 @@ GuiElement() {
         if (o_cursor = ""){
             o_cursor := v.name
         } else {
-            o_cursor := o_cursor "|" v.name
-            o_ctrail := o_ctrail "|" v.name
+            o_cursor .= "|" v.name
+            o_ctrail .= "|" v.name
         }
         if (v.original = 1) {
             def_cursor := v.name
@@ -518,7 +575,7 @@ GuiElement() {
         if (o_hitburst = "") {
             o_hitburst := v.name
         } else {
-            o_hitburst := o_hitburst "|" v.name
+            o_hitburst .= "|" v.name
         }
         if (v.original = 1) {
             def_hitburst := v.name
@@ -528,7 +585,7 @@ GuiElement() {
         if (o_revarrow = ""){
             o_revarrow := v.name
         } else {
-            o_revarrow := o_revarrow "|" v.name
+            o_revarrow .= "|" v.name
         }
         if (v.original = 1) {
             def_revarrow := v.name
@@ -538,10 +595,31 @@ GuiElement() {
         if (o_sliderball = ""){
             o_sliderball := v.name
         } else {
-            o_sliderball := o_sliderball "|" v.name
+            o_sliderball .= "|" v.name
         }
         if (v.original = 1) {
             def_sliderball := v.name
+        }
+    }
+    for k, v in l_maniaarrows {
+        if (o_mania_arrow_color = "") {
+            o_mania_arrow_color := v.name
+        } else {
+            o_mania_arrow_color .= "|" v.name
+        }
+    }
+    for k, v in l_maniabars {
+        if (o_mania_bar_color = "") {
+            o_mania_bar_color := v.name
+        } else {
+            o_mania_bar_color .= "|" v.name
+        }
+    }
+    for k, v in l_maniadots {
+        if (o_mania_dot_color = "") {
+            o_mania_dot_color := v.name
+        } else {
+            o_mania_dot_color .= "|" v.name
         }
     }
 
@@ -552,6 +630,9 @@ GuiElement() {
     Sort, o_hitburst, CL D|
     Sort, o_revarrow, CL D|
     Sort, o_sliderball, CL D|
+    Sort, o_mania_arrow_color, CL D|
+    Sort, o_mania_bar_color, CL D|
+    Sort, o_mania_dot_color, CL D|
 
     ; Determine default choices
     for k, v in (StrSplit(o_cursor, "|")) {
@@ -594,12 +675,13 @@ GuiElement() {
     Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vCursorElementOptionColorText", COLOR:
     Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vOtherElementOptionTypeText +Hidden1", TYPE:
     Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[3] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vCursorElementOptionTrailText", TRAIL COLOR:
+    Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[3] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vOtherElementOptionColorText +Hidden1", COLOR:
     Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[4] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vCursorElementOptionSmokeText", SMOKE COLOR:
     Gui, ElementForm: Add, Text, % "x" a_x[1] " y" a_y[5] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vCursorElementOptionTrailSolidText", SOLID TRAIL:
 
 	; Add CheckBox to GUI
-    Gui, ElementForm: Add, Text, % "x" (a_x[2] + 20) " y" a_y[5] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +gToggleCursorElementOptionTrailSolid", Enable
     Gui, ElementForm: Add, CheckBox, % "x" a_x[2] " y" (a_y[5] + 3) " w15 h15 +Checked" def_csolid " -Wrap +vCursorElementOptionTrailSolid"
+    Gui, ElementForm: Add, Text, % "x" (a_x[2] + 20) " y" a_y[5] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vCursorElementOptionTrailSolidEnableText +gToggleCursorElementOptionTrailSolid", Enable
 
     ; Add Controls to GUI
     Gui, ElementForm: Font, s%fs_input% c%fg_input%, %ff_input% ; Font for Edit Box
@@ -608,7 +690,11 @@ GuiElement() {
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_hitburst " +vHitburstElementOptionType +Hidden1", %o_hitburst%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_revarrow " +vReverseArrowElementOptionType +Hidden1", %o_revarrow%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_sliderball " +vSliderballElementOptionType +Hidden1", %o_sliderball%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_mania " +gGetElementManiaType +vManiaElementOptionType +Hidden1", %o_mania%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[3] " w" w_ddl " +Choose" def_ctrail " +vCursorElementOptionTrail +gCheckCursorTrailSolidState", %o_ctrail%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[3] " w" w_ddl " +Choose1 +vManiaElementArrowOptionColor +Hidden1", %o_mania_arrow_color%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[3] " w" w_ddl " +Choose1 +vManiaElementBarOptionColor +Hidden1", %o_mania_bar_color%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[3] " w" w_ddl " +Choose1 +vManiaElementDotOptionColor +Hidden1", %o_mania_dot_color%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[4] " w" w_ddl " +Choose" def_csmoke " +vCursorElementOptionSmoke", %o_csmoke%
 
     ; Update Element Form
@@ -739,15 +825,15 @@ GuiPreview() {
 ; ##--------------------------------##
 ; #|        GUI: ColorPicker        |#
 ; ##--------------------------------##
-GuiColorPicker() {
+GuiColorPicker(w := 600, h := 600, hex := "FFFFFF") {
     global                                                      ; Set global Scope inside Function
 
     ; Define Local Variables
-    local w_picker := 600                                       ; picker width
+    local w_picker := w                                         ; picker width
     local w_palette := w_picker                                 ; palette width
     local w_panel := w_picker                                   ; panel width
-    local h_picker := 600                                       ; picker height
-    local h_palette := h_picker / 1.5                           ; palette height
+    local h_picker := h                                         ; picker height
+    local h_palette := h_picker / 1.35                           ; palette height
     local h_panel := h_picker - h_palette                       ; panel height
     local x_palette := 0                                        ; X Position of Palette
     local x_panel := 0                                          ; X Position of Panel
@@ -766,7 +852,7 @@ GuiColorPicker() {
     local cy_items := 2                                         ; Number of items per column
     local w_text := (w_panel / cx_items) - (px_panel * 2)       ; text width
     local w_edit := w_text / 1.5                                ; edit width
-    local w_button := wtext                                     ; button width
+    local w_button := w_text / 1                                ; button width
     local w_tree := w_text                                      ; TreeView width
     local h_text := (h_panel / cy_items) - (py_panel * 2)       ; text height
     local h_edit := h_text                                      ; edit height
@@ -777,46 +863,43 @@ GuiColorPicker() {
     local a_y := []                                             ; y positions on panel
     local lo_rgb := 0                                           ; rgb floor
     local hi_rgb := 255                                         ; rgb ceiling
-    local def_rgb_r := 255                                      ; default rgb red
-    local def_rgb_g := 255                                      ; default rgb green
-    local def_rgb_b := 255                                      ; default rgb blue
-    local def_preview := var_picker_preview_color               ; default preview color
+    local def_rgb := hexToRGB(hex)                              ; Array of RGB values
+    local def_preview := var_picker_hover_color               ; default preview color
     local def_selected := var_picker_selected_color             ; default selected color
-
 
     ; Add positions to x/y arrays
     Loop, %cx_items%
     {
         if (A_Index = 1) {
             a_x.push(px_panel)
-            a_y.push(py_panel)
+            a_y.push(py_panel + h_palette)
         } else {
             a_x.push(((w_panel / cx_items) * A_Index) - (w_panel / cx_items) - (px_panel * 1))
-            a_y.push(((h_panel / cy_items) * A_Index) - (h_panel / cy_items) + (py_panel * 1))
+            a_y.push(((h_panel / cy_items) * A_Index) - (h_panel / cy_items) + ((py_panel * 0) + h_palette))
         }
     }
 
     ; Define the GUI's Parameters
-    Gui, ColorPicker: +HWNDhColorPicker -Resize
+    Gui, ColorPicker: +HWNDhColorPicker -Resize +OwnerParent
     Gui, ColorPicker: Margin, 0, 0
     Gui, ColorPicker: Color, %bg_picker%
     Gui, ColorPicker: Font, s%fs_picker% c%fg_picker%, %ff_picker%
 
     ; Add Labels to the GUI
-    Gui, ColorPicker: Add, Text, % a_x[1] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE, R
-    Gui, ColorPicker: Add, Text, % a_x[2] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE, G
-    Gui, ColorPicker: Add, Text, % a_x[3] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE, B
-    Gui, ColorPicker: Add, Text, % a_x[4] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE, COLOR
+    Gui, ColorPicker: Add, Text, % "x" a_x[1] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE, R
+    Gui, ColorPicker: Add, Text, % "x" a_x[2] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE, G
+    Gui, ColorPicker: Add, Text, % "x" a_x[3] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE, B
+    Gui, ColorPicker: Add, Text, % "x" a_x[4] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE, COLOR
 
     ; Add Controls to the GUI
     Gui, ColorPicker: Add, Picture, % "x" x_palette " y" y_palette " w" w_palette " h" h_palette " +" SS_CENTERIMAGE " +HWNDhColorPickerPalette +gColorPickerSelectColor +AltSubmit", %img_palette%
-    Gui, ColorPicker: Add, Edit, % "x" a_x[1] " y" a_y[2] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vColorPickerRGBRed +gColorPickerModifyRed"
-    Gui, ColorPicker: Add, UpDown, % "+Range" lo_rgb "-" hi_rgb " +gColorPickerModifyRed", %def_rgb_r%
-    Gui, ColorPicker: Add, Edit, % "x" a_x[2] " y" a_y[2] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vColorPickerRGBGreen +gColorPickerModifyGreen"
-    Gui, ColorPicker: Add, UpDown, % "+Range" lo_rgb "-" hi_rgb " +gColorPickerModifyGreen", %def_rgb_g%
-    Gui, ColorPicker: Add, Edit, % "x" a_x[3] " y" a_y[2] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vColorPickerRGBBlue +gColorPickerModifyBlue"
-    Gui, ColorPicker: Add, UpDown, % "+Range" lo_rgb "-" hi_rgb " +gColorPickerModifyBlue", %def_rgb_b%
-    Gui, ColorPicker: Add, TreeView, % "x" a_x[4] " y" a_y[2] " w" w_tree " h" h_tree " +Background" def_selected " +" SS_CENTERIMAGE " +ReadOnly +vColorPickerSelectedColor"
+    Gui, ColorPicker: Add, Edit, % "x" a_x[1] " y" a_y[2] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vColorPickerRGBRed +ReadOnly +BackgroundFFFFFF"
+    Gui, ColorPicker: Add, UpDown, % "+Range" lo_rgb "-" hi_rgb " +gColorPickerModifyRed", % def_rgb[1]
+    Gui, ColorPicker: Add, Edit, % "x" a_x[2] " y" a_y[2] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vColorPickerRGBGreen +ReadOnly +BackgroundFFFFFF"
+    Gui, ColorPicker: Add, UpDown, % "+Range" lo_rgb "-" hi_rgb " +gColorPickerModifyGreen", % def_rgb[2]
+    Gui, ColorPicker: Add, Edit, % "x" a_x[3] " y" a_y[2] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vColorPickerRGBBlue +ReadOnly +BackgroundFFFFFF"
+    Gui, ColorPicker: Add, UpDown, % "+Range" lo_rgb "-" hi_rgb " +gColorPickerModifyBlue", % def_rgb[3]
+    Gui, ColorPicker: Add, TreeView, % "x" a_x[4] " y" a_y[2] " w" w_tree " h" h_tree " +Background" def_selected " +" SS_CENTERIMAGE " +ReadOnly +vColorPickerSelectedColor +Background" hex
     Gui, ColorPicker: Add, Button, % "x" a_x[5] " y" a_y[2] " w" w_button " h" h_button " +gColorPickerSubmitForm", &SELECT
 }
 
@@ -889,6 +972,14 @@ GetElementType() {
     toggleElementForm(ElementType, 1)                           ; Display ElementOptions, if any
 }
 
+; ElementForm --> Get ELement Mania Type (options)
+GetElementManiaType() {
+    global                                                      ; Set global Scope inside Function
+    Gui, ElementForm: Submit, NoHide                            ; Get +vVar values without hiding GUI
+    toggleManiaForm("ALL")                                      ; Hide all ElementForm options
+    toggleManiaForm(ManiaElementOptionType, 1)                  ; Display ElementOptions, if any
+}
+
 ; ElementForm --> Check state of CursorTrailSolid checkbox (en/dis)
 CheckCursorTrailSolidState() {
     global                                                      ; Set global Scope inside Function
@@ -917,6 +1008,84 @@ ToggleUIColorOptionInstafade() {
     GuiControl, UIColorForm:, UIColorOptionInstafade, % (ctrl_state = 1 ? 0 : 1)
 }
 
+; UIColorForm --> Toggle UIColorOptionSaveIni state (workaround)
+ToggleUIColorOptionSaveIni() {
+    global                                                      ; Set global Scope inside Function
+    Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
+    local ctrl_state := UIColorOptionSaveIni                    ; Placeholder for "is control checked"
+    GuiControl, UIColorForm:, UIColorOptionSaveIni, % (ctrl_state = 1 ? 0 : 1)
+}
+
+; UIColorForm --> Get Combo Color 1
+ChangeComboColorFirst() {
+    global                                                      ; Set global Scope inside Function
+    Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
+    GuiColorPicker(w_picker, h_picker, var_combo_color_5)       ; Instantiate the ColorPicker GUI
+    Gui, ColorPicker: Show, % "w" w_picker " h" h_picker        ; Display the ColorPicker GUI
+    toggleParentWindow(0)                                       ; Disable all other controls
+    var_picker_count := 1                                       ; Set flag for which TreeView to update
+}
+
+; UIColorForm --> Get Combo Color 2
+ChangeComboColorSecond() {
+    global                                                      ; Set global Scope inside Function
+    Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
+    GuiColorPicker(w_picker, h_picker, var_combo_color_5)       ; Instantiate the ColorPicker GUI
+    Gui, ColorPicker: Show, % "w" w_picker " h" h_picker        ; Display the ColorPicker GUI
+    toggleParentWindow(0)                                       ; Disable all other controls
+    var_picker_count := 2                                       ; Set flag for which TreeView to update
+}
+
+; UIColorForm --> Get Combo Color 3
+ChangeComboColorThird() {
+    global                                                      ; Set global Scope inside Function
+    Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
+    GuiColorPicker(w_picker, h_picker, var_combo_color_3)       ; Instantiate the ColorPicker GUI
+    Gui, ColorPicker: Show, % "w" w_picker " h" h_picker        ; Display the ColorPicker GUI
+    toggleParentWindow(0)                                       ; Disable all other controls
+    var_picker_count := 3                                       ; Set flag for which TreeView to update
+}
+
+; UIColorForm --> Get Combo Color 4
+ChangeComboColorFourth() {
+    global                                                      ; Set global Scope inside Function
+    Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
+    GuiColorPicker(w_picker, h_picker, var_combo_color_4)       ; Instantiate the ColorPicker GUI
+    Gui, ColorPicker: Show, % "w" w_picker " h" h_picker        ; Display the ColorPicker GUI
+    toggleParentWindow(0)                                       ; Disable all other controls
+    var_picker_count := 4                                       ; Set flag for which TreeView to update
+}
+
+; UIColorForm --> Get Combo Color 5
+ChangeComboColorFifth() {
+    global                                                      ; Set global Scope inside Function
+    Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
+    GuiColorPicker(w_picker, h_picker, var_combo_color_5)       ; Instantiate the ColorPicker GUI
+    Gui, ColorPicker: Show, % "w" w_picker " h" h_picker        ; Display the ColorPicker GUI
+    toggleParentWindow(0)                                       ; Disable all other controls
+    var_picker_count := 5                                       ; Set flag for which TreeView to update
+}
+
+; UIColorForm -- Get Sliderborder Color
+ChangeSliderborderColor() {
+    global                                                      ; Set global Scope inside Function
+    Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
+    GuiColorPicker(w_picker, h_picker, var_slider_border_color) ; Instantiate the ColorPicker GUI
+    Gui, ColorPicker: Show, % "w" w_picker " h" h_picker        ; Display the ColorPicker GUI
+    toggleParentWindow(0)                                       ; Disable all other controls
+    var_picker_count := 6                                       ; Set flag for which TreeView to update
+}
+
+; UIColorForm -- Get SliderTrack Color
+ChangeSlidertrackColor() {
+    global                                                      ; Set global Scope inside Function
+    Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
+    GuiColorPicker(w_picker, h_picker, var_slider_track_color)  ; Instantiate the ColorPicker GUI
+    Gui, ColorPicker: Show, % "w" w_picker " h" h_picker        ; Display the ColorPicker GUI
+    toggleParentWindow(0)                                       ; Disable all other controls
+    var_picker_count := 7                                       ; Set flag for which TreeView to update
+}
+
 ; PlayerForm --> Get Player Versions (options)
 GetPlayerOptionVersion() {
     global                                                      ; Set global Scope inside Function
@@ -927,27 +1096,82 @@ GetPlayerOptionVersion() {
 
 ; ColorPicker --> Select Color from Palette
 ColorPickerSelectColor() {
-
+    global                                                      ; Set global Scope inside Function
+    Gui, ColorPicker: Submit, NoHide                            ; Get vVar values without hiding GUI
+    var_picker_selected_color := var_picker_hover_color         ; Set selected color to current color
+    updateColorPickerSelectedColor()                            ; Update Preview Color
+    updateColorPickerRGB()                                      ; Update RGB values
 }
 
 ; ColorPicker --> Modify RED RGB Value
 ColorPickerModifyRed() {
-
+    global                                                      ; Set global Scope inside Function
+    Gui, ColorPicker: Submit, NoHide                            ; Get vVar values without hiding GUI
+    var_picker_selected_color := rgbToHex([ColorPickerRGBRed, ColorPickerRGBGreen, ColorPickerRGBBlue]) ; Set selected to hex(rgb)
+    updateColorPickerSelectedColor()                             ; Update Preview Color
 }
 
 ; ColorPicker --> Modify GREEN RGB Value
 ColorPickerModifyGreen() {
-
+    global                                                      ; Set global Scope inside Function
+    Gui, ColorPicker: Submit, NoHide                            ; Get vVar values without hiding GUI
+    var_picker_selected_color := rgbToHex([ColorPickerRGBRed, ColorPickerRGBGreen, ColorPickerRGBBlue]) ; Set selected to hex(rgb)
+    updateColorPickerSelectedColor()                             ; Update Preview Color
 }
 
 ; ColorPicker --> Modify BLUE RGB Value
 ColorPickerModifyBlue() {
-
+    global                                                      ; Set global Scope inside Function
+    Gui, ColorPicker: Submit, NoHide                            ; Get vVar values without hiding GUI
+    var_picker_selected_color := rgbToHex([ColorPickerRGBRed, ColorPickerRGBGreen, ColorPickerRGBBlue]) ; Set selected to hex(rgb)
+    updateColorPickerSelectedColor()                             ; Update Preview Color
 }
 
 ; ColorPicker --> Submit Color FOrm
 ColorPickerSubmitForm() {
-    
+    global                                                      ; Set global Scope inside Function
+    Gui, ColorPicker: Destroy                                   ; Close ColorPicker
+    toggleParentWindow(1) 
+
+    if (var_picker_count = 1)
+        var_combo_color_1 := var_picker_selected_color
+    if (var_picker_count = 2)
+        var_combo_color_2 := var_picker_selected_color
+    if (var_picker_count = 3)
+        var_combo_color_3 := var_picker_selected_color
+    if (var_picker_count = 4)
+        var_combo_color_4 := var_picker_selected_color
+    if (var_picker_count = 5)
+        var_combo_color_5 := var_picker_selected_color
+    if (var_picker_count = 6)
+        var_slider_border_color := var_picker_selected_color
+    if (var_picker_count = 7)
+        var_slider_track_color := var_picker_selected_color
+
+    ; Update BG Colors
+    updateTreeViewBackground()
+}
+
+; PreviewPane --> Open Hyperlink based on which form is selected
+OpenPreviewLink() {
+    global                                                      ; Set global Scope inside Function
+    if (var_selected_form = "Element") {
+        Run, % hl_preview_element
+    } else if (var_selected_form = "Player") {
+        Run, % hl_preview_player
+    } else if (var_selected_form = "UIColor") {
+        Run, % hl_preview_uicolor
+    }
+}
+
+; PreviewPane --> Open Hyperlink to Source Code
+OpenSourceLink() {
+    Run, % hl_source_code
+}
+
+; PreviewPane --> Open Hyperlink to Download correct Skin version
+OpenDownloadLink() {
+    Run, % hl_skin_download
 }
 
 ; ##------------------------------------##
@@ -1007,8 +1231,8 @@ toggleElementForm(name, vis := 0) {
     }
 
     ; Define/update local vars
-    StringLower, name, name                                     ; Set %name% to lowercase
     local visCmd := vis = 1 ? "Show" : "Hide"                   ; Set visibility command
+    StringLower, name, name                                     ; Set %name% to lowercase
 
     ; Handler for "ALL" name
     if (name = "all") {
@@ -1016,7 +1240,9 @@ toggleElementForm(name, vis := 0) {
         GuiControl, %visCmd%, CursorElementOptionTrailText
         GuiControl, %visCmd%, CursorElementOptionSmokeText
         GuiControl, %visCmd%, CursorElementOptionTrailSolidText
+        GuiControl, %visCmd%, CursorElementOptionTrailSolidEnableText
         GuiControl, %visCmd%, OtherElementOptionTypeText
+        GuiControl, %visCmd%, OtherElementOptionColorText
         GuiControl, %visCmd%, CursorElementOptionColor
         GuiControl, %visCmd%, CursorElementOptionTrail
         GuiControl, %visCmd%, CursorElementOptionSmoke
@@ -1024,12 +1250,17 @@ toggleElementForm(name, vis := 0) {
         GuiControl, %visCmd%, HitburstElementOptionType
         GuiControl, %visCmd%, ReverseArrowElementOptionType
         GuiControl, %visCmd%, SliderballElementOptionType
+        GuiControl, %visCmd%, ManiaElementOptionType
+        GuiControl, %visCmd%, ManiaElementArrowOptionColor
+        GuiControl, %visCmd%, ManiaELementBarOptionColor
+        GuiControl, %visCmd%, ManiaELementDotOptionColor
         return
     } else if (name = "cursor") {
         GuiControl, %visCmd%, CursorElementOptionColorText
         GuiControl, %visCmd%, CursorElementOptionTrailText
         GuiControl, %visCmd%, CursorElementOptionSmokeText
         GuiControl, %visCmd%, CursorElementOptionTrailSolidText
+        GuiControl, %visCmd%, CursorElementOptionTrailSolidEnableText
         GuiControl, %visCmd%, CursorElementOptionColor
         GuiControl, %visCmd%, CursorElementOptionTrail
         GuiControl, %visCmd%, CursorElementOptionSmoke
@@ -1043,6 +1274,39 @@ toggleElementForm(name, vis := 0) {
     } else if (name = "sliderball") {
         GuiControl, %visCmd%, OtherElementOptionTypeText
         GuiControl, %visCmd%, SliderballElementOptionType
+    } else if (name = "mania") {
+        GuiControl, %visCmd%, OtherElementOptionTypeText
+        GuiControl, %visCmd%, OtherElementOptionColorText
+        GuiControl, %visCmd%, ManiaElementOptionType
+        toggleManiaForm("ALL")
+        toggleManiaForm(ManiaElementOptionType, 1)
+    }
+}
+
+; ElementForm --> Toggle Visibility of Mania Options -- Args: $1: Name, $2: Visible (def: 0)
+toggleManiaForm(name := "", vis := 0) {
+    global                                                      ; Set global Scope inside Function
+
+    ; If Name not passed, return
+    if (name = "") {
+        return
+    }
+
+    ; Define/update local vars
+    local visCmd := vis = 1 ? "Show" : "Hide"                   ; Set visibility command
+    StringLower, name, name                                     ; Set %name% to lowercase
+
+    ; Handler for "ALL" name
+    if (name = "all") {
+        GuiControl, %visCmd%, ManiaElementArrowOptionColor
+        GuiControl, %visCmd%, ManiaElementBarOptionColor
+        GuiControl, %visCmd%, ManiaElementDotOptionColor
+    } else if (name = "arrow") {
+        GuiControl, %visCmd%, ManiaElementArrowOptionColor
+    } else if (name = "bar") {
+        GuiControl, %visCmd%, ManiaElementBarOptionColor
+    } else if (name = "dot") {
+        GuiControl, %visCmd%, ManiaElementDotOptionColor
     }
 }
 
@@ -1061,6 +1325,20 @@ toggleCursorTrailSolidState(state := "") {
         return
     }
     GuiControl, ElementForm: Enable, CursorElementOptionTrailSolid
+}
+
+; UIColorForm --> Update the background colors of the TreeView elements
+updateTreeViewBackground() {
+    global                                                      ; Set global scope inside function
+
+    ; Update Background Colors
+    GuiControl, % "UIColorForm: +Background" var_combo_color_1, UIColorComboColor1
+    GuiControl, % "UIColorForm: +Background" var_combo_color_2, UIColorComboColor2
+    GuiControl, % "UIColorForm: +Background" var_combo_color_3, UIColorComboColor3
+    GuiControl, % "UIColorForm: +Background" var_combo_color_4, UIColorComboColor4
+    GuiControl, % "UIColorForm: +Background" var_combo_color_5, UIColorComboColor5
+    GuiControl, % "UIColorForm: +Background" var_slider_border_color, UIColorSliderborderColor
+    GuiControl, % "UIColorForm: +Background" var_slider_track_color, UIColorSlidertrackColor
 }
 
 ; PlayerForm --> Toggle Visibility of Version Options && update Version Options -- Args: $1: name; $2: visibility (def: 0)
@@ -1120,6 +1398,41 @@ togglePlayerForm(name, vis := 0) {
     GuiControl, %visCmd%, PlayerOptionVersion                   ; Hide Version DDL
 }
 
+; ColorPicker --> Update Preview Color
+updateColorPickerSelectedColor() {
+    global                                                      ; Set global Scope inside Function
+    GuiControl, % "ColorPicker: +Background" var_picker_selected_color, ColorPickerSelectedColor
+}
+
+; ColorPicker --> Update RGB Values
+updateColorPickerRGB() {
+    global                                                      ; Set global Scope inside Function
+    local a_rgb := hexToRGB(var_picker_selected_color)          ; Convert Selected HEX to RGB array
+    GuiControl, ColorPicker:, ColorPickerRGBRed, % (a_rgb[1] != "" ? a_rgb[1] : 0)
+    GuiControl, ColorPicker:, ColorPickerRGBGreen, % (a_rgb[2] != "" ? a_rgb[2] : 0)
+    GuiControl, ColorPicker:, ColorPickerRGBBlue, % (a_rgb[3] != "" ? a_rgb[3] : 0)
+}
+
+; ColorPicker --> Toggle Enabled/Disabled state of all non-Color-Picker windows
+toggleParentWindow(vis := 0) {
+    global                                                      ; Set global Scope inside Function
+    if (vis = 1) {
+        Gui, TopBar: -Disabled
+        Gui, SideBar: -Disabled
+        Gui, ElementForm: -Disabled
+        Gui, UIColorForm: -Disabled
+        Gui, PlayerForm: -Disabled
+        Gui, PreviewPane: -Disabled
+    } else {
+        Gui, TopBar: +Disabled
+        Gui, SideBar: +Disabled
+        Gui, ElementForm: +Disabled
+        Gui, UIColorForm: +Disabled
+        Gui, PlayerForm: +Disabled
+        Gui, PreviewPane: +Disabled
+    }
+}
+
 ; ##---------------------------------------##
 ; #|        Functions: Event Handlers      |#
 ; ##---------------------------------------##
@@ -1133,6 +1446,17 @@ WM_MOUSEMOVE(wParam, lParam, Msg, Hwnd) {
     local y_mouse := ""                                         ; Mouse's Y Position
     local ctrl_mouse := ""                                      ; Control under the Mouse
     local win_mouse := ""                                       ; Window under the Mouse
+    local list_buttons := []                                    ; Buton window handles
+    local is_button := 0                                        ; Flag for handlers
+
+    list_buttons.push({key: hCategoryElementNormal, hwnd: hCategoryElementHover, ui: "Top"})
+    list_buttons.push({key: hCategoryPlayerNormal, hwnd: hCategoryPlayerHover, ui: "Top"})
+    list_buttons.push({key: hCategoryUIColorNormal, hwnd: hCategoryUIColorHover, ui: "Top"})
+    list_buttons.push({key: hBrowseGameDirectoryNormal, hwnd: hBrowseGameDirectoryHover, ui: "Top"})
+    list_buttons.push({key: hSidebarApplyNormal, hwnd: hSidebarApplyHover, ui: "Side"})
+    list_buttons.push({key: hSidebarResetAllNormal, hwnd: hSidebarResetAllHover, ui: "Side"})
+    list_buttons.push({key: hSidebarResetGameplayNormal, hwnd: hSidebarResetGameplayHover, ui: "Side"})
+    list_buttons.push({key: hSidebarResetUIColorNormal, hwnd: hSidebarResetUIColorHover, ui: "Side"})
 
     ; Get Mouse info
     MouseGetPos, x_mouse, y_mouse, win_mouse, ctrl_mouse, 3
@@ -1147,15 +1471,22 @@ WM_MOUSEMOVE(wParam, lParam, Msg, Hwnd) {
 	DllCall("User32.dll\TrackMouseEvent", "UInt", &TME)
     */
 
-    ; Add Hover Functionality for TopBar Buttons
-    GuiControl, % "TopBar: " (ctrl_mouse = hCategoryElementNormal ? "Show" : "Hide"), % hCategoryElementHover
-    GuiControl, % "TopBar: " (ctrl_mouse = hCategoryPlayerNormal ? "Show" : "Hide"), % hCategoryPlayerHover
-    GuiControl, % "TopBar: " (ctrl_mouse = hCategoryUIColorNormal ? "Show" : "Hide"), % hCategoryUIColorHover
-    GuiControl, % "TopBar: " (ctrl_mouse = hBrowseGameDirectoryNormal ? "Show" : "Hide"), % hBrowseGameDirectoryHover
-	GuiControl, % "SideBar: " (ctrl_mouse = hSidebarApplyNormal ? "Show" : "Hide"), % hSidebarApplyHover
-	GuiControl, % "SideBar: " (ctrl_mouse = hSidebarResetAllNormal ? "Show" : "Hide"), % hSidebarResetAllHover
-	GuiControl, % "Sidebar: " (ctrl_mouse = hSidebarResetGameplayNormal ? "Show" : "Hide"), % hSidebarResetGameplayHover
-	GuiControl, % "Sidebar: " (ctrl_mouse = hSidebarResetUIColorNormal ? "Show" : "Hide"), % hSidebarResetUIColorHover
+    ; Iterate over button list -- if the mouse control is one of thse, update && quit
+    for i in list_buttons {
+        if (ctrl_mouse = list_buttons[i].key) {
+            GuiControl, % list_buttons[i].ui "Bar: Show", % list_buttons[i].hwnd
+            is_button := 1
+        } else {
+            GuiControl, % list_buttons[i].ui "Bar: Hide", % list_buttons[i].hwnd
+        }
+    }
+    if (is_button = 1)
+        return
+
+    ; If the mouse is over the color palette, set the below pixel's color to 'hover_color'
+    if (ctrl_mouse = hColorPickerPalette) {
+        var_picker_hover_color := getCoordinateColor(x_mouse, y_mouse)
+    }
 }
 
 ; Left Mouse-Button UP
@@ -1172,146 +1503,6 @@ OnWM_LBUTTONUP(wParam, lParam, msg, hwnd) {
     ; Get Mouse info
     MouseGetPos, x_mouse, y_mouse, win_mouse, ctrl_mouse, 3
     GuiControlGet, ctrl_mouse, Pos, % ctrl_mouse
-
-    ; Apply Active Images on Mouse-Up for TopBar Buttons
-    if (ctrl_mouse = hCategoryElementNormal) {
-        ;var_selected_form := "Element"
-        ;toggleForm("ALL")                                       ; Hide all forms
-        ;toggleForm("Element", 1)                                ; Show ElementForm
-    } else if (ctrl_mouse = hCategoryPlayerNormal) {
-        ;var_selected_form := "Player"
-        ;toggleForm("ALL")                                       ; Hide all forms
-        ;toggleForm("Player", 1)                                 ; Show PlayerForm
-    } else if (ctrl_mouse = hCategoryUIColorNormal) {
-        ;var_selected_form := "UIColor"
-        ;toggleForm("ALL")                                       ; Hide all forms
-        ;toggleForm("UIColor", 1)                                ; Show ElementForm
-    }
-}
-
-; Set System Cursor -- Args: $1: Cursor Name; $2: X Position; $3: Y Position
-setCursor(name := "", xpos := "", ypos := "") {
-    ; Define local variables
-    cursor_blank := 0                                           ; Blank/No Cursor
-    cursor_system := 0                                          ; System/Default Cursor
-    cursor_file := 0                                            ; File cursor
-    cursor_list := []                                           ; List of available cursors
-
-    ; Populate cursor_list
-    cursor_list[1] := "32512IDC_ARROW"
-    cursor_list[2] := "32513IDC_IBEAM"
-    cursor_list[3] := "32514IDC_WAIT"
-    cursor_list[4] := "32515IDC_CROSS"
-    cursor_list[5] := "32516IDC_UPARROW"
-    cursor_list[6] := "32640IDC_SIZE"
-    cursor_list[7] := "32641IDC_ICON"
-    cursor_list[8] := "32642IDC_SIZENWSE"
-    cursor_list[9] := "32643IDC_SIZENESW"
-    cursor_list[10] := "32644IDC_SIZEWE"
-    cursor_list[11] := "32645IDC_SIZENS"
-    cursor_list[12] := "32646IDC_SIZEALL"
-    cursor_list[13] := "32648IDC_NO"
-    cursor_list[14] := "32649IDC_HAND"
-    cursor_list[15] := "32650IDC_APPSTARTING"
-    cursor_list[16] := "32651IDC_HELP"
-
-    ; Determine which cursor to set
-    if (name = "") {                                            ; If no cursor name specified, assume "blank"
-        VarSetCapacity(AndMask, 32*4, 0xFF)                     ; Initialize AND Mask
-        VarSetCapacity(XorMask, 32*4, 0)                        ; Initialize XOR Mask
-        cursor_blank := 1                                       ; Set "blank cursor" flag
-    } else if (FileExist(name) != "") {                         ; If cursor name is an existing file
-        SplitPath, name,,, ext                                  ; Auto-Detect Filetype
-        if (ext = "ico") {                                      ; If Filetype is .ico
-            uType := 0x1                                        ; Set Unicode Type to 0x1
-        } else if (ext in cur,ani) {                            ; If known filetype
-            uType := 0x2                                        ; Set Unicode Type to 0x2
-        } else {                                                ; If unknown filetype
-            MsgBox,, %n_parent%, ERROR:`tInvalid Filetype:`t%ext%           ; Notify User of Error
-            return                                                          ; Quit
-        }
-    } else if (RegExMatch(name, "i)^[0-9]+$") != 0) {           ; If name is an integer (ID Number)
-        for i, j in cursor_list {                               ; Iterate over cursors list
-            if ("" . name = SubStr(j, 1, 5)) {                    ; If name matches an ID number
-                ; Get Cursor Name, ID & Handle
-                cursor_name := SubStr(j, 6)                     ; Get Cursor Name
-                cursor_id := SuBStr(j, 1, 5)                    ; Get Cursor ID
-                cursor_handle := DllCall("LoadCursor", "UInt", 0, "Int", cursor_id)
-                cursor_system := 1                              ; Set "System Cursor" flag
-                break                                           ; Break out of loop
-            }
-        }
-        if (cursor_handle = "") {                               ; If Handle wasn't set
-            MsgBox,, %n_parent%, ERROR:`tInvalid Cursor ID:`t%name%         ; Notify User of Error
-            return                                                          ; Quit
-        }
-    } else if (name != "") {                                    ; If name is a string but hasn't been handled yet
-        if (RegExMatch(name, "i)^IDC_?$") != 0) {               ; Handle only "IDC" or "IDC_" specified
-            MsgBox,, %n_parent%, ERROR:`Invalid Cursor Name:`t%name%        ; Notify User of Error
-            return                                                          ; Quit
-        }
-        for i, j in cursor_list {                               ; Iterate over cursors list
-            if (RegExMatch(j, "i)"name) != 0) {                 ; If name is found in current item
-                ; Get Cursor Name, ID & Handle
-                cursor_name := SubStr(j, 6)                     ; Get Cursor Name
-                cursor_id := SuBStr(j, 1, 5)                    ; Get Cursor ID
-                cursor_handle := DllCall("LoadCursor", "UInt", 0, "Int", cursor_id)
-                cursor_system := 1                              ; Set "System Cursor" flag
-                break                                           ; Break out of loop
-            }
-        }
-        if (cursor_handle = "") {                               ; If Handle wasn't set
-            MsgBox,, %n_parent%, ERROR:`tInvalid Cursor Name:`t%name%       ; Notify User of Error
-            return                                                          ; Quit
-        }
-    } else {                                                    ; If name hasn't been handled yet
-        MsgBox,, %n_parent%, ERROR:`tInvalid File Path, Cursor Name or ID   ; Notify user of Error
-        return                                                              ; Quit
-    }
-
-    ; Update Cursor
-    for i, j in cursor_list {
-        ; If Blank Cursor requested
-        if (cursor_blank = 1) {
-            ; Create This Blank Cursor
-            %cursor_blank%%i% := DllCall("CreateCursor", "UInt", 0, "Int", 0, "Int", 0, "Int", 32, "Int", 32, "UInt", &AndMask, "UInt", &XorMask)
-            ; Get Cursor Image
-            cursor_handle := DllCall("CopyImage", "UInt", %cursor_blank%%i%, "UInt", 0x2, "Int", 0, "Int", 0, "Int", 0)
-            ; Load Cursor
-            DllCall("SetSystemCursor", "UInt", cursor_handle, "Int", SubStr(j, 1, 5))
-        ; If System Cursor requested
-        } else if (cursor_system = 1) {
-            ; Get Cursor Handle
-            cursor_handle := DllCall("LoadCursor", "UInt", 0, "Int", cursor_id)
-            ; Get This Cursor Image
-            %cursor_system%%i% := DllCall("CopyImage", "UInt", cursor_handle, "UInt", 0x2, "Int", cx, "Int", cy, "UInt", 0)
-            ; Get Cursor image
-            cursor_handle := DllCall("CopyImage", "UInt", %cursor_system%%i%, "UInt", 0x2, "Int", 0, "Int", 0, "Int", 0)
-            ; Load Cursor
-            DllCall("SetSystemCursor", "UInt", cursor_handle, "Int", SubStr(j, 1, 5))
-        ; If Cursor-From-File Requested
-        } else if (cursor_file = 1) {
-            ; Get This Cursor
-            %cursor_file%%i% := DllCall("LoadImageA", "UInt", 0, "Str", name, "UInt", uType, "Int", cx, "Int", cy, "UInt", 0x10)
-            ; Load Cursor
-            DllCall("SetSystemCursor", "UInt", %cursor_file%%i%, "Int", SubStr(j, 1, 5))
-        }
-    }
-}
-
-; Restore Default Cursor
-restoreCursor() {
-    ; Set SPI_SETCURSORS Value
-    SPI_SETCURSORS := 0x57
-
-    ; Restore Default Cursor
-    DllCall( "SystemParametersInfo", "UInt", SPI_SETCURSORS, "UInt", 0, "UInt", 0, "UInt", 0 )
-}
-
-; Update Selected-Color Preview Window
-updateColorPickerPreviewColor() {
-    global                                                      ; Set global Scope inside Function
-    GuiControl, % "ColorPicker: +Background" var_picker_selected_color, ColorPickerSelectedColor 
 }
 
 ; ##--------------------------------##
@@ -1324,36 +1515,45 @@ InitEnv() {
 
     ; Install Assets
     ;FileInstall, Source, Dest, 1
+    
+    ; Define Local Variables
+    local file_list := {}                                       ; Define assets to be extracted
+    file_list.push({name: "categoryElementsNormal", type: "png"})   ; To add an assets, define its 'name' and file 'type'
+    file_list.push({name: "categoryElementsHover", type: "png"})
+    file_list.push({name: "categoryElementsActive", type: "png"})
+    file_list.push({name: "categoryPlayersNormal", type: "png"})
+    file_list.push({name: "categoryPlayersHover", type: "png"})
+    file_list.push({name: "categoryPlayersActive", type: "png"})
+    file_list.push({name: "categoryUIColorsNormal", type: "png"})
+    file_list.push({name: "categoryUIColorsHover", type: "png"})
+    file_list.push({name: "categoryUIColorsActive", type: "png"})
+    file_list.push({name: "browseGameDirectoryNormal", type: "png"})
+    file_list.push({name: "browseGameDirectoryHover", type: "png"})
+    file_list.push({name: "applyNormal", type: "png"})
+    file_list.push({name: "applyHover", type: "png"})
+    file_list.push({name: "resetAllNormal", type: "png"})
+    file_list.push({name: "resetAllHover", type: "png"})
+    file_list.push({name: "resetGameplayNormal", type: "png"})
+    file_list.push({name: "resetGameplayHover", type: "png"})
+    file_list.push({name: "resetUIColorNormal", type: "png"})
+    file_list.push({name: "resetUIColorHover", type: "png"})
+    file_list.push({name: "sidebarResetOutline", type: "png"})
+    file_list.push({name: "formBG", type: "png"})
+    file_list.push({name: "hsbImg", type: "png"})
+    file_list.push({name: "debussy", type: "ttf"})
+    file_list.push({name: "Roboto-Regular", type: "ttf"})
 
-    ; Extract Assets
-    if !(FileExist(d_asset)) {
+    ; Create asset directory if it doesn't exist
+    if !(FileExist(d_asset))
         FileCreateDir, %d_asset%
-    }
-    Extract_categoryElementsNormal(d_asset "\categoryElementsNormal.png")
-    Extract_categoryElementsHover(d_asset "\categoryElementsHover.png")
-    Extract_categoryElementsActive(d_asset "\categoryElementsActive.png")
-    Extract_categoryPlayersNormal(d_asset "\categoryPlayersNormal.png")
-    Extract_categoryPlayersHover(d_asset "\categoryPlayersHover.png")
-    Extract_categoryPlayersActive(d_asset "\categoryPlayersActive.png")
-    Extract_categoryUIColorsNormal(d_asset "\categoryUIColorsNormal.png")
-    Extract_categoryUIColorsHover(d_asset "\categoryUIColorsHover.png")
-    Extract_categoryUIColorsActive(d_asset "\categoryUIColorsActive.png")
-    Extract_browseGameDirectoryNormal(d_asset "\browseGameDirectoryNormal.png")
-    Extract_browseGameDirectoryHover(d_asset "\browseGameDirectoryHover.png")
-	Extract_applyNormal(d_asset "\applyNormal.png")
-	Extract_applyHover(d_asset "\applyHover.png")
-	Extract_resetAllNormal(d_asset "\resetAllNormal.png")
-	Extract_resetAllHover(d_asset "\resetAllHover.png")
-	Extract_resetGameplayNormal(d_asset "\resetGameplayNormal.png")
-	Extract_resetGameplayHover(d_asset "\resetGameplayHover.png")
-	Extract_resetUIColorNormal(d_asset "\resetUIColorNormal.png")
-	Extract_resetUIColorHover(d_asset "\resetUIColorHover.png")
-	Extract_sidebarOutlineWithText(d_asset "\sidebarResetOutline.png")
-    Extract_formBG(d_asset "\formBG.png")
-    Extract_hsbImage(d_asset "\hsbImg.png")
-    Extract_fontDebussy(d_asset "\debussy.ttf")
-    Extract_fontRobotoRegular(d_asset "\Roboto-Regular.ttf")
 
+    ; Extract any missing assets
+    for i in file_list {
+        if !(FileExist(d_asset "\" file_list[i].name "." file_list[i].type)) {
+            local funcname := file_list[i].name
+            Extract_%funcname%(d_asset "\" file_list[i].name "." file_list[i].type)
+        }
+    }
 
     ; Add Fonts
     DllCall("Gdi32.dll\AddFontResourceEx", "Str", d_asset "\debussy.ttf", "UInt", 0x10, "UInt", 0)
@@ -1364,6 +1564,9 @@ InitEnv() {
     defineHitbursts()
     defineReverseArrows()
     defineSliderballs()
+    defineManiaArrows()
+    defineManiaBars()
+    defineManiaDots()
     defineUIColors()
     definePlayers()
 
@@ -1396,9 +1599,6 @@ Cleanup() {
     ; Remove Fonts
     DllCall("Gdi32.dll\RemoveFontResourceEx", "Str", d_asset "\debussy.ttf", "UInt", 0x10, "UInt", 0)
     DllCall("Gdi32.dll\RemoveFontResourceEx", "Str", d_asset "\Roboto-Regular.ttf", "UInt", 0x10, "UInt", 0)
-
-    ; Remove Temporary Folder
-    FileRemoveDir, %d_asset%, 1
 }
 
 ; Define Cursor Objects
@@ -1416,16 +1616,16 @@ defineCursors() {
 
         See defineGuiSections() for more information
     */
-    co_cyan := new Cursor("Cyan", "CYAN", 0)
-    co_eclipse := new Cursor("Eclipse", "ECLIPSE", 0)
-    co_green := new Cursor("Green", "GREEN", 0)
-    co_hotpink := new Cursor("Hot Pink", "HOT PINK", 0)
-    co_orange := new Cursor("Orange", "ORANGE", 0)
-    co_pink := new Cursor("Pink", "PINK", 0)
-    co_purple := new Cursor("Purple", "PURPLE", 0)
-    co_red := new Cursor("Red", "RED", 0)
-    co_turquoise := new Cursor("Turquoise", "TURQUOISE", 0)
-    co_yellow := new Cursor("Yellow", "YELLOW", 1)
+    local co_cyan := new Cursor("Cyan", "CYAN", 0)
+    local co_eclipse := new Cursor("Eclipse", "ECLIPSE", 0)
+    local co_green := new Cursor("Green", "GREEN", 0)
+    local co_hotpink := new Cursor("Hot Pink", "HOT PINK", 0)
+    local co_orange := new Cursor("Orange", "ORANGE", 0)
+    local co_pink := new Cursor("Pink", "PINK", 0)
+    local co_purple := new Cursor("Purple", "PURPLE", 0)
+    local co_red := new Cursor("Red", "RED", 0)
+    local co_turquoise := new Cursor("Turquoise", "TURQUOISE", 0)
+    local co_yellow := new Cursor("Yellow", "YELLOW", 1)
 
     /*
         To make additions to this script easier to manage going forward, each Skin customization
@@ -1439,6 +1639,9 @@ defineCursors() {
         Hitbursts       -->         l_hitbursts.push(ho_<name>)
         ReverseArrows   -->         l_reversearrows.push(ro_<name>)
         Sliderballs     -->         l_sliderballs.push(so_<name>)
+        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
+        Mania Bars      -->         l_maniabars.push(mbo_<name>)
+        Mania Dots      -->         l_maniadots.push(mdo_<name>)
         UIColors        -->         l_uicolors.push(uo_<name>)
         Players         -->         l_players.push(po_<name>)
     */
@@ -1465,9 +1668,9 @@ defineHitbursts() {
 
         See defineCursors() & defineGuiSections() for more information
     */
-    ho_numbers := new Hitburst("Numbers", "NUMBERS", 0)
-    ho_smallbars := new Hitburst("Small Bars", "SMALLER BARS", 0)
-    ho_bars := new Hitburst("Bars", "BARS", 1)
+    local ho_numbers := new Hitburst("Numbers", "NUMBERS", 0)
+    local ho_smallbars := new Hitburst("Small Bars", "SMALLER BARS", 0)
+    local ho_bars := new Hitburst("Bars", "BARS", 1)
 
     /*
         To make additions to this script easier to manage going forward, each Skin customization
@@ -1481,6 +1684,9 @@ defineHitbursts() {
         Hitbursts       -->         l_hitbursts.push(ho_<name>)
         ReverseArrows   -->         l_reversearrows.push(ro_<name>)
         Sliderballs     -->         l_sliderballs.push(so_<name>)
+        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
+        Mania Bars      -->         l_maniabars.push(mbo_<name>)
+        Mania Dots      -->         l_maniadots.push(mdo_<name>)
         UIColors        -->         l_uicolors.push(uo_<name>)
         Players         -->         l_players.push(po_<name>)
     */
@@ -1500,9 +1706,9 @@ defineReverseArrows() {
 
         See defineCursors() & defineGuiSections() for more information
     */
-    ro_arrow := new ReverseArrow("Arrow", "ARROW", 0)
-    ro_half := new ReverseArrow("Half", "HALF", 0)
-    ro_bar := new ReverseArrow("Bar", "BAR", 1)
+    local ro_arrow := new ReverseArrow("Arrow", "ARROW", 0)
+    local ro_half := new ReverseArrow("Half", "HALF", 0)
+    local ro_bar := new ReverseArrow("Bar", "BAR", 1)
 
     /*
         To make additions to this script easier to manage going forward, each Skin customization
@@ -1516,6 +1722,9 @@ defineReverseArrows() {
         Hitbursts       -->         l_hitbursts.push(ho_<name>)
         ReverseArrows   -->         l_reversearrows.push(ro_<name>)
         Sliderballs     -->         l_sliderballs.push(so_<name>)
+        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
+        Mania Bars      -->         l_maniabars.push(mbo_<name>)
+        Mania Dots      -->         l_maniadots.push(mdo_<name>)
         UIColors        -->         l_uicolors.push(uo_<name>)
         Players         -->         l_players.push(po_<name>)
     */
@@ -1535,9 +1744,9 @@ defineSliderballs() {
 
         See defineCursors() & defineGuiSections() for more information
     */
-    so_single := new Sliderball("Single", "SINGLE", 0)
-    so_double := new Sliderball("Double", "DOUBLE", 0)
-    so_default := new Sliderball("Side Bars", "SIDE BARS", 1)
+    local so_single := new Sliderball("Single", "SINGLE", 0)
+    local so_double := new Sliderball("Double", "DOUBLE", 0)
+    local so_default := new Sliderball("Side Bars", "SIDE BARS", 1)
 
     /*
         To make additions to this script easier to manage going forward, each Skin customization
@@ -1551,6 +1760,9 @@ defineSliderballs() {
         Hitbursts       -->         l_hitbursts.push(ho_<name>)
         ReverseArrows   -->         l_reversearrows.push(ro_<name>)
         Sliderballs     -->         l_sliderballs.push(so_<name>)
+        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
+        Mania Bars      -->         l_maniabars.push(mbo_<name>)
+        Mania Dots      -->         l_maniadots.push(mdo_<name>)
         UIColors        -->         l_uicolors.push(uo_<name>)
         Players         -->         l_players.push(po_<name>)
     */
@@ -1559,6 +1771,111 @@ defineSliderballs() {
     l_sliderballs.push(so_single)
     l_sliderballs.push(so_double)
     l_sliderballs.push(so_default)
+}
+
+; Define ManiaArrow Objects
+defineManiaArrows() {
+    global                                                      ; Set global Scope inside Function
+    /*
+        To define a new Mania Arrow type, follow the following pattern
+        mao_<type := new ManiaArrow(name, dir)
+
+        See defineCursors() & defineGuiSections() for more information
+    */
+    local mao_blue := new ManiaArrow("Blue", "BLUE")
+    local mao_red := new ManiaArrow("Red", "RED")
+    /*
+        To make additions to this script easier to manage going forward, each skin customization
+        gets added to its own "list" or "array" of similar objects.  This allows the
+        UI to be updated on the next run after defining new objects, and adding them to their
+        respective lists.
+
+        To ensure proper implementation of additions, simply add the item to the appropriate list:
+
+        Cursors         -->         l_cursors.push(co_<name>)
+        Hitbursts       -->         l_hitbursts.push(ho_<name>)
+        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
+        Sliderballs     -->         l_sliderballs.push(so_<name>)
+        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
+        Mania Bars      -->         l_maniabars.push(mbo_<name>)
+        Mania Dots      -->         l_maniadots.push(mdo_<name>)
+        UIColors        -->         l_uicolors.push(uo_<name>)
+        Players         -->         l_players.push(po_<name>)
+    */
+
+    ; Add ManiaArrows to list of Mania Arrow Objects
+    l_maniaarrows.push(mao_blue)
+    l_maniaarrows.push(mao_red)
+}
+
+; Define ManiaBar Objects
+defineManiaBars() {
+    global                                                      ; Set global Scope inside Function
+    /*
+        To define a new Mania Arrow type, follow the following pattern
+        mbo_<type := new ManiaBar(name, dir)
+
+        See defineCursors() & defineGuiSections() for more information
+    */
+    local mbo_blue := new ManiaBar("Blue", "BLUE")
+    local mbo_red := new ManiaBar("Red", "RED")
+    /*
+        To make additions to this script easier to manage going forward, each skin customization
+        gets added to its own "list" or "array" of similar objects.  This allows the
+        UI to be updated on the next run after defining new objects, and adding them to their
+        respective lists.
+
+        To ensure proper implementation of additions, simply add the item to the appropriate list:
+
+        Cursors         -->         l_cursors.push(co_<name>)
+        Hitbursts       -->         l_hitbursts.push(ho_<name>)
+        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
+        Sliderballs     -->         l_sliderballs.push(so_<name>)
+        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
+        Mania Bars      -->         l_maniabars.push(mbo_<name>)
+        Mania Dots      -->         l_maniadots.push(mdo_<name>)
+        UIColors        -->         l_uicolors.push(uo_<name>)
+        Players         -->         l_players.push(po_<name>)
+    */
+
+    ; Add ManiaArrows to list of Mania Arrow Objects
+    l_maniabars.push(mbo_blue)
+    l_maniabars.push(mbo_red)
+}
+
+; Define ManiaDot Objects
+defineManiaDots() {
+    global                                                      ; Set global Scope inside Function
+    /*
+        To define a new Mania Arrow type, follow the following pattern
+        mdo_<type := new ManiaDot(name, dir)
+
+        See defineCursors() & defineGuiSections() for more information
+    */
+    local mdo_blue := new ManiaDot("Blue", "BLUE")
+    local mdo_red := new ManiaDot("Red", "RED")
+    /*
+        To make additions to this script easier to manage going forward, each skin customization
+        gets added to its own "list" or "array" of similar objects.  This allows the
+        UI to be updated on the next run after defining new objects, and adding them to their
+        respective lists.
+
+        To ensure proper implementation of additions, simply add the item to the appropriate list:
+
+        Cursors         -->         l_cursors.push(co_<name>)
+        Hitbursts       -->         l_hitbursts.push(ho_<name>)
+        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
+        Sliderballs     -->         l_sliderballs.push(so_<name>)
+        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
+        Mania Bars      -->         l_maniabars.push(mbo_<name>)
+        Mania Dots      -->         l_maniadots.push(mdo_<name>)
+        UIColors        -->         l_uicolors.push(uo_<name>)
+        Players         -->         l_players.push(po_<name>)
+    */
+
+    ; Add ManiaArrows to list of Mania Arrow Objects
+    l_maniadots.push(mdo_blue)
+    l_maniadots.push(mdo_red)
 }
 
 ; Define UIColor Objects
@@ -1570,16 +1887,16 @@ defineUIColors() {
 
         See defineCursors() & defineGuiSections() for more information
     */
-    uo_cyan := new UIColor("Cyan", "CYAN", 0)
-    uo_darkgray := new UIColor("Dark Gray", "DARK GRAY", 0)
-    uo_evergreen := new UIColor("Evergreen", "EVERGREEN", 0)
-    uo_hotpink := new UIColor("Hot Pink", "HOT PINK", 0)
-    uo_lightgray := new UIColor("Light Gray", "LIGHT GRAY", 0)
-    uo_orange := new UIColor("Orange", "ORANGE", 0)
-    uo_purple := new UIColor("Purple", "PURPLE", 0)
-    uo_red := new UIColor("Red", "RED", 0)
-    uo_yellow := new UIColor("Yellow", "YELLOW", 0)
-    uo_blue := new UIColor("Blue", "BLUE", 1)
+    local uo_cyan := new UIColor("Cyan", "CYAN", 0)
+    local uo_darkgray := new UIColor("Dark Gray", "DARK GRAY", 0)
+    local uo_evergreen := new UIColor("Evergreen", "EVERGREEN", 0)
+    local uo_hotpink := new UIColor("Hot Pink", "HOT PINK", 0)
+    local uo_lightgray := new UIColor("Light Gray", "LIGHT GRAY", 0)
+    local uo_orange := new UIColor("Orange", "ORANGE", 0)
+    local uo_purple := new UIColor("Purple", "PURPLE", 0)
+    local uo_red := new UIColor("Red", "RED", 0)
+    local uo_yellow := new UIColor("Yellow", "YELLOW", 0)
+    local uo_blue := new UIColor("Blue", "BLUE", 1)
 
     /*
         To make additions to this script easier to manage going forward, each Skin customization
@@ -1593,6 +1910,9 @@ defineUIColors() {
         Hitbursts       -->         l_hitbursts.push(ho_<name>)
         ReverseArrows   -->         l_reversearrows.push(ro_<name>)
         Sliderballs     -->         l_sliderballs.push(so_<name>)
+        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
+        Mania Bars      -->         l_maniabars.push(mbo_<name>)
+        Mania Dots      -->         l_maniadots.push(mdo_<name>)
         UIColors        -->         l_uicolors.push(uo_<name>)
         Players         -->         l_players.push(po_<name>)
     */
@@ -1624,46 +1944,46 @@ definePlayers() {
 
         See below on how to add additional options to PlayerOptions objects
     */
-    po_404aimnotfound := new PlayerOptions("404AimNotFound", "404ANF")
-    po_abyssal := new PlayerOptions("Abyssal", "ABYSSAL")
-    po_angelsim := new PlayerOptions("Angelsim", "ANGELSIM")
-    po_axarious := new PlayerOptions("Axarious", "AXARIOUS")
-    po_azer := new PlayerOptions("Azer", "AZER")
-    po_azr8 := new PlayerOptions("azr8 + GayzMcGee", "AZR8 + MCGEE")
-    po_badeu := new PlayerOptions("badeu", "BADEU")
-    po_beasttrollmc := new PlayerOptions("BeasttrollMC", "BEASTTROLLMC")
-    po_bikko := new PlayerOptions("Bikko", "BIKKO")
-    po_bubbleman := new PlayerOptions("Bubbleman", "BUBBLEMAN")
-    po_comfort := new PlayerOptions("Comfort", "COMFORT")
-    po_cookiezi := new PlayerOptions("Cookiezi", "COOKIEZI")
-    po_doomsday := new PlayerOptions("Doomsday", "DOOMSDAY")
-    po_dustice := new PlayerOptions("Dustice", "DUSTICE")
-    po_emilia := new PlayerOptions("Emilia", "EMILIA")
-    po_flyingtuna := new PlayerOptions("FlyingTuna", "FLYINGTUNA")
-    po_freddiebenson := new PlayerOptions("Freddie Benson", "FREDDIE BENSON")
-    po_funorange := new PlayerOptions("FunOrange", "FUNORANGE")
-    po_gn := new PlayerOptions("-GN", "GN")
-    po_hvick225 := new PlayerOptions("hvick225", "HVICK225")
-    po_idke := new PlayerOptions("idke", "IDKE")
-    po_informous := new PlayerOptions("Informous", "INFORMOUS")
-    po_karthy := new PlayerOptions("Karthy", "KARTHY")
-    po_mathi := new PlayerOptions("Mathi", "MATHI")
-    po_monko2k := new PlayerOptions("Monko2k", "MONKO2K")
-    po_rafis := new PlayerOptions("Rafis", "RAFIS")
-    po_rohulk := new PlayerOptions("Rohulk", "ROHULK")
-    po_rrtyui := new PlayerOptions("rrtyui", "RRTYUI")
-    po_rustbell := new PlayerOptions("Rustbell", "RUSTBELL")
-    po_ryuk := new PlayerOptions("RyuK", "RYUK")
-    po_seysant := new PlayerOptions("Seysant", "SEYSANT")
-    po_sotarks := new PlayerOptions("Sotarks", "SOTARKS")
-    po_sweden := new PlayerOptions("Sweden", "SWEDEN")
-    po_talala := new PlayerOptions("talala", "TALALA")
-    po_toy := new PlayerOptions("Toy", "TOY")
-    po_tranquility := new PlayerOptions("Tranquil-ity", "TRANQUIL-ITY")
-    po_varvalian := new PlayerOptions("Varvalian", "VARVALIAN")
-    po_vaxei := new PlayerOptions("Vaxei", "VAXEI")
-    po_wubwoofwolf := new PlayerOptions("WubWoofWolf", "WWW")
-    po_xilver := new PlayerOptions("Xilver X Recia", "XILVER X RECIA")
+    local po_404aimnotfound := new PlayerOptions("404AimNotFound", "404ANF")
+    local po_abyssal := new PlayerOptions("Abyssal", "ABYSSAL")
+    local po_angelsim := new PlayerOptions("Angelsim", "ANGELSIM")
+    local po_axarious := new PlayerOptions("Axarious", "AXARIOUS")
+    local po_azer := new PlayerOptions("Azer", "AZER")
+    local po_azr8 := new PlayerOptions("azr8 + GayzMcGee", "AZR8 + MCGEE")
+    local po_badeu := new PlayerOptions("badeu", "BADEU")
+    local po_beasttrollmc := new PlayerOptions("BeasttrollMC", "BEASTTROLLMC")
+    local po_bikko := new PlayerOptions("Bikko", "BIKKO")
+    local po_bubbleman := new PlayerOptions("Bubbleman", "BUBBLEMAN")
+    local po_comfort := new PlayerOptions("Comfort", "COMFORT")
+    local po_cookiezi := new PlayerOptions("Cookiezi", "COOKIEZI")
+    local po_doomsday := new PlayerOptions("Doomsday", "DOOMSDAY")
+    local po_dustice := new PlayerOptions("Dustice", "DUSTICE")
+    local po_emilia := new PlayerOptions("Emilia", "EMILIA")
+    local po_flyingtuna := new PlayerOptions("FlyingTuna", "FLYINGTUNA")
+    local po_freddiebenson := new PlayerOptions("Freddie Benson", "FREDDIE BENSON")
+    local po_funorange := new PlayerOptions("FunOrange", "FUNORANGE")
+    local po_gn := new PlayerOptions("-GN", "GN")
+    local po_hvick225 := new PlayerOptions("hvick225", "HVICK225")
+    local po_idke := new PlayerOptions("idke", "IDKE")
+    local po_informous := new PlayerOptions("Informous", "INFORMOUS")
+    local po_karthy := new PlayerOptions("Karthy", "KARTHY")
+    local po_mathi := new PlayerOptions("Mathi", "MATHI")
+    local po_monko2k := new PlayerOptions("Monko2k", "MONKO2K")
+    local po_rafis := new PlayerOptions("Rafis", "RAFIS")
+    local po_rohulk := new PlayerOptions("Rohulk", "ROHULK")
+    local po_rrtyui := new PlayerOptions("rrtyui", "RRTYUI")
+    local po_rustbell := new PlayerOptions("Rustbell", "RUSTBELL")
+    local po_ryuk := new PlayerOptions("RyuK", "RYUK")
+    local po_seysant := new PlayerOptions("Seysant", "SEYSANT")
+    local po_sotarks := new PlayerOptions("Sotarks", "SOTARKS")
+    local po_sweden := new PlayerOptions("Sweden", "SWEDEN")
+    local po_talala := new PlayerOptions("talala", "TALALA")
+    local po_toy := new PlayerOptions("Toy", "TOY")
+    local po_tranquility := new PlayerOptions("Tranquil-ity", "TRANQUIL-ITY")
+    local po_varvalian := new PlayerOptions("Varvalian", "VARVALIAN")
+    local po_vaxei := new PlayerOptions("Vaxei", "VAXEI")
+    local po_wubwoofwolf := new PlayerOptions("WubWoofWolf", "WWW")
+    local po_xilver := new PlayerOptions("Xilver X Recia", "XILVER X RECIA")
 
     /*
         To add additional options to a player:
@@ -1797,12 +2117,15 @@ definePlayers() {
 
         To ensure proper implementation of additions, simply add the item to the approporate list:
 
-        Cursors         -->         l_cursors.push(c_<name>)
-        Hitbursts       -->         l_hitbursts.push(h_<name>)
-        ReverseArrows   -->         l_reversearrows.push(r_<name>)
-        Sliderballs     -->         l_sliderballs.push(s_<name>)
-        UIColors        -->         l_uicolors.push(u_<name>)
-        Players         -->         l_players.push(p_<name>)
+        Cursors         -->         l_cursors.push(co_<name>)
+        Hitbursts       -->         l_hitbursts.push(ho_<name>)
+        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
+        Sliderballs     -->         l_sliderballs.push(so_<name>)
+        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
+        Mania Bars      -->         l_maniabars.push(mbo_<name>)
+        Mania Dots      -->         l_maniadots.push(mdo_<name>)
+        UIColors        -->         l_uicolors.push(uo_<name>)
+        Players         -->         l_players.push(po_<name>)
     */
 
     ; Add Players to list of Player Objects
@@ -1980,50 +2303,40 @@ applyForm() {
                     d_opt3 := j.elementsDir "\" j.cursorsDir "\" j.cursorSmokeDir "\" j.dir
                 }
             }
-            
-            ; If %d_opt2% is still blank
-            if (CursorElementOptionTrail = "None") {        ; If "None" is selected
-				d_opt2 := d_opt1 "\..\..\" d_cursor_notrail	; Set path to one directory higher than opt1, followed by d_cursor_notrail
-            }
 
             ; Get Directory for Option 4, if enabled
             if (CursorElementOptionTrailSolid = 1) {
                 d_opt4 := d_opt1 "\..\..\" d_cursor_solidtrail
             }
+            
+            ; If %d_opt2% is still blank
+            if (CursorElementOptionTrail = "None") {        ; If "None" is selected
+				d_opt2 := d_opt1 "\..\..\" d_cursor_notrail	; Set path to one directory higher than opt1, followed by d_cursor_notrail
+                d_opt4 := ""
+            }
 
             ; Verify Paths Exist
+            Gui, ElementForm: +OwnDialogs                           ; Make Dialogs Modal
             if (FileExist(src "\" d_opt1) = "") {
-                Gui, SideBar: +OwnDialogs                       ; Make Dialogs Modal
                 MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
-                Gui, SideBar: -OwnDialogs                       ; Disable Modal Dialogs
                 return
             }
             if (FileExist(src "\" d_opt2) = "") {
-                Gui, SideBar: +OwnDialogs                       ; Make Dialogs Modal
                 MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt2%
-                Gui, SideBar: -OwnDialogs                       ; Disable Modal Dialogs
                 return
             }
             if (FileExist(src "\" d_opt3) = "") {
-                Gui, SideBar: +OwnDialogs                       ; Make Dialogs Modal
                 MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt3%
-                Gui, SideBar: -OwnDialogs                       ; Disable Modal Dialogs
                 return
             }
 			if (FileExist(src "\" d_opt4) = "") {
-                Gui, SideBar: +OwnDialogs                       ; Make Dialogs Modal
                 MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt4%
-                Gui, SideBar: -OwnDialogs                       ; Disable Modal Dialogs
                 return
 			}
+            Gui, ElementForm: -OwnDialogs                           ; Disable Modal Dialogs
 
 			; Delete Solid-Trail Image
-			Loop, Files, %src%\%d_opt1%\..\..\%d_cursor_solidtrail%, F
-			{
-				if (FileExist(dst "\" A_LoopFileName) != "") {
-					FileDelete, %dst%\%A_LoopFileName%
-				}
-			}
+            FileDelete, %dst%\cursormiddle@2x.png
 
 			; Copy Cursor Color, Trail and Smoke to Destination
 			FileCopy, %src%\%d_opt3%\*.*, %dst%, 1
@@ -2045,12 +2358,12 @@ applyForm() {
             }
 
             ; Verify Paths Exist
+            Gui, ElementForm: +OwnDialogs                           ; Make Dialogs Modal
             if (FileExist(src "\" d_opt1) = "") {
-                Gui, SideBar: +OwnDialogs                       ; Make Dialogs Modal
                 MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
-                Gui, SideBar: +OwnDialogs                       ; Disable Modal Dialogs
                 return
             }
+            Gui, ElementForm: -OwnDialogs                           ; Disable Modal Dialogs
 
             ; Copy Base Hitburst to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
@@ -2065,12 +2378,12 @@ applyForm() {
             }
 
             ; Verify Paths Exist
+            Gui, ElementForm: +OwnDialogs                           ; Make Dialogs Modal
             if (FileExist(src "\" d_opt1) = "") {
-                Gui, SideBar: +OwnDialogs                       ; Make Dialogs Modal
                 MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
-                Gui, SideBar: +OwnDialogs                       ; Disable Modal Dialogs
                 return
             }
+            Gui, ElementForm: -OwnDialogs                           ; Disable Modal Dialogs
 
             ; Copy Base Hitburst to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
@@ -2085,15 +2398,106 @@ applyForm() {
             }
 
             ; Verify Paths Exist
+            Gui, ElementForm: +OwnDialogs                           ; Make Dialogs Modal
             if (FileExist(src "\" d_opt1) = "") {
-                Gui, SideBar: +OwnDialogs                       ; Make Dialogs Modal
                 MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
-                Gui, SideBar: +OwnDialogs                       ; Disable Modal Dialogs
                 return
             }
+            Gui, ElementForm: -OwnDialogs                           ; Disable Modal Dialogs
 
             ; Copy Base Hitburst to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
+        } else if (etype = "mania") {
+            local mtype := ManiaElementOptionType               ; Get Mania Type
+            StringLower, mtype, mtype                           ; Set mtype to lowercase
+            if (mtype = "arrow") {
+                local d_opt1 := ""                              ; Directory of Option 1
+                local d_opt2 := ""                              ; Directory of Option 2
+                local d_main := ""                              ; Directory containing opt 1 & 2
+
+                ; Get Directories for options
+                for i, j in l_maniaarrows {
+                    if (j.name = ManiaElementArrowOptionColor) {
+                        d_opt1 := j.arrowDir
+                        d_opt2 := j.dir
+                        d_main := j.maniaDir
+                    }
+                }
+
+                ; Verify Paths Exist
+                Gui, ElementForm: +OwnDialogs                   ; Make Dialogs Modal
+                if (FileExist(src "\" d_main "\" d_opt1) = "") {
+                    MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_main%\%d_opt1%
+                    return
+                }
+                if (FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
+                    MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_main%\%d_opt1%\%d_opt2%
+                    return
+                }
+                Gui, ElementForm: -OwnDialogs                   ; Disable Modal Dialogs
+
+                ; Replace Path in Skin.ini file
+                updateManiaTypeSelection(d_opt1, dst "\skin.ini")
+                updateManiaColorSelection(d_opt2, dst "\skin.ini" )
+            } else if (mtype = "bar") {
+                local d_opt1 := ""                              ; Directory of Option 1
+                local d_opt2 := ""                              ; Directory of Option 2
+                local d_main := ""                              ; Directory containing opt 1 & 2
+
+                ; Get Directories for options
+                for i, j in l_maniaarrows {
+                    if (j.name = ManiaElementBarOptionColor) {
+                        d_opt1 := j.barDir
+                        d_opt2 := j.dir
+                        d_main := j.maniaDir
+                    }
+                }
+
+                ; Verify Paths Exist
+                Gui, ElementForm: +OwnDialogs                   ; Make Dialogs Modal
+                if (FileExist(src "\" d_opt1) = "") {
+                    MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                    return
+                }
+                if (FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
+                    MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_main%\%d_opt1%\%d_opt2%
+                    return
+                }
+                Gui, ElementForm: -OwnDialogs                   ; Disable Modal Dialogs
+
+                ; Replace Path in Skin.ini file
+                updateManiaTypeSelection(d_opt1, dst "\skin.ini")
+                updateManiaColorSelection(d_opt2, dst "\skin.ini" )
+            } else if (mtype = "dot") {
+                local d_opt1 := ""                              ; Directory of Option 1
+                local d_opt2 := ""                              ; Directory of Option 2
+                local d_main := ""                              ; Directory containing opt 1 & 2
+
+                ; Get Directories for options
+                for i, j in l_maniaarrows {
+                    if (j.name = ManiaElementDotOptionColor) {
+                        d_opt1 := j.dotDir
+                        d_opt2 := j.dir
+                        d_main := j.maniaDir
+                    }
+                }
+
+                ; Verify Paths Exist
+                Gui, ElementForm: +OwnDialogs                   ; Make Dialogs Modal
+                if (FileExist(src "\" d_opt1) = "") {
+                    MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                    return
+                }
+                if (FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
+                    MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_main%\%d_opt1%\%d_opt2%
+                    return
+                }
+                Gui, ElementForm: -OwnDialogs                   ; Disable Modal Dialogs
+
+                ; Replace Path in Skin.ini file
+                updateManiaTypeSelection(d_opt1, dst "\skin.ini")
+                updateManiaColorSelection(d_opt2, dst "\skin.ini" )
+            }
         }
     } else if (form = "uicolor") {
         local d_opt1 := ""                                      ; Directory of Option 1
@@ -2269,6 +2673,173 @@ getCoordinateColor(x := "", y := "") {
     return out
 }
 
+; Update Combo Colors in Skin INI file -- Args: $1: Combo1-5; $2: Color (hex)
+updateComboColor(cnt := 0, col := "") {
+    global                                                      ; Set scope to global
+
+    ; Handle invalid input
+    if (cnt = 0)
+        return
+    if (col = "")
+        return
+
+    ; Define local variables
+    local skin_path := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
+    local ini_og := skin_path "\skin.ini"                       ; Original Skin.ini file
+    local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
+    local hex_rgb := hexToRGB(col)                              ; Get RGB Values of the passed hex color
+    local regex := ")^Combo" cnt ":\s*"                         ; Regex to search for
+
+    ; Build up the regular expresion
+    regex .= "((1?[0-9]{2}|2[0-4][0-9]|25[0-5]),?){3}$"                 
+    
+    ; Build temporary skin file, modifying the specified line
+    Loop, Read, %ini_og%, %ini_tmp%
+    {
+        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+            FileAppend, % "Combo1: " hex_rgb[1] "," hex_rgb[2] "," hex_rgb[3] "`n"
+            continue
+        }
+        FileAppend, %A_LoopReadLine%`n
+    }
+
+    ; Update Skin.ini file
+    FileCopy, %ini_tmp%, %ini_og%, 1                            ; Replace original with temporary
+    FileDelete, %ini_tmp%                                       ; Delete temporary 
+}
+
+; Update Slider Border Color -- Args: $1: Color (hex)
+updateSliderborderColor(col := "") {
+    global                                                      ; Set scope to global
+
+    ; Handle invalid input
+    if (col = "")
+        return
+
+    ; Define local variables
+    local skin_path := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
+    local ini_og := skin_path "\skin.ini"                       ; Original Skin.ini file
+    local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
+    local hex_rgb := hexToRGB(col)                              ; Get RGB Values of the passed hex color
+    local regex := ")^SliderBorder:\s*"                         ; Regex to search for
+
+    ; Build up the regular expression
+    regex .= "((1?[0-9]{2}|2[0-4][0-9]|25[0-5]),?){3}$"
+
+    ; Build Temporary skin file, modifying the specified line
+    Loop, Read, %ini_og%, %ini_tmp%
+    {
+        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+            FileAppend, % "SliderBorder: " hex_rgb[1] "," hex_rgb[2] "," hex_rgb[3] "`n"
+            continue
+        }
+        FileAppend, %A_LoopReadLine%`n
+    }
+
+    ; Update Skin.ini file
+    FileCopy, %ini_tmp%, %ini_og%, 1                            ; Replace original with temporary
+    FileDelete, %ini_tmp%                                       ; Delete temporary 
+}
+
+; Update Slidertrack Override Color -- Args: $1: Color (hex)
+updateSlidertrackColor(col := "") {
+    global                                                      ; Set scope to global
+
+    ; Handle invalid input
+    if (col = "")
+        return
+
+    ; Define local variables
+    local skin_path := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
+    local ini_og := skin_path "\skin.ini"                       ; Original Skin.ini file
+    local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
+    local hex_rgb := hexToRGB(col)                              ; Get RGB Values of the passed hex color
+    local regex := ")^SliderTrackOverride:\s*"                  ; Regex to search for
+
+    ; Build up the regular expression
+    regex .= "((1?[0-9]{2}|2[0-4][0-9]|25[0-5]),?){3}$"
+
+    ; Build Temporary skin file, modifying the specified line
+    Loop, Read, %ini_og%, %ini_tmp%
+    {
+        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+            FileAppend, % "SliderTrackOverride: " hex_rgb[1] "," hex_rgb[2] "," hex_rgb[3] "`n"
+            continue
+        }
+        FileAppend, %A_LoopReadLine%`n
+    }
+
+    ; Update Skin.ini file
+    FileCopy, %ini_tmp%, %ini_og%, 1                            ; Replace original with temporary
+    FileDelete, %ini_tmp%                                       ; Delete temporary 
+}
+
+; Update ManiaType Selection -- Args; $1: Directory Name; $2: Destination File Path
+updateManiaTypeSelection(keyword := "", f_dest := "") {
+    global                                                      ; Set scope to global
+
+    ; Handle invalid input
+    if (keyword = "")
+        return
+    if (f_dest = "")
+        return
+    if !(FileExist(f_dest))
+        return
+
+    ; Define local variables
+    local f_temp := d_asset "\new_skin.ini"                     ; Temporary skin.ini file
+    local regex := ")^KeyImage[0-9]+[DHLT]?:\s*"                ; Regex to search for
+    StringUpper, keyword, keyword                               ; Set Keyword to Uppercase
+
+    ; Build Temporary Skin file, modifying the specified line(s)
+    Loop, Read, %f_dest%, %f_temp%
+    {
+        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+            local this_key := RegExReplace(A_LoopReadLine, "i)^([a-z]+[0-9][dhlt]?):\s+.*$", "$1")
+            local this_path := RegExReplace(A_LoopReadLine, "i)^.*:\s+((([a-z0-9_-]+\s?)+\\?)+)$", "$1")
+            this_path := RegExReplace(this_path, "i)arrows|bars|dots", keyword)
+            FileAppend, % this_key ": " this_path "`n"
+            continue
+        }
+        FileAppend, %A_LoopReadLine%`n
+    }
+    
+    ; Update SKin.ini file
+    FileCopy, %f_temp%, %f_dest%, 1                             ; Replace original with temporary
+    FileDelete, %f_temp%                                        ; Delete Temporary
+}
+
+; Update ManiaColor Selection -- Args; $1: Directory Name; $2: Destination File Path
+updateManiaColorSelection(keyword := "", f_dest := "") {
+    global                                                      ; Set scope to global
+
+    ; Handle invalid input
+    if (keyword = "")
+        return
+    if (f_dest = "")
+        return
+    if !(FileExist(f_dest))
+        return
+
+    ; Define local variables
+    local f_temp := d_asset "\new_skin.ini"                     ; Temporary skin.ini file
+    local regex := ")^KeyImage[0-9]+[DHLT]?:\s*"                ; Regex to search for
+    StringUpper, keyword, keyword                               ; Set Keyword to Uppercase
+
+    ; Build Temporary Skin file, modifying the specified line(s)
+    Loop, Read, %f_dest%, %f_temp%
+    {
+        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+            local this_key := RegExReplace(A_LoopReadLine, "i)^([a-z]+[0-9][dhlt]?):\s+.*$", "$1")
+            local this_path := RegExReplace(A_LoopReadLine, "i)^.*:\s+((([a-z0-9_-]+\s?)+\\?)+)$", "$1")
+            this_path := RegExReplace(this_path "i)red|blue", keyword)
+            FileAppend, % this_key ": " this_path "`n"
+            continue
+        }
+        FileAppend, %A_LoopReadLine%`n
+    }
+}
+
 ; ##----------------------------##
 ; #|        Class: Element      |#
 ; ##----------------------------##
@@ -2383,6 +2954,91 @@ Class Sliderball Extends Element {
     ; Constructor
     __new(n, d, o) {
         base.__new("hitburst", sliderballDir, o)
+        this.name := n
+        this.dir := d
+    }
+}
+
+; ##---------------------------##
+; #|        Class: Mania       |#
+; ##---------------------------##
+Class Mania {
+    ; Instance Variables
+    type :=                                                     ; String: Mania Type (Arrow/Bar/Dot)
+    rootDir :=                                                  ; String: Name of the Type's directory
+
+    ; Static Variables
+    Static maniaDir := "MANIA PACKS"                            ; Name of the mania packs directory
+
+    ; Constructor
+    __new(t, r) {
+        this.type := t
+        this.rootDir := r
+    }
+
+    ; Methods
+    ; Append String to RootPath
+    addToRootPath(val) {
+        if (val = "")
+            return
+        if (val = this.rootDir)
+            return
+        this.rootDir += val
+    }
+}
+
+; ##-----------------------------------------##
+; #|        Class: Mania: ManiaArrow         |#
+; ##-----------------------------------------##
+Class ManiaArrow Extends Mania {
+    ; Instance Variables
+    name :=                                                     ; String: Name of the Color of Arrow
+    dir :=                                                      ; String: Name of the color's directory
+
+    ; Static Variables
+    Static arrowDir := "ARROWS"                                 ; Name of the Arrows directory
+
+    ; Constructor
+    __new(n, d) {
+        base.__new("arrow", arrowDir)
+        this.name := n
+        this.dir := d
+    }
+}
+
+; ##-----------------------------------------##
+; #|        Class: Mania: ManiaBar           |#
+; ##-----------------------------------------##
+Class ManiaBar Extends Mania {
+    ; Instance Variables
+    name :=                                                     ; String: Name of the Color of Bar
+    dir :=                                                      ; String: Name of the color's directory
+
+    ; Static Variables
+    Static barDir := "BARS"                                     ; Name of the Bars directory
+
+    ; Constructor
+    __new(n, d) {
+        base.__new("bar", barDir)
+        this.name := n
+        this.dir := d
+    }
+}
+
+; ##-----------------------------------------##
+; #|        Class: Mania: ManiaDot           |#
+; ##-----------------------------------------##
+Class ManiaDot Extends Mania {
+    ; Instance Variables
+    name :=                                                     ; String: Name of the Color of Dot
+    dir :=                                                      ; String: Name of the color's directory
+
+    ; Static Variables
+    Static dotDir := "DOTS"                                     ; Name of the Dots directory
+
+    ; Constructor
+    __new(n, d) {
+        base.__new("dot", dotDir)
         this.name := n
         this.dir := d
     }
@@ -3354,7 +4010,7 @@ Extract_resetUIColorHover(_Filename, _DumpData = 0) {
 ; ##------------------------------------------------------------##
 ; #|		Embedded Assets: Sidebar Outline: With Text			|#
 ; ##------------------------------------------------------------##
-sidebarOutlineWithText_Get(_What) {
+sidebarResetOutline_Get(_What) {
 	Static Size = 3086, Name = "sidebarResetOutline.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
 	, Options = "Size,Name,Extension,Directory"
 	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
@@ -3362,7 +4018,7 @@ sidebarOutlineWithText_Get(_What) {
 		Return %_What%
 }
 
-Extract_sidebarOutlineWithText(_Filename, _DumpData = 0) {
+Extract_sidebarResetOutline(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
 	Static 1 = "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"
@@ -3444,7 +4100,7 @@ Extract_formBG(_Filename, _DumpData = 0) {
 ; ##----------------------------------------##
 ; #|        Embedded Asset: HSB Image       |#
 ; ##----------------------------------------##
-hsbImage_Get(_What) {
+hsbImg_Get(_What) {
 	Static Size = 82772, Name = "hsb.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\lib\img"
 	, Options = "Size,Name,Extension,Directory"
 	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
@@ -3452,7 +4108,7 @@ hsbImage_Get(_What) {
 		Return %_What%
 }
 
-Extract_hsbImage(_Filename, _DumpData = 0) {
+Extract_hsbImg(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
 	Static 1 = "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/GMzLdsAADoVaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pgo8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJBZG9iZSBYTVAgQ29yZSA1LjUtYzAxNCA3OS4xNTE0ODEsIDIwMTMvMDMvMTMtMTI6MDk6MTUgICAgICAgICI+CiAgIDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+CiAgICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiCiAgICAgICAgICAgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIKICAgICAgICAgICAgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iCiAgICAgICAgICAgIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiCiAgICAgICAgICAgIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIKICAgICAgICAgICAgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIKICAgICAgICAgICAgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iPgogICAgICAgICA8eG1wOkNyZWF0b3JUb29sPkFkb2JlIFBob3Rvc2hvcCBDQyAoV2luZG93cyk8L3htcDpDcmVhdG9yVG9vbD4KICAgICAgICAgPHhtcDpDcmVhdGVEYXRlPjIwMTQtMDUtMTVUMTM6MDk6MjUrMDE6MDA8L3htcDpDcmVhdGVEYXRlPgogICAgICAgICA8eG1wOk1ldGFkYXRhRGF0ZT4yMDE0LTA1LTE1VDEzOjE2OjEzKzAxOjAwPC94bXA6TWV0YWRhdGFEYXRlPgogICAgICAgICA8eG1wOk1vZGlmeURhdGU+MjAxNC0wNS0xNVQxMzoxNjoxMyswMTowMDwveG1wOk1vZGlmeURhdGU+CiAgICAgICAgIDx4bXBNTTpJbnN0YW5jZUlEPnhtcC5paWQ6ZWNkNjhhMmYtNjNhYy04MjRhLWIwYWUtMDllNDgxMzNhODJmPC94bXBNTTpJbnN0YW5jZUlEPgogICAgICAgICA8eG1wTU06RG9jdW1lbnRJRD54bXAuZGlkOjIwYTlhYzA3LTVmYjUtMTc0Yy1hOTRhLTg5YTdlZjc1NWJiMzwveG1wTU06RG9jdW1lbnRJRD4KICAgICAgICAgPHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD54bXAuZGlkOjIwYTlhYzA3LTVmYjUtMTc0Yy1hOTRhLTg5YTdlZjc1NWJiMzwveG1wTU06T3JpZ2luYWxEb2N1bWVudElEPgogICAgICAgICA8eG1wTU06SGlzdG9yeT4KICAgICAgICAgICAgPHJkZjpTZXE+CiAgICAgICAgICAgICAgIDxyZGY6bGkgcmRmOnBhcnNlVHlwZT0iUmVzb3VyY2UiPgogICAgICAgICAgICAgICAgICA8c3RFdnQ6YWN0aW9uPmNyZWF0ZWQ8L3N0RXZ0OmFjdGlvbj4KICAgICAgICAgICAgICAgICAgPHN0RXZ0Omluc3RhbmNlSUQ+eG1wLmlpZDoyMGE5YWMwNy01ZmI1LTE3NGMtYTk0YS04OWE3ZWY3NTViYjM8L3N0RXZ0Omluc3RhbmNlSUQ+CiAgICAgICAgICAgICAgICAgIDxzdEV2dDp3aGVuPjIwMTQtMDUtMTVUMTM6MDk6MjUrMDE6MDA8L3N0RXZ0OndoZW4+CiAgICAgICAgICAgICAgICAgIDxzdEV2dDpzb2Z0d2FyZUFnZW50PkFkb2JlIFBob3Rvc2hvcCBDQyAoV2luZG93cyk8L3N0RXZ0OnNvZnR3YXJlQWdlbnQ+CiAgICAgICAgICAgICAgIDwvcmRmOmxpPgogICAgICAgICAgICAgICA8cmRmOmxpIHJkZjpwYXJzZVR5cGU9IlJlc291cmNlIj4KICAgICAgICAgICAgICAgICAgPHN0RXZ0OmFjdGlvbj5zYXZlZDwvc3RFdnQ6YWN0aW9uPgogICAgICAgICAgICAgICAgICA8c3RFdnQ6aW5zdGFuY2VJRD54bXAuaWlkOmVjZDY4YTJmLTYzYWMtODI0YS1iMGFlLTA5ZTQ4MTMzYTgyZjwvc3RFdnQ6aW5zdGFuY2VJRD4KICAgICAgICAgICAgICAgICAgPHN0RXZ0OndoZW4+MjAxNC0wNS0xNVQxMzoxNjoxMyswMTowMDwvc3RFdnQ6d2hlbj4KICAgICAgICAgICAgICAgICAgPHN0RXZ0OnNvZnR3YXJlQWdlbnQ+QWRvYmUgUGhvdG9zaG9wIENDIChXaW5kb3dzKTwvc3RFdnQ6c29mdHdhcmVBZ2VudD4KICAgICAgICAgICAgICAgICAgPHN0RXZ0OmNoYW5nZWQ+Lzwvc3RFdnQ6Y2hhbmdlZD4KICAgICAgICAgICAgICAgPC9yZGY6bGk+CiAgICAgICAgICAgIDwvcmRmOlNlcT4KICAgICAgICAgPC94bXBNTTpIaXN0b3J5PgogICAgICAgICA8ZGM6Zm9ybWF0PmltYWdlL3BuZzwvZGM6Zm9ybWF0PgogICAgICAgICA8cGhvdG9zaG9wOkNvbG9yTW9kZT4zPC9waG90b3Nob3A6Q29sb3JNb2RlPgogICAgICAgICA8cGhvdG9zaG9wOklDQ1Byb2ZpbGU+c1JHQiBJRUM2MTk2Ni0yLjE8L3Bob3Rvc2hvcDpJQ0NQcm9maWxlPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICAgICA8dGlmZjpYUmVzb2x1dGlvbj43MjAwMDAvMTAwMDA8L3RpZmY6WFJlc29sdXRpb24+CiAgICAgICAgIDx0aWZmOllSZXNvbHV0aW9uPjcyMDAwMC8xMDAwMDwvdGlmZjpZUmVzb2x1dGlvbj4KICAgICAgICAgPHRpZmY6UmVzb2x1dGlvblVuaXQ+MjwvdGlmZjpSZXNvbHV0aW9uVW5pdD4KICAgICAgICAgPGV4aWY6Q29sb3JTcGFjZT4xPC9leGlmOkNvbG9yU3BhY2U+CiAgICAgICAgIDxleGlmOlBpeGVsWERpbWVuc2lvbj42MDA8L2V4aWY6UGl4ZWxYRGltZW5zaW9uPgogICAgICAgICA8ZXhpZjpQaXhlbFlEaW1lbnNpb24+NDAwPC9leGlmOlBpeGVsWURpbWVuc2lvbj4KICAgICAgPC9yZGY6RGVzY3JpcHRpb24+CiAgIDwvcmRmOlJERj4KPC94OnhtcG1ldGE+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAg"
