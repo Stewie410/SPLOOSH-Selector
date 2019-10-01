@@ -400,7 +400,7 @@ GuiUIColor() {
     local w_check := w_text                                     ; CheckBox width
     local w_tree := w_text                                      ; TreeView width
     local h_bg := h_form - (py_form * 2)                        ; Height of BG
-    local h_inner := h_bg - (py_form * 6)                       ; Inner-Height of BG
+    local h_inner := h_bg - (py_form * 3)                       ; Inner-Height of BG
     local h_text := (h_inner / cy_items) - (py_form * 2)        ; Height of Text
     local h_check := h_text                                     ; CheckBox height
     local h_tree := h_text                                      ; TreeView height
@@ -408,7 +408,7 @@ GuiUIColor() {
     local x_inner := x_bg + (px_form * 3)                       ; Inner-X of BG (offset)
     local a_x := []                                             ; x positions
     local y_bg := py_form                                       ; Y Position of BG
-    local y_inner := y_bg + (py_form * 3)                       ; Inner-Y of BG (offset)
+    local y_inner := y_bg + (py_form * 1.5)                     ; Inner-Y of BG (offset)
     local a_y := []                                             ; y positions
     local o_color := ""                                         ; color options
     local def_color := ""                                       ; default color selection
@@ -421,6 +421,7 @@ GuiUIColor() {
     local def_sltrack := var_slider_track_color                 ; default slidertrack color
     local formBG := d_asset "\formBG.png"                       ; Form Background
 
+
     ; Add positions to x/y arrays
     Loop, %cy_items%
     {
@@ -429,7 +430,7 @@ GuiUIColor() {
             a_y.push(y_inner + py_form)
         } else {
             a_x.push(((w_inner / cx_items) * A_Index) - (w_inner / cx_items) + (px_form * 5))
-            a_y.push(((h_inner / cy_items) * A_Index) - (h_inner / cy_items) + (py_form * 5))
+            a_y.push(((h_inner / cy_items) * A_Index) - (h_inner / cy_items) + (py_form * 3))
         }
     }
 
@@ -479,7 +480,7 @@ GuiUIColor() {
 
     ; Add controls to GUI
     Gui, UIColorForm: Font, s%fs_input% c%fg_input%, %ff_input% ; Font for Edit Box
-    Gui, UIColorForm: Add, DropDownList, % "x" a_x[2] " y" a_y[1] " w" w_ddl " +Choose" def_color " +vUIColorOptionColor", %o_color%
+    Gui, UIColorForm: Add, DropDownList, % "x" a_x[2] " y" a_y[1] " w" w_ddl " +Choose" def_color " +vUIColorOptionColor +gGetUIColorComboSliderColors", %o_color%
     Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[3] " w" w_tree " h" h_tree " +Background" def_combo1 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor1 +gChangeComboColorFirst +AltSubmit"
     Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[4] " w" w_tree " h" h_tree " +Background" def_combo2 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor2 +gChangeComboColorSecond +AltSubmit"
     Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[5] " w" w_tree " h" h_tree " +Background" def_combo3 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor3 +gChangeComboColorThird +AltSubmit"
@@ -512,16 +513,16 @@ GuiElement() {
     local w_inner := w_bg - (px_form * 6)                       ; Inner-Width of BG
     local w_text := (w_inner / cx_items) - (px_form * 2)        ; Width of Text
     local w_ddl := w_text                                       ; Width of DropDownList
-    local w_check := w_text                                     ; Checkbox Width
+    local w_check := w_text
     local h_bg := h_form - (py_form * 2)                        ; Height of BG
-    local h_inner := h_bg - (py_form * 6)                       ; Inner-Height of BG
+    local h_inner := h_bg - (py_form * 3)                       ; Inner-Height of BG
     local h_text := (h_inner / cy_items) - (py_form * 2)        ; Height of Text
     local h_check := h_text                                     ; CheckBox Height
     local x_bg := px_form * 0.75                                ; X position of BG
     local x_inner := x_bg + (px_form * 3)                       ; Inner-X of BG (offset)
     local a_x := []                                             ; x positions
     local y_bg := py_form                                       ; Y Position of BG
-    local y_inner := y_bg + (py_form * 3)                       ; Inner-Y of BG (offset)
+    local y_inner := y_bg + (py_form * 1.5)                     ; Inner-Y of BG (offset)
     local a_y := []                                             ; y positions
     local o_element := "Cursor|Hitburst|Reverse Arrow|Sliderball|Mania"   ; Element Options
     local o_mania := "Arrow|Bar|Dot"                            ; Mania Options
@@ -553,7 +554,7 @@ GuiElement() {
             a_y.push(y_inner + py_form)
         } else {
             a_x.push(((w_inner / cx_items) * A_Index) - (w_inner / cx_items) + (px_form * 5))
-            a_y.push(((h_inner / cy_items) * A_Index) - (h_inner / cy_items) + (py_form * 5))
+            a_y.push(((h_inner / cy_items) * A_Index) - (h_inner / cy_items) + (py_form * 4))
         }
     }
 
@@ -725,13 +726,13 @@ GuiPlayer() {
     local w_text := (w_inner / cx_items) - (px_form * 2)        ; Width of Text
     local w_ddl := w_text                                       ; Width of DropDownList
     local h_bg := h_form - (py_form * 2)                        ; Height of BG
-    local h_inner := h_bg - (py_form * 6)                       ; Inner-Height of BG
+    local h_inner := h_bg - (py_form * 3)                       ; Inner-Height of BG
     local h_text := (h_inner / cy_items) - (py_form * 2)        ; Height of Text
     local x_bg := px_form * 0.75                                ; X position of BG
     local x_inner := x_bg + (px_form * 3)                       ; Inner-X of BG (offset)
     local a_x := []                                             ; x positions
     local y_bg := py_form                                       ; Y Position of BG
-    local y_inner := y_bg + (py_form * 3)                       ; Inner-Y of BG (offset)
+    local y_inner := y_bg + (py_form * 1.5)                     ; Inner-Y of BG (offset)
     local a_y := []                                             ; y positions
     local o_player := ""                                        ; player names
     local o_version := ""                                       ; player versions (ddl)
@@ -766,6 +767,7 @@ GuiPlayer() {
 
     ; Add Background to GUI
     Gui, PlayerForm: Add, Picture, % "x" x_bg " y" y_bg " w" w_bg " h" h_bg " +" SS_CENTERIMAGE, %formBG%
+    ;Gui, PlayerForm: Add, Text, x%x_inner% y%y_inner% w%w_inner% h%h_inner% +BackgroundFFFFFF
 
     ; Add Labels to the GUI
     Gui, PlayerForm: Add, Text, % "x" a_x[1] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", PLAYER:
@@ -908,26 +910,32 @@ GuiColorPicker(w := 600, h := 600, hex := "FFFFFF") {
 ; ##--------------------------------##
 ; TopBar --> Get PlayerForm GUI
 GetPlayerForm() {
+    global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
     toggleForm("ALL")                                           ; Hide all forms
     toggleForm("Player", 1)                                     ; Show PlayerForm
-    global var_selected_form := "Player"                        ; Update Selected Form
+    var_selected_form := "Player"                               ; Update Selected Form
 }
 
 ; TopBar --> Get UIColorForm GUI
 GetUIColorForm() {
+    global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
+    Gui, UIColorForm: Submit, NoHide                            ; Get +vVar values without hiding GUI
     toggleForm("ALL")                                           ; Hide all forms
     toggleForm("UIColor", 1)                                    ; Show UIColorForm
-    global var_selected_form := "UIColor"                       ; Update Selected Form
+    updateUIColorColors()                                       ; Update selected UIColors
+    updateTreeViewBackground()                                  ; Update Combo Colors
+    var_selected_form := "UIColor"                              ; Update Selected Form
 }
 
 ; TopBar --> Get ElementForm GUI
 GetElementForm() {
+    global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
     toggleForm("ALL")                                           ; Hide all forms
     toggleForm("Element", 1)                                    ; Show ElementForm
-    global var_selected_form := "Element"                       ; Update Selected Form
+    var_selected_form := "Element"                              ; Update Selected Form
 }
 
 ; SideBar --> Submit Form
@@ -943,6 +951,7 @@ SubmitForm() {
 
 ; SideBar --> Reset All Elements
 ResetAll() {
+    global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
     Gui, SideBar: Submit, NoHide                                ; Get vVar values without hiding GUI
     if (resetSkin("gameplay") = 0) {                            ; Reset Gameplay, if successful
@@ -952,6 +961,7 @@ ResetAll() {
 
 ; SideBar --> Reset Gameplay Elements
 ResetGameplay() {
+    global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
     Gui, SideBar: Submit, NoHide                                ; Get vVar values without hiding GUI
     resetSkin("gameplay")                                       ; Reset Gameplay
@@ -959,6 +969,7 @@ ResetGameplay() {
 
 ; SideBar --> Reset UI Color Elements
 ResetUIColor() {
+    global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
     Gui, SideBar: Submit, NoHide                                ; Get vVar values without hiding GUI
     resetSkin("uicolor")                                        ; Reset UIColor
@@ -1014,6 +1025,15 @@ ToggleUIColorOptionSaveIni() {
     Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
     local ctrl_state := UIColorOptionSaveIni                    ; Placeholder for "is control checked"
     GuiControl, UIColorForm:, UIColorOptionSaveIni, % (ctrl_state = 1 ? 0 : 1)
+}
+
+; UIColorForm --> Get Combo/Slider Colors by UIColor Option
+GetUIColorComboSliderColors() {
+    global                                                      ; Set global Scope inside Function
+    Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
+    Gui, UIColorForm: Submit, NoHide                            ; Get +vVar values without hiding GUI
+    updateUIColorColors()                                       ; Update selected UIColors
+    updateTreeViewBackground()                                  ; Update Combo Colors
 }
 
 ; UIColorForm --> Get Combo Color 1
@@ -1325,6 +1345,60 @@ toggleCursorTrailSolidState(state := "") {
         return
     }
     GuiControl, ElementForm: Enable, CursorElementOptionTrailSolid
+}
+
+; UIColorForm --> Get Colors of selected UIColor
+updateUIColorColors() {
+    global                                                      ; Set global Scope inside Function
+
+    ; Define Local Variables
+    local ui_select := UIColorOptionColor                       ; Get the selected UI Color
+    local colorPath := ""                                       ; Get the path to the selected UI Color
+    local a_combo := []                                         ; Combo Colors
+    local a_slider := []                                        ; Slider Colors
+
+    ; Update colorPath
+    for k, v in l_uicolors {
+        if (v.name = ui_select) {
+            colorPath := d_conf "\" v.uicolorDir "\" v.dir
+            break
+        }
+    }
+
+    ; Check to make sure the colorPath was updated
+    if (colorPath = "")
+        return
+    
+    ; Get selected UI Color colors
+    a_combo.push(getComboColor(1, colorPath))
+    a_combo.push(getComboColor(2, colorPath))
+    a_combo.push(getComboColor(3, colorPath))
+    a_combo.push(getComboColor(4, colorPath))
+    a_combo.push(getComboColor(5, colorPath))
+    a_slider.push(getSliderborderColor(colorPath))
+    a_slider.push(getSlidertrackColor(colorPath))
+
+    ; If Colors were pulled, update global vars -- otherwise, assume "Combo1" as default
+    if (a_combo[1] != "") {
+        var_combo_color_1 := a_combo[1]
+        var_combo_color_2 := var_combo_color_1
+        var_combo_color_3 := var_combo_color_1
+        var_combo_color_4 := var_combo_color_1
+        var_combo_color_5 := var_combo_color_1
+        if (a_combo[2] != "")
+            var_combo_color_2 := a_combo[2]
+        if (a_combo[3] != "")
+            var_combo_color_3 := a_combo[3]
+        if (a_combo[4] != "")
+            var_combo_color_4 := a_combo[4]
+        if (a_combo[5] != "")
+            var_combo_color_5 := a_combo[5]
+    }
+    if (a_slider[1] != "")
+        var_slider_border_color := a_slider[1]
+    if (a_slider[2] != "")
+        var_slider_track_color := a_slider[2]
+    return
 }
 
 ; UIColorForm --> Update the background colors of the TreeView elements
@@ -2438,7 +2512,7 @@ applyForm() {
 
                 ; Replace Path in Skin.ini file
                 updateManiaTypeSelection(d_opt1, dst "\skin.ini")
-                updateManiaColorSelection(d_opt2, dst "\skin.ini" )
+                updateManiaColorSelection(d_opt2, dst "\skin.ini")
             } else if (mtype = "bar") {
                 local d_opt1 := ""                              ; Directory of Option 1
                 local d_opt2 := ""                              ; Directory of Option 2
@@ -2467,7 +2541,7 @@ applyForm() {
 
                 ; Replace Path in Skin.ini file
                 updateManiaTypeSelection(d_opt1, dst "\skin.ini")
-                updateManiaColorSelection(d_opt2, dst "\skin.ini" )
+                updateManiaColorSelection(d_opt2, dst "\skin.ini")
             } else if (mtype = "dot") {
                 local d_opt1 := ""                              ; Directory of Option 1
                 local d_opt2 := ""                              ; Directory of Option 2
@@ -2496,7 +2570,7 @@ applyForm() {
 
                 ; Replace Path in Skin.ini file
                 updateManiaTypeSelection(d_opt1, dst "\skin.ini")
-                updateManiaColorSelection(d_opt2, dst "\skin.ini" )
+                updateManiaColorSelection(d_opt2, dst "\skin.ini")
             }
         }
     } else if (form = "uicolor") {
@@ -2673,6 +2747,111 @@ getCoordinateColor(x := "", y := "") {
     return out
 }
 
+; Get ComboColor from Selected UI Color -- Args: $1: Combo Count (1-5); $2: Path to UI Color (relative to Skin path)
+getComboColor(cnt := 0, path := "") {
+    global                                                      ; Set scope to global
+
+    ; Handle invalid input
+    if (cnt = 0)
+        return
+    if (path = "")
+        return
+
+    ; Define local variables
+    local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
+    local skin_dir := getDirectoryName(n_skin, src_path)        ; Get the directory of the skin
+    local ini_og := src_path "\" skin_dir "\" path "\skin.ini"  ; Skin.ini file to pull colors from
+    local str_color := ""                                       ; String of RGB values
+    local regex := ")^Combo" cnt ":\s*"                         ; Regex to search for
+
+    ; Build up the regular expresion
+    regex .= "((1?[0-9]{2}|2[0-4][0-9]|25[0-5]),?){3}$"
+
+    ; Read through file, searching for correct combo color
+    Loop, Read, %ini_og%
+    {
+        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+            str_color := RegExReplace(A_LoopReadLine, "i)^.*:\s*(.*).*$", "$1")
+            break
+        }
+    }
+
+    ; Handle if str_color is not set
+    if (str_color = "")
+        return
+
+    ; Return Hex color of extracted color
+    return rgbToHex(StrSplit(str_color, ","))
+}
+
+; Get SliderBorderColor from selected UI Color -- Args: $1: Path to UI Color (relative to Skin path) 
+getSliderborderColor(path := "") {
+    global                                                      ; Set scope to global
+
+    ; Handle invalid input
+    if (path = "")
+        return
+
+    ; Define local variables
+    local skin_dir := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
+    local ini_og := skin_dir "\" path "\skin.ini"              ; Skin.ini file to pull colors from
+    local str_color := ""                                       ; String of RGB values
+    local regex := ")^SliderBorder:\s*"                         ; Regex to search for
+
+    ; Build up the regular expresion
+    regex .= "((1?[0-9]{2}|2[0-4][0-9]|25[0-5]),?){3}$"  
+
+    ; Read through file, searching for correct combo color
+    Loop, Read, %ini_og%
+    {
+        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+            str_color := RegExReplace(A_LoopReadLine, "i)^.*:\s*(.*).*$", "$1")
+            break
+        }
+    }
+
+    ; Handle if str_color is not set
+    if (str_color = "")
+        return
+    
+    ; Return Hex color of extracted color
+    return rgbToHex(StrSplit(str_color, ","))
+}
+
+; Get SliderTrackOverrideColor from selected UI Color -- Args: $1: Path to UI Color (relative to Skin path) 
+getSlidertrackColor(path := "") {
+    global                                                      ; Set scope to global
+
+    ; Handle invalid input
+    if (path = "")
+        return
+
+    ; Define local variables
+    local skin_dir := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
+    local ini_og := skin_dir "\" path "\skin.ini"              ; Skin.ini file to pull colors from
+    local str_color := ""                                       ; String of RGB values
+    local regex := ")^SliderTrackOverride:\s*"                  ; Regex to search for
+
+    ; Build up the regular expresion
+    regex .= "((1?[0-9]{2}|2[0-4][0-9]|25[0-5]),?){3}$"  
+
+    ; Read through file, searching for correct combo color
+    Loop, Read, %ini_og%
+    {
+        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+            str_color := RegExReplace(A_LoopReadLine, "i)^.*:\s*(.*).*$", "$1")
+            break
+        }
+    }
+
+    ; Handle if str_color is not set
+    if (str_color = "")
+        return
+    
+    ; Return Hex color of extracted color
+    return rgbToHex(StrSplit(str_color, ","))
+}
+
 ; Update Combo Colors in Skin INI file -- Args: $1: Combo1-5; $2: Color (hex)
 updateComboColor(cnt := 0, col := "") {
     global                                                      ; Set scope to global
@@ -2684,8 +2863,8 @@ updateComboColor(cnt := 0, col := "") {
         return
 
     ; Define local variables
-    local skin_path := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
-    local ini_og := skin_path "\skin.ini"                       ; Original Skin.ini file
+    local skin_dir := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
+    local ini_og := skin_dir "\skin.ini"                       ; Original Skin.ini file
     local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
     local hex_rgb := hexToRGB(col)                              ; Get RGB Values of the passed hex color
     local regex := ")^Combo" cnt ":\s*"                         ; Regex to search for
@@ -2717,8 +2896,8 @@ updateSliderborderColor(col := "") {
         return
 
     ; Define local variables
-    local skin_path := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
-    local ini_og := skin_path "\skin.ini"                       ; Original Skin.ini file
+    local skin_dir := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
+    local ini_og := skin_dir "\skin.ini"                       ; Original Skin.ini file
     local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
     local hex_rgb := hexToRGB(col)                              ; Get RGB Values of the passed hex color
     local regex := ")^SliderBorder:\s*"                         ; Regex to search for
@@ -2750,8 +2929,8 @@ updateSlidertrackColor(col := "") {
         return
 
     ; Define local variables
-    local skin_path := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
-    local ini_og := skin_path "\skin.ini"                       ; Original Skin.ini file
+    local skin_dir := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
+    local ini_og := skin_dir "\skin.ini"                       ; Original Skin.ini file
     local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
     local hex_rgb := hexToRGB(col)                              ; Get RGB Values of the passed hex color
     local regex := ")^SliderTrackOverride:\s*"                  ; Regex to search for
@@ -2788,7 +2967,7 @@ updateManiaTypeSelection(keyword := "", f_dest := "") {
 
     ; Define local variables
     local f_temp := d_asset "\new_skin.ini"                     ; Temporary skin.ini file
-    local regex := ")^KeyImage[0-9]+[DHLT]?:\s*"                ; Regex to search for
+    local regex := "i)^KeyImage[0-9]+[dhlt]?:\s*"               ; Regex to search for
     StringUpper, keyword, keyword                               ; Set Keyword to Uppercase
 
     ; Build Temporary Skin file, modifying the specified line(s)
@@ -2823,7 +3002,7 @@ updateManiaColorSelection(keyword := "", f_dest := "") {
 
     ; Define local variables
     local f_temp := d_asset "\new_skin.ini"                     ; Temporary skin.ini file
-    local regex := ")^KeyImage[0-9]+[DHLT]?:\s*"                ; Regex to search for
+    local regex := "i)^KeyImage[0-9]+[dhlt]?:\s*"               ; Regex to search for
     StringUpper, keyword, keyword                               ; Set Keyword to Uppercase
 
     ; Build Temporary Skin file, modifying the specified line(s)
@@ -4056,7 +4235,7 @@ Extract_sidebarResetOutline(_Filename, _DumpData = 0) {
 ; #|        Embedded Assets: Form BG        |#
 ; ##----------------------------------------##
 formBG_Get(_What) {
-	Static Size = 9470, Name = "formBG_450x450.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
+	Static Size = 5220, Name = "formBG_450x450.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
 	, Options = "Size,Name,Extension,Directory"
 	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
 	If (InStr("," Options ",", "," _What ","))
@@ -4066,7 +4245,7 @@ formBG_Get(_What) {
 Extract_formBG(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
-	Static 1 = "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kDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAAkDSCEACQNIIQAJA0ghAA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"
+	Static 1 = "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"
 	
 	If (!HasData)
 		Return -1
@@ -4074,12 +4253,12 @@ Extract_formBG(_Filename, _DumpData = 0) {
 	If (!ExtractedData){
 		ExtractedData := True
 		, Ptr := A_IsUnicode ? "Ptr" : "UInt"
-		, VarSetCapacity(TD, 12974 * (A_IsUnicode ? 2 : 1))
+		, VarSetCapacity(TD, 7152 * (A_IsUnicode ? 2 : 1))
 		
 		Loop, 1
 			TD .= %A_Index%, %A_Index% := ""
 		
-		VarSetCapacity(Out_Data, Bytes := 9470, 0)
+		VarSetCapacity(Out_Data, Bytes := 5220, 0)
 		, DllCall("Crypt32.dll\CryptStringToBinary" (A_IsUnicode ? "W" : "A"), Ptr, &TD, "UInt", 0, "UInt", 1, Ptr, &Out_Data, A_IsUnicode ? "UIntP" : "UInt*", Bytes, "Int", 0, "Int", 0, "CDECL Int")
 		, TD := ""
 	}
@@ -4088,11 +4267,11 @@ Extract_formBG(_Filename, _DumpData = 0) {
 		FileDelete, %_Filename%
 	
 	h := DllCall("CreateFile", Ptr, &_Filename, "Uint", 0x40000000, "Uint", 0, "UInt", 0, "UInt", 4, "Uint", 0, "UInt", 0)
-	, DllCall("WriteFile", Ptr, h, Ptr, &Out_Data, "UInt", 9470, "UInt", 0, "UInt", 0)
+	, DllCall("WriteFile", Ptr, h, Ptr, &Out_Data, "UInt", 5220, "UInt", 0, "UInt", 0)
 	, DllCall("CloseHandle", Ptr, h)
 	
 	If (_DumpData)
-		VarSetCapacity(Out_Data, 9470, 0)
+		VarSetCapacity(Out_Data, 5220, 0)
 		, VarSetCapacity(Out_Data, 0)
 		, HasData := 0
 }
