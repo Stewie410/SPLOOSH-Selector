@@ -1040,7 +1040,7 @@ GetUIColorComboSliderColors() {
 ChangeComboColorFirst() {
     global                                                      ; Set global Scope inside Function
     Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
-    GuiColorPicker(w_picker, h_picker, var_combo_color_5)       ; Instantiate the ColorPicker GUI
+    GuiColorPicker(w_picker, h_picker, var_combo_color_1)       ; Instantiate the ColorPicker GUI
     Gui, ColorPicker: Show, % "w" w_picker " h" h_picker        ; Display the ColorPicker GUI
     toggleParentWindow(0)                                       ; Disable all other controls
     var_picker_count := 1                                       ; Set flag for which TreeView to update
@@ -1050,7 +1050,7 @@ ChangeComboColorFirst() {
 ChangeComboColorSecond() {
     global                                                      ; Set global Scope inside Function
     Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
-    GuiColorPicker(w_picker, h_picker, var_combo_color_5)       ; Instantiate the ColorPicker GUI
+    GuiColorPicker(w_picker, h_picker, var_combo_color_2)       ; Instantiate the ColorPicker GUI
     Gui, ColorPicker: Show, % "w" w_picker " h" h_picker        ; Display the ColorPicker GUI
     toggleParentWindow(0)                                       ; Disable all other controls
     var_picker_count := 2                                       ; Set flag for which TreeView to update
@@ -1347,8 +1347,8 @@ toggleCursorTrailSolidState(state := "") {
     GuiControl, ElementForm: Enable, CursorElementOptionTrailSolid
 }
 
-; UIColorForm --> Get Colors of selected UIColor
-updateUIColorColors() {
+; UIColorForm --> Get Colors of selected UIColor -- Args: $1: Initialize? (0/1;F/T; def=0)
+updateUIColorColors(init := 0) {
     global                                                      ; Set global Scope inside Function
 
     ; Define Local Variables
@@ -1358,10 +1358,14 @@ updateUIColorColors() {
     local a_slider := []                                        ; Slider Colors
 
     ; Update colorPath
-    for k, v in l_uicolors {
-        if (v.name = ui_select) {
-            colorPath := d_conf "\" v.uicolorDir "\" v.dir
-            break
+    if (init = 1) {
+        color_path := d_conf
+    } else {
+        for k, v in l_uicolors {
+            if (v.name = ui_select) {
+                colorPath := d_conf "\" v.uicolorDir "\" v.dir
+                break
+            }
         }
     }
 
@@ -2261,6 +2265,8 @@ BrowseDirectory(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
 		if (d_select != "") {
 			GuiControl, TopBar:, GamePath, %d_select%
 			d_game := d_select
+            updateUIColorColors(1)                              ; Update selected UIColors
+            updateTreeViewBackground()                          ; Update Combo Colors
 		} 
     } catch e {
         MsgBox,,%n_app%, An Exception was thrown!`nSpecifically: %e%
@@ -2575,7 +2581,6 @@ applyForm() {
         }
     } else if (form = "uicolor") {
         local d_opt1 := ""                                      ; Directory of Option 1
-        local d_opt2 := d_uicolor_instafade                     ; Directory of Option 2
 
         ; Get Directories for Options
         for i, j in l_uicolors {
@@ -2593,12 +2598,41 @@ applyForm() {
         }
 
         ; Copy Base UIColor to Destination
-        FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
+        FileCopy, %src%\%d_opt1%\*.png, %dst%, 1
+
+        ; If Preserve INI changes not requested, replace skin.ini file
+        if (UIColorOptionSaveIni = 1)
+            FileCopy, %src%\%d_opt1%\skin.ini, %dst%, 1
 
         ; If Instafade Enabled
-        if (UIColorOptionInstafade = 1) {
-            FileCopy, %src%\%d_opt1%\%d_opt2%\skin.ini, %dst%, 1
+        updateInstafadeCircles(UIColorOptionInstafade)
+
+        ; Update Combo Colors
+        updateComboColor(1, var_combo_color_1)
+        if (getComboColor(2, "none") = "") {
+            addComboColor(2, var_combo_color_2)
+        } else {
+            updateComboColor(2, var_combo_color_2)
         }
+        if (getComboColor(3, "none") = "") {
+            addComboColor(3, var_combo_color_3)
+        } else {
+            updateComboColor(3, var_combo_color_3)
+        }
+        if (getComboColor(4, "none") = "") {
+            addComboColor(4, var_combo_color_4)
+        } else {
+            updateComboColor(4, var_combo_color_4)
+        }
+        if (getComboColor(5, "none") = "") {
+            addComboColor(5, var_combo_color_5)
+        } else {
+            updateComboColor(5, var_combo_color_5)
+        }
+
+        ; Update SliderBorder
+        updateSliderborderColor(var_slider_border_color)
+        updateSlidertrackColor(var_slider_track_color)
     } else if (form = "player") {
         local d_opt1 := ""                                      ; Directory of Option 1
         local d_opt2 := ""                                      ; Directory of Option 2
@@ -2762,15 +2796,17 @@ getComboColor(cnt := 0, path := "") {
     local skin_dir := getDirectoryName(n_skin, src_path)        ; Get the directory of the skin
     local ini_og := src_path "\" skin_dir "\" path "\skin.ini"  ; Skin.ini file to pull colors from
     local str_color := ""                                       ; String of RGB values
-    local regex := ")^Combo" cnt ":\s*"                         ; Regex to search for
 
-    ; Build up the regular expresion
-    regex .= "((1?[0-9]{2}|2[0-4][0-9]|25[0-5]),?){3}$"
+    ; Handle path = "none" --> get current Skin.ini
+    StringLower, path, path
+    if (lpath = "none") {
+        ini_og := src_path "\" skin_dir "\skin.ini"             ; Get current skin path 
+    }
 
     ; Read through file, searching for correct combo color
     Loop, Read, %ini_og%
     {
-        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+        if (RegExMatch(A_LoopReadLine, ")^Combo" cnt ":\s*") != 0) {
             str_color := RegExReplace(A_LoopReadLine, "i)^.*:\s*(.*).*$", "$1")
             break
         }
@@ -2778,7 +2814,7 @@ getComboColor(cnt := 0, path := "") {
 
     ; Handle if str_color is not set
     if (str_color = "")
-        return
+        return ""
 
     ; Return Hex color of extracted color
     return rgbToHex(StrSplit(str_color, ","))
@@ -2793,18 +2829,21 @@ getSliderborderColor(path := "") {
         return
 
     ; Define local variables
-    local skin_dir := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
-    local ini_og := skin_dir "\" path "\skin.ini"              ; Skin.ini file to pull colors from
+    local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
+    local skin_dir := getDirectoryName(n_skin, src_path)        ; Get the directory of the skin
+    local ini_og := src_path "\" skin_dir "\" path "\skin.ini"  ; Skin.ini file to pull colors from
     local str_color := ""                                       ; String of RGB values
-    local regex := ")^SliderBorder:\s*"                         ; Regex to search for
 
-    ; Build up the regular expresion
-    regex .= "((1?[0-9]{2}|2[0-4][0-9]|25[0-5]),?){3}$"  
+    ; Handle path = "none" --> get current Skin.ini
+    StringLower, path, path
+    if (lpath = "none") {
+        ini_og := src_path "\" skin_dir "\skin.ini"             ; Get current skin path 
+    }
 
     ; Read through file, searching for correct combo color
     Loop, Read, %ini_og%
     {
-        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+        if (RegExMatch(A_LoopReadLine, ")^SliderBorder:\s*") != 0) {
             str_color := RegExReplace(A_LoopReadLine, "i)^.*:\s*(.*).*$", "$1")
             break
         }
@@ -2812,7 +2851,7 @@ getSliderborderColor(path := "") {
 
     ; Handle if str_color is not set
     if (str_color = "")
-        return
+        return ""
     
     ; Return Hex color of extracted color
     return rgbToHex(StrSplit(str_color, ","))
@@ -2827,18 +2866,21 @@ getSlidertrackColor(path := "") {
         return
 
     ; Define local variables
-    local skin_dir := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
-    local ini_og := skin_dir "\" path "\skin.ini"              ; Skin.ini file to pull colors from
+    local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
+    local skin_dir := getDirectoryName(n_skin, src_path)        ; Get the directory of the skin
+    local ini_og := src_path "\" skin_dir "\" path "\skin.ini"  ; Skin.ini file to pull colors from
     local str_color := ""                                       ; String of RGB values
-    local regex := ")^SliderTrackOverride:\s*"                  ; Regex to search for
 
-    ; Build up the regular expresion
-    regex .= "((1?[0-9]{2}|2[0-4][0-9]|25[0-5]),?){3}$"  
+    ; Handle path = "none" --> get current Skin.ini
+    StringLower, path, path
+    if (lpath = "none") {
+        ini_og := src_path "\" skin_dir "\skin.ini"             ; Get current skin path 
+    }  
 
     ; Read through file, searching for correct combo color
     Loop, Read, %ini_og%
     {
-        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+        if (RegExMatch(A_LoopReadLine, ")^SliderTrackOverride:\s*") != 0) {
             str_color := RegExReplace(A_LoopReadLine, "i)^.*:\s*(.*).*$", "$1")
             break
         }
@@ -2846,7 +2888,7 @@ getSlidertrackColor(path := "") {
 
     ; Handle if str_color is not set
     if (str_color = "")
-        return
+        return ""
     
     ; Return Hex color of extracted color
     return rgbToHex(StrSplit(str_color, ","))
@@ -2861,22 +2903,51 @@ updateComboColor(cnt := 0, col := "") {
         return
     if (col = "")
         return
-
     ; Define local variables
-    local skin_dir := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
-    local ini_og := skin_dir "\skin.ini"                       ; Original Skin.ini file
+    local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
+    local skin_dir := getDirectoryName(n_skin, src_path)        ; Get the directory of the skin
+    local ini_og := src_path "\" skin_dir "\skin.ini"           ; Skin.ini file to pull colors from
     local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
     local hex_rgb := hexToRGB(col)                              ; Get RGB Values of the passed hex color
-    local regex := ")^Combo" cnt ":\s*"                         ; Regex to search for
-
-    ; Build up the regular expresion
-    regex .= "((1?[0-9]{2}|2[0-4][0-9]|25[0-5]),?){3}$"                 
     
     ; Build temporary skin file, modifying the specified line
     Loop, Read, %ini_og%, %ini_tmp%
     {
-        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+        if (RegExMatch(A_LoopReadLine, "i)^Combo" cnt ":\s*") != 0) {
             FileAppend, % "Combo1: " hex_rgb[1] "," hex_rgb[2] "," hex_rgb[3] "`n"
+            continue
+        }
+        FileAppend, %A_LoopReadLine%`n
+    }
+
+    ; Update Skin.ini file
+    FileCopy, %ini_tmp%, %ini_og%, 1                            ; Replace original with temporary
+    FileDelete, %ini_tmp%                                       ; Delete temporary 
+}
+
+; Add Combo Colors in Skin.ini file -- Args: $1: Combo Count (2-5); $2: Color (hex)
+addComboColor(cnt := 0, col := "") {
+    global                                                      ; Set scope to global
+
+    ; Handle invalid input
+    if (cnt <= 1)
+        return
+    if (col = "")
+        return
+        
+    ; Define local variables
+    local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
+    local skin_dir := getDirectoryName(n_skin, src_path)        ; Get the directory of the skin
+    local ini_og := src_path "\" skin_dir "\skin.ini"           ; Skin.ini file to pull colors from
+    local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
+    local hex_rgb := hexToRGB(col)                              ; Get RGB Values of the passed hex color
+
+    ; Build temporary skin file, adding the specified combo colors
+    Loop, Read, %ini_og%, %ini_tmp%
+    {
+        if (RegExMatch(A_LoopReadLine, "i)^Combo" (cnt - 1) ":\s*") != 0) {
+            FileAppend, %A_LoopReadLine%`n
+            FileAppend, % "Combo" cnt ": " hex_rgb[1] "," hex_rgb[2] "," hex_rgb[3] "`n"
             continue
         }
         FileAppend, %A_LoopReadLine%`n
@@ -2896,19 +2967,16 @@ updateSliderborderColor(col := "") {
         return
 
     ; Define local variables
-    local skin_dir := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
-    local ini_og := skin_dir "\skin.ini"                       ; Original Skin.ini file
+    local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
+    local skin_dir := getDirectoryName(n_skin, src_path)        ; Get the directory of the skin
+    local ini_og := src_path "\" skin_dir "\skin.ini"           ; Skin.ini file to pull colors from
     local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
     local hex_rgb := hexToRGB(col)                              ; Get RGB Values of the passed hex color
-    local regex := ")^SliderBorder:\s*"                         ; Regex to search for
-
-    ; Build up the regular expression
-    regex .= "((1?[0-9]{2}|2[0-4][0-9]|25[0-5]),?){3}$"
 
     ; Build Temporary skin file, modifying the specified line
     Loop, Read, %ini_og%, %ini_tmp%
     {
-        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+        if (RegExMatch(A_LoopReadLine, ")^SliderBorder:\s*") != 0) {
             FileAppend, % "SliderBorder: " hex_rgb[1] "," hex_rgb[2] "," hex_rgb[3] "`n"
             continue
         }
@@ -2929,20 +2997,50 @@ updateSlidertrackColor(col := "") {
         return
 
     ; Define local variables
-    local skin_dir := getDirectoryName(d_game, n_skin)         ; Get the path to the skin directory
-    local ini_og := skin_dir "\skin.ini"                       ; Original Skin.ini file
+    local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
+    local skin_dir := getDirectoryName(n_skin, src_path)        ; Get the directory of the skin
+    local ini_og := src_path "\" skin_dir "\skin.ini"           ; Skin.ini file to pull colors from
     local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
     local hex_rgb := hexToRGB(col)                              ; Get RGB Values of the passed hex color
-    local regex := ")^SliderTrackOverride:\s*"                  ; Regex to search for
-
-    ; Build up the regular expression
-    regex .= "((1?[0-9]{2}|2[0-4][0-9]|25[0-5]),?){3}$"
 
     ; Build Temporary skin file, modifying the specified line
     Loop, Read, %ini_og%, %ini_tmp%
     {
-        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+        if (RegExMatch(A_LoopReadLine, ")^SliderTrackOverride:\s*") != 0) {
             FileAppend, % "SliderTrackOverride: " hex_rgb[1] "," hex_rgb[2] "," hex_rgb[3] "`n"
+            continue
+        }
+        FileAppend, %A_LoopReadLine%`n
+    }
+
+    ; Update Skin.ini file
+    FileCopy, %ini_tmp%, %ini_og%, 1                            ; Replace original with temporary
+    FileDelete, %ini_tmp%                                       ; Delete temporary 
+}
+
+; Update Instafade Circles -- Args: $1: Enable/Disable (def: 0)
+updateInstafadeCircles(insta := 0) {
+    global                                                      ; Set scope to global
+
+    ; Handle invalid input
+    if (insta < 0)
+        insta := 0
+    else if (insta > 1)
+        insta := 1
+
+    ; Define local variables
+    local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
+    local skin_dir := getDirectoryName(n_skin, src_path)        ; Get the directory of the skin
+    local ini_og := src_path "\" skin_dir "\skin.ini"           ; Skin.ini file to pull colors from
+    local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
+    local fade_isnt := 160                                      ; Instant-fade value
+    local fade_norm := 3                                        ; Normal-fade value
+
+    ; Build Temporary skin file, modifying the specified lines
+    Loop, Read, %ini_og%, %ini_tmp%
+    {
+        if (RegExMatch(A_LoopReadLine, ")^HitCircleOverlap:\s*[0-9]+") != 0) {
+            FileAppend, % "HitCircleOverlap: " (insta = 1 ? fade_inst : fade_norm) "`n"
             continue
         }
         FileAppend, %A_LoopReadLine%`n
@@ -2967,13 +3065,12 @@ updateManiaTypeSelection(keyword := "", f_dest := "") {
 
     ; Define local variables
     local f_temp := d_asset "\new_skin.ini"                     ; Temporary skin.ini file
-    local regex := "i)^KeyImage[0-9]+[dhlt]?:\s*"               ; Regex to search for
     StringUpper, keyword, keyword                               ; Set Keyword to Uppercase
 
     ; Build Temporary Skin file, modifying the specified line(s)
     Loop, Read, %f_dest%, %f_temp%
     {
-        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+        if (RegExMatch(A_LoopReadLine, "i)^KeyImage[0-9]+[dhlt]?:\s*") != 0) {
             local this_key := RegExReplace(A_LoopReadLine, "i)^([a-z]+[0-9][dhlt]?):\s+.*$", "$1")
             local this_path := RegExReplace(A_LoopReadLine, "i)^.*:\s+((([a-z0-9_-]+\s?)+\\?)+)$", "$1")
             this_path := RegExReplace(this_path, "i)arrows|bars|dots", keyword)
@@ -3002,13 +3099,12 @@ updateManiaColorSelection(keyword := "", f_dest := "") {
 
     ; Define local variables
     local f_temp := d_asset "\new_skin.ini"                     ; Temporary skin.ini file
-    local regex := "i)^KeyImage[0-9]+[dhlt]?:\s*"               ; Regex to search for
     StringUpper, keyword, keyword                               ; Set Keyword to Uppercase
 
     ; Build Temporary Skin file, modifying the specified line(s)
     Loop, Read, %f_dest%, %f_temp%
     {
-        if (RegExMatch(A_LoopReadLine, regex) != 0) {
+        if (RegExMatch(A_LoopReadLine, "i)^KeyImage[0-9]+[dhlt]?:\s*") != 0) {
             local this_key := RegExReplace(A_LoopReadLine, "i)^([a-z]+[0-9][dhlt]?):\s+.*$", "$1")
             local this_path := RegExReplace(A_LoopReadLine, "i)^.*:\s+((([a-z0-9_-]+\s?)+\\?)+)$", "$1")
             this_path := RegExReplace(this_path "i)red|blue", keyword)
