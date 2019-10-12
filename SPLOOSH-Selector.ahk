@@ -2609,26 +2609,10 @@ applyForm() {
 
         ; Update Combo Colors
         updateComboColor(1, var_combo_color_1)
-        if (getComboColor(2, "none") = "") {
-            addComboColor(2, var_combo_color_2)
-        } else {
-            updateComboColor(2, var_combo_color_2)
-        }
-        if (getComboColor(3, "none") = "") {
-            addComboColor(3, var_combo_color_3)
-        } else {
-            updateComboColor(3, var_combo_color_3)
-        }
-        if (getComboColor(4, "none") = "") {
-            addComboColor(4, var_combo_color_4)
-        } else {
-            updateComboColor(4, var_combo_color_4)
-        }
-        if (getComboColor(5, "none") = "") {
-            addComboColor(5, var_combo_color_5)
-        } else {
-            updateComboColor(5, var_combo_color_5)
-        }
+        updateComboColor(2, var_combo_color_2)
+        updateComboColor(3, var_combo_color_3)
+        updateComboColor(4, var_combo_color_4)
+        updateComboColor(5, var_combo_color_5)
 
         ; Update SliderBorder
         updateSliderborderColor(var_slider_border_color)
@@ -2787,9 +2771,9 @@ getComboColor(cnt := 0, path := "") {
 
     ; Handle invalid input
     if (cnt = 0)
-        return
+        return ""
     if (path = "")
-        return
+        return ""
 
     ; Define local variables
     local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
@@ -2799,9 +2783,8 @@ getComboColor(cnt := 0, path := "") {
 
     ; Handle path = "none" --> get current Skin.ini
     StringLower, path, path
-    if (lpath = "none") {
-        ini_og := src_path "\" skin_dir "\skin.ini"             ; Get current skin path 
-    }
+    if (lpath = "none")
+        ini_og := src_path "\" skin_dir "\skin.ini"             ; Get current skin path
 
     ; Read through file, searching for correct combo color
     Loop, Read, %ini_og%
@@ -2909,40 +2892,28 @@ updateComboColor(cnt := 0, col := "") {
     local ini_og := src_path "\" skin_dir "\skin.ini"           ; Skin.ini file to pull colors from
     local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
     local hex_rgb := hexToRGB(col)                              ; Get RGB Values of the passed hex color
+    local col_found := 0                                        ; Flag to denote if the color was found
     
     ; Build temporary skin file, modifying the specified line
     Loop, Read, %ini_og%, %ini_tmp%
     {
         if (RegExMatch(A_LoopReadLine, "i)^Combo" cnt ":\s*") != 0) {
-            FileAppend, % "Combo1: " hex_rgb[1] "," hex_rgb[2] "," hex_rgb[3] "`n"
+            FileAppend, % "Combo" cnt ": " hex_rgb[1] "," hex_rgb[2] "," hex_rgb[3] "`n"
+            col_found := 1
             continue
         }
         FileAppend, %A_LoopReadLine%`n
     }
 
-    ; Update Skin.ini file
-    FileCopy, %ini_tmp%, %ini_og%, 1                            ; Replace original with temporary
-    FileDelete, %ini_tmp%                                       ; Delete temporary 
-}
-
-; Add Combo Colors in Skin.ini file -- Args: $1: Combo Count (2-5); $2: Color (hex)
-addComboColor(cnt := 0, col := "") {
-    global                                                      ; Set scope to global
-
-    ; Handle invalid input
-    if (cnt <= 1)
+    ; If color was found and updated, update skin.ini and return
+    if (col_found = 1) {
+        FileCopy, %ini_tmp%, %ini_og%, 1                        ; Replace original with temporary
+        FileDelete, %ini_tmp%                                   ; Delete temporary
         return
-    if (col = "")
-        return
-        
-    ; Define local variables
-    local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
-    local skin_dir := getDirectoryName(n_skin, src_path)        ; Get the directory of the skin
-    local ini_og := src_path "\" skin_dir "\skin.ini"           ; Skin.ini file to pull colors from
-    local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
-    local hex_rgb := hexToRGB(col)                              ; Get RGB Values of the passed hex color
-
-    ; Build temporary skin file, adding the specified combo colors
+    }
+    
+    ; If color was not found, add to skin
+    FileDelete, %ini_tmp%                                       ; Delete previous temporary
     Loop, Read, %ini_og%, %ini_tmp%
     {
         if (RegExMatch(A_LoopReadLine, "i)^Combo" (cnt - 1) ":\s*") != 0) {
@@ -2952,10 +2923,10 @@ addComboColor(cnt := 0, col := "") {
         }
         FileAppend, %A_LoopReadLine%`n
     }
-
-    ; Update Skin.ini file
+    
+    ; Update skin.ini & Return
     FileCopy, %ini_tmp%, %ini_og%, 1                            ; Replace original with temporary
-    FileDelete, %ini_tmp%                                       ; Delete temporary 
+    FileDelete, %ini_tmp%                                       ; Delete temporary
 }
 
 ; Update Slider Border Color -- Args: $1: Color (hex)
