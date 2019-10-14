@@ -131,6 +131,8 @@ l_cursors := []                                                 ; List of Cursor
 l_hitbursts := []                                               ; List of Hitbursts
 l_reversearrows := []                                           ; List of ReverseArrows
 l_sliderballs := []                                             ; List of Sliderballs
+l_scorebarbgs := []                                             ; List of ScorebarBGs
+l_circlenumbers := []                                           ; List of CircleNumbers
 l_maniaarrows := []                                             ; list of ManiaArrows
 l_maniabars := []                                               ; List of ManiaBars
 l_maniadots := []                                               ; List of ManiaDots
@@ -524,7 +526,7 @@ GuiElement() {
     local y_bg := py_form                                       ; Y Position of BG
     local y_inner := y_bg + (py_form * 1.5)                     ; Inner-Y of BG (offset)
     local a_y := []                                             ; y positions
-    local o_element := "Cursor|Hitburst|Reverse Arrow|Sliderball|Mania"   ; Element Options
+    local o_element := "Cursor||Hitburst|Reverse Arrow|Sliderball|Scorebar BG|Circle Numbers|Mania"   ; Element Options
     local o_mania := "Arrow|Bar|Dot"                            ; Mania Options
     local o_mania_arrow_color := ""                             ; ManiaArrow Color Options
     local o_mania_bar_color := ""                               ; ManiaBar Color Options
@@ -535,6 +537,8 @@ GuiElement() {
     local o_hitburst := ""                                      ; Hitburst Options
     local o_revarrow := ""                                      ; ReverseArrow Options
     local o_sliderball := ""                                    ; Sliderball Options
+    local o_scorebarbg := ""                                    ; ScorebarBG Options
+    local o_circlenumbers := ""                                 ; CircleNumber Options
     local def_cursor := ""                                      ; Default Cursor Selection
     local def_ctrail := ""                                      ; Default CursorTrail Color Selection
     local def_csolid := 1                                       ; Default CursorTrail Solid State
@@ -542,6 +546,8 @@ GuiElement() {
     local def_hitburst := ""                                    ; Default Hitburst Selection
     local def_revarrow := ""                                    ; Default ReverseArrow Selection
     local def_sliderball := ""                                  ; Default Sliderball Selection
+    local def_scorebarbg := ""                                  ; Default ScorebarBG Selection
+    local def_circlenumber := ""                                ; Default CircleNumber Selection
     local def_mania := 1                                        ; Default Mania
     local def_mania_color := 1                                  ; Default mania Color 
     local formBG := d_asset "\formBG.png"                       ; Form Background
@@ -602,6 +608,26 @@ GuiElement() {
             def_sliderball := v.name
         }
     }
+    for k, v in l_scorebarbgs {
+        if (o_scorebarbg = "") {
+            o_scorebarbg := v.name
+        } else {
+            o_scorebarbg .= "|" v.name
+        }
+        if (v.original = 1) {
+            def_scorebarbg := v.name
+        }
+    }
+    for k, v in l_circlenumbers {
+        if (o_circlenumbers = "") {
+            o_circlenumbers := v.name
+        } else {
+            o_circlenumbers .= "|" v.name
+        }
+        if (v.original = 1) {
+            def_circlenumber := v.name
+        }
+    }
     for k, v in l_maniaarrows {
         if (o_mania_arrow_color = "") {
             o_mania_arrow_color := v.name
@@ -631,6 +657,8 @@ GuiElement() {
     Sort, o_hitburst, CL D|
     Sort, o_revarrow, CL D|
     Sort, o_sliderball, CL D|
+    Sort, o_scorebarbg, CL D|
+    Sort, o_circlenumbers, CL D|
     Sort, o_mania_arrow_color, CL D|
     Sort, o_mania_bar_color, CL D|
     Sort, o_mania_dot_color, CL D|
@@ -667,6 +695,16 @@ GuiElement() {
             def_sliderball := k
         }
     }
+    for k, v in (StrSplit(o_scorebarbg, "|")) {
+        if (v = def_scorebarbg) {
+            def_scorebarbg := k
+        }
+    }
+    for k, v in (StrSplit(o_circlenumbers, "|")) {
+        if (v = def_circlenumber) {
+            def_circlenumber := k
+        }
+    }
 
     ; Add Background to GUI
     Gui, ElementForm: Add, Picture, % "x" x_bg " y" y_bg " w" w_bg " h" h_bg " +" SS_CENTERIMAGE, %formBG%
@@ -686,11 +724,13 @@ GuiElement() {
 
     ; Add Controls to GUI
     Gui, ElementForm: Font, s%fs_input% c%fg_input%, %ff_input% ; Font for Edit Box
-    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[1] " w" w_ddl " +Choose1 +gGetElementType +vElementType +Sort", %o_element%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[1] " w" w_ddl " +gGetElementType +vElementType +Sort", %o_element%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_cursor " +vCursorElementOptionColor", %o_cursor%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_hitburst " +vHitburstElementOptionType +Hidden1", %o_hitburst%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_revarrow " +vReverseArrowElementOptionType +Hidden1", %o_revarrow%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_sliderball " +vSliderballElementOptionType +Hidden1", %o_sliderball%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_scorebarbg " +vScorebarBGElementOptionType +Hidden1", %o_scorebarbg%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_circlenumber " +vCircleNumberElementOptionType +Hidden1", %o_circlenumbers%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_mania " +gGetElementManiaType +vManiaElementOptionType +Hidden1", %o_mania%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[3] " w" w_ddl " +Choose" def_ctrail " +vCursorElementOptionTrail +gCheckCursorTrailSolidState", %o_ctrail%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[3] " w" w_ddl " +Choose1 +vManiaElementArrowOptionColor +Hidden1", %o_mania_arrow_color%
@@ -1270,10 +1310,12 @@ toggleElementForm(name, vis := 0) {
         GuiControl, %visCmd%, HitburstElementOptionType
         GuiControl, %visCmd%, ReverseArrowElementOptionType
         GuiControl, %visCmd%, SliderballElementOptionType
+        GuiControl, %visCmd%, ScorebarBGElementOptionType
+        GuiControl, %visCmd%, CircleNumberElementOptionType
         GuiControl, %visCmd%, ManiaElementOptionType
         GuiControl, %visCmd%, ManiaElementArrowOptionColor
         GuiControl, %visCmd%, ManiaELementBarOptionColor
-        GuiControl, %visCmd%, ManiaELementDotOptionColor
+        GuiControl, %visCmd%, ManiaElementDotOptionColor
         return
     } else if (name = "cursor") {
         GuiControl, %visCmd%, CursorElementOptionColorText
@@ -1294,6 +1336,12 @@ toggleElementForm(name, vis := 0) {
     } else if (name = "sliderball") {
         GuiControl, %visCmd%, OtherElementOptionTypeText
         GuiControl, %visCmd%, SliderballElementOptionType
+    } else if (name = "scorebar bg") {
+        GuiControl, %visCmd%, OtherElementOptionTypeText
+        GuiControl, %visCmd%, ScorebarBGElementOptionType
+    } else if (name = "circle numbers") {
+        GuiControl, %visCmd%, OtherElementOptionTypeText
+        GuiControl, %visCmd%, CircleNumberElementOptionType
     } else if (name = "mania") {
         GuiControl, %visCmd%, OtherElementOptionTypeText
         GuiControl, %visCmd%, OtherElementOptionColorText
@@ -1642,6 +1690,8 @@ InitEnv() {
     defineHitbursts()
     defineReverseArrows()
     defineSliderballs()
+    defineScorebarBGs()
+    defineCircleNumbers()
     defineManiaArrows()
     defineManiaBars()
     defineManiaDots()
@@ -1717,6 +1767,8 @@ defineCursors() {
         Hitbursts       -->         l_hitbursts.push(ho_<name>)
         ReverseArrows   -->         l_reversearrows.push(ro_<name>)
         Sliderballs     -->         l_sliderballs.push(so_<name>)
+        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
+        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
         Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
         Mania Bars      -->         l_maniabars.push(mbo_<name>)
         Mania Dots      -->         l_maniadots.push(mdo_<name>)
@@ -1762,6 +1814,8 @@ defineHitbursts() {
         Hitbursts       -->         l_hitbursts.push(ho_<name>)
         ReverseArrows   -->         l_reversearrows.push(ro_<name>)
         Sliderballs     -->         l_sliderballs.push(so_<name>)
+        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
+        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
         Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
         Mania Bars      -->         l_maniabars.push(mbo_<name>)
         Mania Dots      -->         l_maniadots.push(mdo_<name>)
@@ -1800,6 +1854,8 @@ defineReverseArrows() {
         Hitbursts       -->         l_hitbursts.push(ho_<name>)
         ReverseArrows   -->         l_reversearrows.push(ro_<name>)
         Sliderballs     -->         l_sliderballs.push(so_<name>)
+        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
+        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
         Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
         Mania Bars      -->         l_maniabars.push(mbo_<name>)
         Mania Dots      -->         l_maniadots.push(mdo_<name>)
@@ -1838,6 +1894,8 @@ defineSliderballs() {
         Hitbursts       -->         l_hitbursts.push(ho_<name>)
         ReverseArrows   -->         l_reversearrows.push(ro_<name>)
         Sliderballs     -->         l_sliderballs.push(so_<name>)
+        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
+        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
         Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
         Mania Bars      -->         l_maniabars.push(mbo_<name>)
         Mania Dots      -->         l_maniadots.push(mdo_<name>)
@@ -1849,6 +1907,86 @@ defineSliderballs() {
     l_sliderballs.push(so_single)
     l_sliderballs.push(so_double)
     l_sliderballs.push(so_default)
+}
+
+; Define ScorebarBG Objects
+defineScorebarBGs() {
+    global                                                      ; Set global Scope inside Function
+    /*
+        To define a new Sliderball, follow the following pattern:
+        ho_<type> := new Sliderball(name, dir, original)
+
+        See defineCursors() & defineGuiSections() for more information
+    */
+    local bo_sidebar := new ScorebarBG("Sidebars", "SIDEBARS", 0)
+    local bo_blackbox := new ScorebarBG("Black Box", "BLACKBOX", 0)
+    local bo_nothing := new ScorebarBG("Nothing", "NOTHING", 1)
+
+    /*
+        To make additions to this script easier to manage going forward, each Skin customization
+        gets added to its' own "list" or "array" of similar objects.  This allows
+        the UI to be updated on next run after defining new objects, and adding them
+        to their respective lists.
+
+        To ensure proper implementation of additions, simply add the item to the approporate list:
+
+        Cursors         -->         l_cursors.push(co_<name>)
+        Hitbursts       -->         l_hitbursts.push(ho_<name>)
+        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
+        Sliderballs     -->         l_sliderballs.push(so_<name>)
+        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
+        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
+        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
+        Mania Bars      -->         l_maniabars.push(mbo_<name>)
+        Mania Dots      -->         l_maniadots.push(mdo_<name>)
+        UIColors        -->         l_uicolors.push(uo_<name>)
+        Players         -->         l_players.push(po_<name>)
+    */
+
+    ; Add ScorebarBGs to list of ScorebarBG Objects
+    l_scorebarbgs.push(bo_sidebar)
+    l_scorebarbgs.push(bo_blackbox)
+    l_scorebarbgs.push(bo_nothing)
+}
+
+; Define CircleNumber Objects
+defineCircleNumbers() {
+    global                                                      ; Set global Scope inside Function
+    /*
+        To define a new Sliderball, follow the following pattern:
+        ho_<type> := new Sliderball(name, dir, original)
+
+        See defineCursors() & defineGuiSections() for more information
+    */
+    local no_standard := new CircleNumber("Standard", "STANDARD", 1)
+    local no_rounded := new CircleNumber("Rounded", "ROUNDED", 0)
+    local no_dots := new CircleNumber("Dots", "DOTS", 0)
+
+    /*
+        To make additions to this script easier to manage going forward, each Skin customization
+        gets added to its' own "list" or "array" of similar objects.  This allows
+        the UI to be updated on next run after defining new objects, and adding them
+        to their respective lists.
+
+        To ensure proper implementation of additions, simply add the item to the approporate list:
+
+        Cursors         -->         l_cursors.push(co_<name>)
+        Hitbursts       -->         l_hitbursts.push(ho_<name>)
+        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
+        Sliderballs     -->         l_sliderballs.push(so_<name>)
+        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
+        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
+        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
+        Mania Bars      -->         l_maniabars.push(mbo_<name>)
+        Mania Dots      -->         l_maniadots.push(mdo_<name>)
+        UIColors        -->         l_uicolors.push(uo_<name>)
+        Players         -->         l_players.push(po_<name>)
+    */
+
+    ; Add CircleNumbers to list of CircleNumber Objects
+    l_circlenumbers.push(no_standard)
+    l_circlenumbers.push(no_rounded)
+    l_circlenumbers.push(no_dots)
 }
 
 ; Define ManiaArrow Objects
@@ -1874,6 +2012,8 @@ defineManiaArrows() {
         Hitbursts       -->         l_hitbursts.push(ho_<name>)
         ReverseArrows   -->         l_reversearrows.push(ro_<name>)
         Sliderballs     -->         l_sliderballs.push(so_<name>)
+        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
+        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
         Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
         Mania Bars      -->         l_maniabars.push(mbo_<name>)
         Mania Dots      -->         l_maniadots.push(mdo_<name>)
@@ -1909,6 +2049,8 @@ defineManiaBars() {
         Hitbursts       -->         l_hitbursts.push(ho_<name>)
         ReverseArrows   -->         l_reversearrows.push(ro_<name>)
         Sliderballs     -->         l_sliderballs.push(so_<name>)
+        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
+        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
         Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
         Mania Bars      -->         l_maniabars.push(mbo_<name>)
         Mania Dots      -->         l_maniadots.push(mdo_<name>)
@@ -1944,6 +2086,8 @@ defineManiaDots() {
         Hitbursts       -->         l_hitbursts.push(ho_<name>)
         ReverseArrows   -->         l_reversearrows.push(ro_<name>)
         Sliderballs     -->         l_sliderballs.push(so_<name>)
+        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
+        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
         Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
         Mania Bars      -->         l_maniabars.push(mbo_<name>)
         Mania Dots      -->         l_maniadots.push(mdo_<name>)
@@ -1988,6 +2132,8 @@ defineUIColors() {
         Hitbursts       -->         l_hitbursts.push(ho_<name>)
         ReverseArrows   -->         l_reversearrows.push(ro_<name>)
         Sliderballs     -->         l_sliderballs.push(so_<name>)
+        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
+        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
         Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
         Mania Bars      -->         l_maniabars.push(mbo_<name>)
         Mania Dots      -->         l_maniadots.push(mdo_<name>)
@@ -2390,13 +2536,13 @@ applyForm() {
             }
             
             ; If %d_opt2% is still blank
-            if (CursorElementOptionTrail = "None") {        ; If "None" is selected
-				d_opt2 := d_opt1 "\..\..\" d_cursor_notrail	; Set path to one directory higher than opt1, followed by d_cursor_notrail
+            if (CursorElementOptionTrail = "None") {            ; If "None" is selected
+				d_opt2 := d_opt1 "\..\..\" d_cursor_notrail	    ; Set path to one directory higher than opt1, followed by d_cursor_notrail
                 d_opt4 := ""
             }
 
             ; Verify Paths Exist
-            Gui, ElementForm: +OwnDialogs                           ; Make Dialogs Modal
+            Gui, ElementForm: +OwnDialogs                       ; Make Dialogs Modal
             if (FileExist(src "\" d_opt1) = "") {
                 MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
                 return
@@ -2413,7 +2559,7 @@ applyForm() {
                 MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt4%
                 return
 			}
-            Gui, ElementForm: -OwnDialogs                           ; Disable Modal Dialogs
+            Gui, ElementForm: -OwnDialogs                       ; Disable Modal Dialogs
 
 			; Delete Solid-Trail Image
             FileDelete, %dst%\cursormiddle@2x.png
@@ -2438,12 +2584,12 @@ applyForm() {
             }
 
             ; Verify Paths Exist
-            Gui, ElementForm: +OwnDialogs                           ; Make Dialogs Modal
+            Gui, ElementForm: +OwnDialogs                       ; Make Dialogs Modal
             if (FileExist(src "\" d_opt1) = "") {
                 MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
                 return
             }
-            Gui, ElementForm: -OwnDialogs                           ; Disable Modal Dialogs
+            Gui, ElementForm: -OwnDialogs                       ; Disable Modal Dialogs
 
             ; Copy Base Hitburst to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
@@ -2458,12 +2604,12 @@ applyForm() {
             }
 
             ; Verify Paths Exist
-            Gui, ElementForm: +OwnDialogs                           ; Make Dialogs Modal
+            Gui, ElementForm: +OwnDialogs                       ; Make Dialogs Modal
             if (FileExist(src "\" d_opt1) = "") {
                 MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
                 return
             }
-            Gui, ElementForm: -OwnDialogs                           ; Disable Modal Dialogs
+            Gui, ElementForm: -OwnDialogs                       ; Disable Modal Dialogs
 
             ; Copy Base Hitburst to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
@@ -2478,14 +2624,54 @@ applyForm() {
             }
 
             ; Verify Paths Exist
-            Gui, ElementForm: +OwnDialogs                           ; Make Dialogs Modal
+            Gui, ElementForm: +OwnDialogs                       ; Make Dialogs Modal
             if (FileExist(src "\" d_opt1) = "") {
                 MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
                 return
             }
-            Gui, ElementForm: -OwnDialogs                           ; Disable Modal Dialogs
+            Gui, ElementForm: -OwnDialogs                       ; Disable Modal Dialogs
 
             ; Copy Base Hitburst to Destination
+            FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
+        } else if (etype = "scorebar bg") {
+            local d_opt1 := ""                                  ; Directory of Option 1
+
+            ; Get Directories for Options
+            for i, j in l_scorebarbgs {
+                if (j.name = ScorebarBGElementOptionType) {
+                    d_opt1 := j.elementsDir "\" j.scorebarbgDir "\" j.dir
+                }
+            }
+
+            ; Verify Paths Exist
+            Gui, ElementForm: +OwnDialogs                       ; Make Dialogs Modal
+            if (FileExist(src "\" d_opt1) = "") {
+                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                return
+            }
+            Gui, ElementForm: -OwnDialogs
+
+            ; Copy ScorebarBG to Destination
+            FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
+        } else if (etype = "circle numbers") {
+            local d_opt1 := ""                                  ; Directory of Option 1
+
+            ; Get Directories for Options
+            for i, j in l_circlenumbers {
+                if (j.name = CircleNumberElementOptionType) {
+                    d_opt1 := j.elementsDir "\" j.circleNumberDir "\" j.dir
+                }
+            }
+
+            ; Verify Paths Exist
+            Gui, ElementForm: +OwnDialogs                       ; Make Dialogs Modal
+            if (FileExist(src "\" d_opt1) = "") {
+                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                return
+            }
+            Gui, ElementForm: -OwnDialogs
+
+            ; Copy CircleNumbers to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
         } else if (etype = "mania") {
             local mtype := ManiaElementOptionType               ; Get Mania Type
@@ -3200,6 +3386,44 @@ Class Sliderball Extends Element {
     ; Constructor
     __new(n, d, o) {
         base.__new("hitburst", sliderballDir, o)
+        this.name := n
+        this.dir := d
+    }
+}
+
+; ##----------------------------------------##
+; #|        Class: Element: Scorebar BG     |#
+; ##----------------------------------------##
+Class ScorebarBG Extends Element {
+    ; Instance Variables
+    name :=                                                     ; String: ScorebarBG Name (type)
+    dir :=                                                      ; String: Name of the ScorebarBG's Directory
+
+    ; Static Variables
+    Static scorebarbgDir := "SCOREBARBG"                        ; Name of the ScorebarBG Directory
+
+    ; Constructor
+    __new(n, d, o) {
+        base.__new("scorebarbg", scorebarbgDir, o)
+        this.name := n
+        this.dir := d
+    }
+}
+
+; ##----------------------------------------##
+; #|        Class: Element: Numbers         |#
+; ##----------------------------------------##
+Class CircleNumber Extends Element {
+    ; Instance Variables
+    name :=                                                     ; String: Circle Number's Name (type)
+    dir :=                                                      ; String: Name of the Circle Number's Directory
+
+    ; Static Variables
+    Static circleNumberDir := "NUMBERS"                         ; Name of the Circle Numbers Directory
+
+    ; Constructor
+    __new(n, d, o) {
+        base.__new("numbers", circleNumberDir, o)
         this.name := n
         this.dir := d
     }
