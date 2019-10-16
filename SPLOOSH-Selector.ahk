@@ -23,60 +23,12 @@ OnExit("Cleanup")                                               ; Call Cleanup()
 ; ##-------------------------------------------------##
 ; #|        Global Variables -- Configuration        |#
 ; ##-------------------------------------------------##
-; Width Definitions
-w_app := 624                                                    ; Application/Parent -- Default: 624
-w_picker := 600                                                 ; ColorPicker
-w_topbar := w_app                                               ; TopBar
-w_sidebar := w_app / 4                                          ; SideBar
-w_preview := w_app - w_sidebar                                  ; Preview
-w_form := w_app - w_sidebar                                     ; Element, UIColor & Player
-
-; Height Defintions
-h_app := 685                                                    ; Application/Parent -- Default: 685
-h_picker := 600                                                 ; ColorPicker
-h_topbar := h_app / 5                                           ; TopBar
-h_sidebar := h_app - h_topbar                                   ; SideBar
-h_preview := h_app / 8                                          ; Preview
-h_form := h_app - h_topbar - h_preview                          ; Element, UIColor & Player
-
-; X Positioning relative to Application
-x_app := Round(A_ScreenWidth, 0)                                ; Application/Parent
-x_topbar := 0                                                   ; TopBar
-x_sidebar := 0                                                  ; SideBar
-x_preview := w_sidebar                                          ; Preview
-x_form := w_sidebar                                             ; Element, UIColor & Player
-
-; Y Positioning relative to Application
-y_app := Round(A_ScreenHeight, 0)                               ; Application/Parent
-y_topbar := 0                                                   ; TopBar
-y_sidebar := h_topbar                                           ; SideBar
-y_preview := h_topbar + h_form                                  ; Preview
-y_form := h_topbar                                              ; Element, UIColor & Player
-
-; Horizontal Padding
-px_app := 0                                                     ; Application/Parent
-px_topbar := 10                                                 ; TopBar
-px_sidebar := 10                                                ; SideBar
-px_preview := 10                                                ; Preview
-px_form := 10                                                   ; Element, UIColor & Player
-
-; Vertical Padding
-py_app := 0                                                     ; Application/Parent
-py_topbar := 10                                                 ; TopBar
-py_sidebar := 10                                                ; SideBar
-py_preview := 10                                                ; Preview
-py_form := 10                                                   ; Element, UIColor & Player
-
 ; Background Colors
 bg_app := "002D52"                                              ; Application/Parent
 bg_topbar := "002D52"                                           ; TopBar
 bg_sidebar := "002D52"                                          ; SideBar
 bg_preview := "002D52"                                          ; Preview
 bg_form := "002D52"                                             ; Element, UIColor & Player
-bg_debug_topbar := "FF8E77"
-bg_debug_sidebar := "6DFF79"
-bg_debug_preview := "002D52"
-bg_debug_form := "93D7FF"
 
 ; Foreground Colors
 fg_app := "000000"                                              ; Application/Parent
@@ -101,59 +53,6 @@ fs_sidebar := 10                                                ; SideBar
 fs_preview := 10                                                ; Preview
 fs_form := 14                                                   ; Element, UIColor & Player
 fs_input := 10                                                  ; Inputs
-
-; Directories
-d_user := "C:\Users\" A_UserName                                ; User's Home Directory
-d_game := d_user "\AppData\Local\osu!"                          ; Game Installation Path
-d_asset := A_Temp "\SPLOOSH-Selector"                           ; Script's Assets Path (FileInstall)
-d_conf := "ASSET PACKS"                                         ; Directory containing Skin Configuration Elements
-d_default := "DEFAULT ASSETS"									; Directory containing Default/Reset Assets
-d_default_gameplay := d_default "\GP"         					; Directory containing Original Gameplay Elements
-d_default_uicolor := d_default "\UI"				            ; Directory containing Original UI Color Elements
-d_cursor_notrail := "Z NO CT"                          			; Directory containing ELements to disable Cursor Trails
-d_cursor_solidtrail := "Z CM"                     				; Directory containing Elements to enable a solid cursor trail
-d_uicolor_instafade := "SKIN.INI FOR INSTAFADE HITCIRCLE"       ; Directory containing Elements to enable instant-fade circles
-
-; Names
-n_app := "SPLOOSH Selector"                                     ; Application Name
-n_skin := "SPLOOSH"                                             ; Skin Name
-n_ver := "(S+)"													; Skin Version required
-
-; Hyperlinks
-hl_preview_element := ""										; Elements Preview
-hl_preview_uicolor := ""										; UI Color Preview
-hl_preview_player := ""											; Player/Packs Preview
-hl_source_code := "https://github.com/Stewie410/SPLOOSH-Selector"	; Source Code
-hl_skin_download := ""
-
-; Object Lists
-l_cursors := []                                                 ; List of Cursors
-l_hitbursts := []                                               ; List of Hitbursts
-l_reversearrows := []                                           ; List of ReverseArrows
-l_sliderballs := []                                             ; List of Sliderballs
-l_scorebarbgs := []                                             ; List of ScorebarBGs
-l_circlenumbers := []                                           ; List of CircleNumbers
-l_maniaarrows := []                                             ; list of ManiaArrows
-l_maniabars := []                                               ; List of ManiaBars
-l_maniadots := []                                               ; List of ManiaDots
-l_uicolors := []                                                ; List of UI Colors
-l_players := []                                                 ; List of Players
-
-; Variables
-var_selected_form := "Player"									; Selected Form (Element|Player|UIColor) -- Determines Default Form too
-var_cursor_changed := 0                                         ; Flag to indicate if the cursor has been changed
-var_picker_selected_color := "FFFFFF"                           ; ColorPicker Selected Color
-var_picker_hover_color := "FFFFFF"                              ; ColorPicker Preview Color
-var_picker_cursor_changed := 0                                  ; ColorPicker SystemCursor Changed
-var_picker_cursor_current := ""                                 ; ColorPicker Current Cursor
-var_combo_color_1 := "1978FF"                                   ; Combo Color 1
-var_combo_color_2 := "1978FF"                                   ; Combo Color 2
-var_combo_color_3 := "1978FF"                                   ; Combo Color 3
-var_combo_color_4 := "1978FF"                                   ; Combo Color 4
-var_combo_color_5 := "1978FF"                                   ; Combo Color 5
-var_slider_border_color := "DEDEDE"                             ; Slider Border Color
-var_slider_track_color := "212121"                              ; Slider Track Color
-var_picker_count := 0                                           ; Flag to indicate which TreeView to update
 
 ; ##----------------##
 ; #|        Run     |#
@@ -180,10 +79,10 @@ initCheckPath()
 ; ##--------------------------------##
 ; #|        Message Listeners       |#
 ; ##--------------------------------##
-; On Mouse Movement
+; On Mouse Movement, run "WM_MOUSEMOVE()" func
 OnMessage(0x0200, "WM_MOUSEMOVE")
 
-; On Left Mouse-Button Up
+; On Left Mouse-Button Up, run "OnWM_LBUTTONUP()" func
 OnMessage(0x202, "OnWM_LBUTTONUP")
 
 ; ##----------------------------##
@@ -216,10 +115,7 @@ ColorPickerGuiClose(GuiHwnd) {
 ; ##------------------------##
 GuiParent() {
     global                                                      ; Set global Scope inside Function
-
-    ; Define the GUI's Parameters
     Gui, Parent: +HWNDhParent                                   ; Define Parent GUI, Assign Window Handle to %hParent%
-    ;Gui, Parent: +MinSize%w_app%x%h_app%                        ; Define Parent GUI's Minimum Size to %parentW% and %parentH%
     Gui, Parent: +LastFound                                     ; Make Parent the LastFound window
     Gui, Parent: -Resize                                        ; Disallow Parent GUI to be resize
     Gui, Parent: Margin, 0, 0                                   ; Disable Parent GUI's Margin
@@ -231,8 +127,6 @@ GuiParent() {
 ; ##------------------------##
 GuiTopBar() {
     global                                                      ; Set global Scope inside Function
-
-    ; Define the GUI's Parameters
     Gui, TopBar: +ParentParent                                  ; Define GUI as a child of Parent
     Gui, TopBar: +HWNDhTopBar                                   ; Assign Window Handle to %hTopBar%
     Gui, TopBar: -Caption                                       ; Disable Titlebar
@@ -309,8 +203,6 @@ GuiTopBar() {
 ; ##----------------------------##
 GuiSideBar() {
     global                                                      ; Set global Scope inside Function
-
-    ; Define the GUI's Parameters
     Gui, SideBar: +ParentParent                                 ; Define GUI as a child of Parent
     Gui, SideBar: +HWNDhSideBar                                 ; Assign Window Handle to %hTopBar%
     Gui, SideBar: -Caption                                      ; Disable Titlebar
@@ -381,8 +273,6 @@ GuiSideBar() {
 ; ##----------------------------##
 GuiUIColor() {
     global                                                      ; Set global Scope inside Function
-
-    ; Define the GUI
     Gui, UIColorForm: +ParentParent                             ; Define GUI as a child of Parent
     Gui, UIColorForm: +HWNDhUIColor                             ; Assign Window Handle to %hTopBar%
     Gui, UIColorForm: -Caption                                  ; Disable Titlebar
@@ -438,14 +328,12 @@ GuiUIColor() {
 
     ; Get Options
     for k, v in l_uicolors {
-        if (o_color = "") {
+        if (o_color = "")
             o_color := v.name
-        } else {
+        else
             o_color := o_color "|" v.name
-        }
-        if (v.original = 1) {
+        if (v.original = 1)
             def_color := v.name
-        }
     }
 
     ; Sort Options Alphabetically
@@ -453,9 +341,8 @@ GuiUIColor() {
 
     ; Determine default choices
     for k, v in (StrSplit(o_color, "|")) {
-        if (v = def_color) {
+        if (v = def_color)
             def_color := k
-        }
     }
 
     ; Add Background to GUI
@@ -497,8 +384,6 @@ GuiUIColor() {
 ; ##-----------------------------##
 GuiElement() {
     global                                                      ; Set global Scope inside Function
-
-    ; Define the GUI
     Gui, ElementForm: +ParentParent                             ; Define GUI as a child of Parent
     Gui, ElementForm: +HWNDhElement                             ; Assign Window Handle to %hTopBar%
     Gui, ElementForm: -Caption                                  ; Disable Titlebar
@@ -566,9 +451,9 @@ GuiElement() {
 
     ; Get Options
     for k, v in l_cursors {
-        if (o_cursor = ""){
+        if (o_cursor = "")
             o_cursor := v.name
-        } else {
+        else {
             o_cursor .= "|" v.name
             o_ctrail .= "|" v.name
         }
@@ -579,75 +464,62 @@ GuiElement() {
     }
     o_csmoke := o_cursor
     for k, v in l_hitbursts {
-        if (o_hitburst = "") {
+        if (o_hitburst = "")
             o_hitburst := v.name
-        } else {
+        else
             o_hitburst .= "|" v.name
-        }
-        if (v.original = 1) {
+        if (v.original = 1)
             def_hitburst := v.name
-        }
     }
     for k, v in l_reversearrows {
-        if (o_revarrow = ""){
+        if (o_revarrow = "")
             o_revarrow := v.name
-        } else {
+        else
             o_revarrow .= "|" v.name
-        }
-        if (v.original = 1) {
+        if (v.original = 1)
             def_revarrow := v.name
-        }
     }
     for k, v in l_sliderballs {
-        if (o_sliderball = ""){
+        if (o_sliderball = "")
             o_sliderball := v.name
-        } else {
+        else
             o_sliderball .= "|" v.name
-        }
-        if (v.original = 1) {
+        if (v.original = 1)
             def_sliderball := v.name
-        }
     }
     for k, v in l_scorebarbgs {
-        if (o_scorebarbg = "") {
+        if (o_scorebarbg = "")
             o_scorebarbg := v.name
-        } else {
+        else
             o_scorebarbg .= "|" v.name
-        }
-        if (v.original = 1) {
+        if (v.original = 1)
             def_scorebarbg := v.name
-        }
     }
     for k, v in l_circlenumbers {
-        if (o_circlenumbers = "") {
+        if (o_circlenumbers = "")
             o_circlenumbers := v.name
-        } else {
+        else
             o_circlenumbers .= "|" v.name
-        }
-        if (v.original = 1) {
+        if (v.original = 1)
             def_circlenumber := v.name
-        }
     }
     for k, v in l_maniaarrows {
-        if (o_mania_arrow_color = "") {
+        if (o_mania_arrow_color = "")
             o_mania_arrow_color := v.name
-        } else {
+        else
             o_mania_arrow_color .= "|" v.name
-        }
     }
     for k, v in l_maniabars {
-        if (o_mania_bar_color = "") {
+        if (o_mania_bar_color = "")
             o_mania_bar_color := v.name
-        } else {
+        else
             o_mania_bar_color .= "|" v.name
-        }
     }
     for k, v in l_maniadots {
-        if (o_mania_dot_color = "") {
+        if (o_mania_dot_color = "")
             o_mania_dot_color := v.name
-        } else {
+        else
             o_mania_dot_color .= "|" v.name
-        }
     }
 
     ; Sort Options Alphabetically
@@ -671,39 +543,32 @@ GuiElement() {
         }
     }
     for k, v in (StrSplit(o_ctrail, "|")) {
-        if (v = def_ctrail) {
+        if (v = def_ctrail)
             def_ctrail := k
-        }
     }
     for, k, v in (StrSplit(o_csmoke, "|")) {
-        if (v = def_csmoke) {
+        if (v = def_csmoke)
             def_csmoke = k
-        }
     }
     for k, v in (StrSplit(o_hitburst, "|")) {
-        if (v = def_hitburst) {
+        if (v = def_hitburst)
             def_hitburst := k
-        }
     }
     for k, v in (StrSplit(o_revarrow, "|")) {
-        if (v = def_revarrow) {
+        if (v = def_revarrow)
             def_revarrow := k
-        }
     }
     for k, v in (StrSplit(o_sliderball, "|")) {
-        if (v = def_sliderball) {
+        if (v = def_sliderball)
             def_sliderball := k
-        }
     }
     for k, v in (StrSplit(o_scorebarbg, "|")) {
-        if (v = def_scorebarbg) {
+        if (v = def_scorebarbg)
             def_scorebarbg := k
-        }
     }
     for k, v in (StrSplit(o_circlenumbers, "|")) {
-        if (v = def_circlenumber) {
+        if (v = def_circlenumber)
             def_circlenumber := k
-        }
     }
 
     ; Add Background to GUI
@@ -747,8 +612,6 @@ GuiElement() {
 ; ##----------------------------##
 GuiPlayer() {
     global                                                      ; Set global Scope inside Function
-
-    ; Define the GUI
     Gui, PlayerForm: +ParentParent                              ; Define GUI as a child of Parent
     Gui, PlayerForm: +HWNDhPlayer                               ; Assign Window Handle to %hTopBar%
     Gui, PlayerForm: -Caption                                   ; Disable Titlebar
@@ -794,11 +657,10 @@ GuiPlayer() {
 
     ; Get Options
     for k, v in l_players {
-        if (o_player = "") {
+        if (o_player = "")
             o_player := v.name
-        } else {
+        else
             o_player := o_player "|" v.name
-        }
     }
 
     ; Sort Options Alphabetically
@@ -827,8 +689,6 @@ GuiPlayer() {
 ; ##--------------------------------##
 GuiPreview() {
     global                                                      ; Set global Scope inside Function
-
-    ; Define the GUI
     Gui, PreviewPane: +ParentParent                             ; Define GUI as a child of Parent
     Gui, PreviewPane: +HWNDhPlayer                              ; Assign Window Handle to %hTopBar%
     Gui, PreviewPane: -Caption                                  ; Disable Titlebar
@@ -869,8 +729,6 @@ GuiPreview() {
 ; ##--------------------------------##
 GuiColorPicker(w := 600, h := 600, hex := "FFFFFF") {
     global                                                      ; Set global Scope inside Function
-
-    ; Define Local Variables
     local w_picker := w                                         ; picker width
     local w_palette := w_picker                                 ; palette width
     local w_panel := w_picker                                   ; panel width
@@ -994,9 +852,8 @@ ResetAll() {
     global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
     Gui, SideBar: Submit, NoHide                                ; Get vVar values without hiding GUI
-    if (resetSkin("gameplay") = 0) {                            ; Reset Gameplay, if successful
+    if (resetSkin("gameplay") = 0)                              ; Reset Gameplay, if successful
         resetSkin("uicolor")                                    ; Reset UIColor
-    }
 }
 
 ; SideBar --> Reset Gameplay Elements
@@ -1045,10 +902,8 @@ ToggleCursorElementOptionTrailSolid() {
     local ctrl_enabled := 0                                     ; Placeholder for "is control enabled"
     local ctrl_state := CursorElementOptionTrailSolid           ; Placeholder for "is control checked"
     GuiControlGet, ctrl_enabled, Enabled, CursorElementOptionTrailSolid     ; Get whether control is enabled or disabled
-    if (ctrl_enabled = 1) {                                     ; If Control is enabled
-        ; Toggle Checked State
+    if (ctrl_enabled = 1)                                       ; If Control is enabled
         GuiControl, ElementForm:, CursorElementOptionTrailSolid, % (ctrl_state = 1 ? 0 : 1)
-    }
 }
 
 ; UIColorForm --> Toggle UIColorOptionInstafade state (workaround)
@@ -1215,13 +1070,12 @@ ColorPickerSubmitForm() {
 ; PreviewPane --> Open Hyperlink based on which form is selected
 OpenPreviewLink() {
     global                                                      ; Set global Scope inside Function
-    if (var_selected_form = "Element") {
+    if (var_selected_form = "Element")
         Run, % hl_preview_element
-    } else if (var_selected_form = "Player") {
+    else if (var_selected_form = "Player")
         Run, % hl_preview_player
-    } else if (var_selected_form = "UIColor") {
+    else if (var_selected_form = "UIColor")
         Run, % hl_preview_uicolor
-    }
 }
 
 ; PreviewPane --> Open Hyperlink to Source Code
@@ -1237,6 +1091,26 @@ OpenDownloadLink() {
 ; ##------------------------------------##
 ; #|        Functions: UI Updates       |#
 ; ##------------------------------------##
+; Global Modal Message Box
+modalMsgBox(title := "", message := "", guiname := "") {
+    global                                                      ; Set global Scope inside Function
+
+    ; Handle invalid inputs
+    if (message = "")
+        return
+    if (guiname)
+        return
+
+    ; Enable Modal Dialogs for provided GUI
+    Gui, %guiname%: +OwnDialogs
+
+    ; Display Message
+    MsgBox,, %title%, %message%
+
+    ; Disable Modal Dialogs for provided GUI
+    Gui, %guiname%: -OwnDialogs
+}
+
 ; TopBar --> Toggle Visibility of a Form -- Args: $1: Name; $2: Visible (def: 0)
 toggleForm(name, vis := 0) {
     global                                                      ; Set global Scope inside Function
@@ -1250,13 +1124,12 @@ toggleForm(name, vis := 0) {
 	local hwndCtrl := ""
 
 	; Determine Control to Modify
-	if (name = "Element") {
+	if (name = "Element")
 		hwndCtrl := hCategoryElementActive
-	} else if (name = "Player") {
+	else if (name = "Player")
 		hwndCtrl := hCategoryPlayerActive
-	} else if (name = "UIColor") {
+	else if (name = "UIColor")
 		hwndCtrl := hCategoryUIColorActive
-	}
 
     ; Handler for "ALL" name
     if (name = "ALL") {
@@ -1286,9 +1159,8 @@ toggleElementForm(name, vis := 0) {
     global                                                      ; Set global Scope inside Function
 
     ; If Name not passed, return
-    if (name = "") {
+    if (name = "")
         return
-    }
 
     ; Define/update local vars
     local visCmd := vis = 1 ? "Show" : "Hide"                   ; Set visibility command
@@ -1356,9 +1228,8 @@ toggleManiaForm(name := "", vis := 0) {
     global                                                      ; Set global Scope inside Function
 
     ; If Name not passed, return
-    if (name = "") {
+    if (name = "")
         return
-    }
 
     ; Define/update local vars
     local visCmd := vis = 1 ? "Show" : "Hide"                   ; Set visibility command
@@ -1369,13 +1240,12 @@ toggleManiaForm(name := "", vis := 0) {
         GuiControl, %visCmd%, ManiaElementArrowOptionColor
         GuiControl, %visCmd%, ManiaElementBarOptionColor
         GuiControl, %visCmd%, ManiaElementDotOptionColor
-    } else if (name = "arrow") {
+    } else if (name = "arrow")
         GuiControl, %visCmd%, ManiaElementArrowOptionColor
-    } else if (name = "bar") {
+    else if (name = "bar")
         GuiControl, %visCmd%, ManiaElementBarOptionColor
-    } else if (name = "dot") {
+    else if (name = "dot")
         GuiControl, %visCmd%, ManiaElementDotOptionColor
-    }
 }
 
 ; ElementForm --> Toggle state of CursorElementOptionTrailSolid checkbox
@@ -1383,9 +1253,8 @@ toggleCursorTrailSolidState(state := "") {
     global                                                      ; Set global Scope inside Function
 
     ; If if state passed, 
-    if (state = "") {
+    if (state = "")
         return
-    }
 
     if (state = "None") {
         GuiControl, ElementForm:, CursorElementOptionTrailSolid, 0
@@ -1406,9 +1275,9 @@ updateUIColorColors(init := 0) {
     local a_slider := []                                        ; Slider Colors
 
     ; Update colorPath
-    if (init = 1) {
+    if (init = 1)
         color_path := d_conf
-    } else {
+    else {
         for k, v in l_uicolors {
             if (v.name = ui_select) {
                 colorPath := d_conf "\" v.uicolorDir "\" v.dir
@@ -1472,9 +1341,8 @@ togglePlayerForm(name, vis := 0) {
     global                                                      ; Set global Scope inside Function
 
     ; Return if no name passed
-    if (name = "") {
+    if (name = "")
         return
-    }
 
     ; Define local vars
     local visCmd := vis = 1 ? "Show" : "Hide"                   ; Set visibility command
@@ -1490,11 +1358,10 @@ togglePlayerForm(name, vis := 0) {
 
     ; Get the list of players into a string
     for k, v in l_players {
-        if (sortPlayers = "") {
+        if (sortPlayers = "")
             sortPlayers := v.name
-        } else {
+        else
             sortPlayers .= "|" v.name
-        }
     }
 
     ; Sort the list of players alphabetically
@@ -1514,9 +1381,8 @@ togglePlayerForm(name, vis := 0) {
         }
     }
 
-    if (optStr = "") {
+    if (optStr = "")
         return
-    }
 
     GuiControl, PlayerForm:, PlayerOptionVersion, |%optStr%
     GuiControl, PlayerForm: Choose, PlayerOptionVersion, 1
@@ -1610,9 +1476,8 @@ WM_MOUSEMOVE(wParam, lParam, Msg, Hwnd) {
         return
 
     ; If the mouse is over the color palette, set the below pixel's color to 'hover_color'
-    if (ctrl_mouse = hColorPickerPalette) {
+    if (ctrl_mouse = hColorPickerPalette)
         var_picker_hover_color := getCoordinateColor(x_mouse, y_mouse)
-    }
 }
 
 ; Left Mouse-Button UP
@@ -1637,10 +1502,11 @@ OnWM_LBUTTONUP(wParam, lParam, msg, hwnd) {
 ; Initialize Environment
 InitEnv() {
     global                                                      ; Set global Scope inside Function
-    Menu, Tray, Tip, %n_app%                                    ; Define SysTray Icon with Application Name
 
-    ; Install Assets
-    ;FileInstall, Source, Dest, 1
+    ; Define Initial Backend Variables (global)
+    defineGlobals()
+
+    Menu, Tray, Tip, %n_app%                                    ; Define SysTray Icon with Application Name
     
     ; Define Local Variables
     local file_list := {}                                       ; Define assets to be extracted
@@ -1712,9 +1578,8 @@ InitEnv() {
 initCheckPath() {
     global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get vVar values without hiding GUI
-    if (getDirectoryName(n_skin, GameDirectory "\Skins") = "") {
+    if (getDirectoryName(n_skin, GameDirectory "\Skins") = "")
         MsgBox,, %n_app%, WARNING: Please update Game Path before continuing!
-    }
 }
 
 ; Cleanup Environment
@@ -1727,6 +1592,114 @@ Cleanup() {
     ; Remove Fonts
     DllCall("Gdi32.dll\RemoveFontResourceEx", "Str", d_asset "\debussy.ttf", "UInt", 0x10, "UInt", 0)
     DllCall("Gdi32.dll\RemoveFontResourceEx", "Str", d_asset "\Roboto-Regular.ttf", "UInt", 0x10, "UInt", 0)
+}
+
+; Define Additional Global Variables
+defineGlobals() {
+    global                                                      ; Set global Scope inside Function
+
+    ; Width Definitions
+    w_app := 624                                                ; Application/Parent -- Default: 624
+    w_picker := 600                                             ; ColorPicker
+    w_topbar := w_app                                           ; TopBar
+    w_sidebar := w_app / 4                                      ; SideBar
+    w_preview := w_app - w_sidebar                              ; Preview
+    w_form := w_app - w_sidebar                                 ; Element, UIColor & Player
+
+    ; Height Defintions
+    h_app := 685                                                ; Application/Parent -- Default: 685
+    h_picker := 600                                             ; ColorPicker
+    h_topbar := h_app / 5                                       ; TopBar
+    h_sidebar := h_app - h_topbar                               ; SideBar
+    h_preview := h_app / 8                                      ; Preview
+    h_form := h_app - h_topbar - h_preview                      ; Element, UIColor & Player
+
+    ; X Positioning relative to Application
+    x_app := Round(A_ScreenWidth, 0)                            ; Application/Parent
+    x_topbar := 0                                               ; TopBar
+    x_sidebar := 0                                              ; SideBar
+    x_preview := w_sidebar                                      ; Preview
+    x_form := w_sidebar                                         ; Element, UIColor & Player
+
+    ; Y Positioning relative to Application
+    y_app := Round(A_ScreenHeight, 0)                           ; Application/Parent
+    y_topbar := 0                                               ; TopBar
+    y_sidebar := h_topbar                                       ; SideBar
+    y_preview := h_topbar + h_form                              ; Preview
+    y_form := h_topbar                                          ; Element, UIColor & Player
+
+    ; Horizontal Padding
+    px_app := 0                                                 ; Application/Parent
+    px_topbar := 10                                             ; TopBar
+    px_sidebar := 10                                            ; SideBar
+    px_preview := 10                                            ; Preview
+    px_form := 10                                               ; Element, UIColor & Player
+
+    ; Vertical Padding
+    py_app := 0                                                 ; Application/Parent
+    py_topbar := 10                                             ; TopBar
+    py_sidebar := 10                                            ; SideBar
+    py_preview := 10                                            ; Preview
+    py_form := 10                                               ; Element, UIColor & Player
+
+    ; Names
+    n_app := "SPLOOSH Selector"                                 ; Application Name
+    n_skin := "SPLOOSH"                                         ; Skin Name
+    n_ver := "(S+)"												; Skin Version required
+
+    ; Runtime Vars
+    var_selected_form := "Player"								; Selected Form (Element|Player|UIColor) -- Determines Default Form too
+    var_cursor_changed := 0                                     ; Flag to indicate if the cursor has been changed
+    var_picker_selected_color := "FFFFFF"                       ; ColorPicker Selected Color
+    var_picker_hover_color := "FFFFFF"                          ; ColorPicker Preview Color
+    var_picker_cursor_changed := 0                              ; ColorPicker SystemCursor Changed
+    var_picker_cursor_current := ""                             ; ColorPicker Current Cursor
+    var_combo_color_1 := "1978FF"                               ; Combo Color 1
+    var_combo_color_2 := "1978FF"                               ; Combo Color 2
+    var_combo_color_3 := "1978FF"                               ; Combo Color 3
+    var_combo_color_4 := "1978FF"                               ; Combo Color 4
+    var_combo_color_5 := "1978FF"                               ; Combo Color 5
+    var_slider_border_color := "DEDEDE"                         ; Slider Border Color
+    var_slider_track_color := "212121"                          ; Slider Track Color
+    var_picker_count := 0                                       ; Flag to indicate which TreeView to update
+
+    ; Hyperlinks
+    hl_preview_element := ""									; Elements Preview
+    hl_preview_uicolor := ""									; UI Color Preview
+    hl_preview_player := ""										; Player/Packs Preview
+    hl_source_code := "https://github.com/Stewie410/SPLOOSH-Selector"	; Source Code
+    hl_skin_download := ""
+
+    ; Directories
+    d_user := "C:\Users\" A_UserName                            ; User's Home Directory
+    d_game := d_user "\AppData\Local\osu!"                      ; Game Installation Path
+    d_asset := A_Temp "\SPLOOSH-Selector"                       ; Script's Assets Path (FileInstall)
+    d_conf := "ASSET PACKS"                                     ; Directory containing Skin Configuration Elements
+    d_default := "DEFAULT ASSETS"								; Directory containing Default/Reset Assets
+    d_default_gameplay := d_default "\GP"         				; Directory containing Original Gameplay Elements
+    d_default_uicolor := d_default "\UI"				        ; Directory containing Original UI Color Elements
+    d_cursor_notrail := "Z NO CT"                          		; Directory containing ELements to disable Cursor Trails
+    d_cursor_solidtrail := "Z CM"                     			; Directory containing Elements to enable a solid cursor trail
+    d_uicolor_instafade := "SKIN.INI FOR INSTAFADE HITCIRCLE"   ; Directory containing Elements to enable instant-fade circles
+
+    ; Object Lists
+    l_cursors := []                                             ; List of Cursors
+    l_hitbursts := []                                           ; List of Hitbursts
+    l_reversearrows := []                                       ; List of ReverseArrows
+    l_sliderballs := []                                         ; List of Sliderballs
+    l_scorebarbgs := []                                         ; List of ScorebarBGs
+    l_circlenumbers := []                                       ; List of CircleNumbers
+    l_maniaarrows := []                                         ; list of ManiaArrows
+    l_maniabars := []                                           ; List of ManiaBars
+    l_maniadots := []                                           ; List of ManiaDots
+    l_uicolors := []                                            ; List of UI Colors
+    l_players := []                                             ; List of Players
+
+    ; Debug Background Colors
+    bg_debug_topbar := "FF8E77"
+    bg_debug_sidebar := "6DFF79"
+    bg_debug_preview := "002D52"
+    bg_debug_form := "93D7FF"
 }
 
 ; Define Cursor Objects
@@ -1802,27 +1775,6 @@ defineHitbursts() {
     local ho_smallbars := new Hitburst("Small Bars", "SMALLER BARS", 0)
     local ho_bars := new Hitburst("Bars", "BARS", 1)
 
-    /*
-        To make additions to this script easier to manage going forward, each Skin customization
-        gets added to its' own "list" or "array" of similar objects.  This allows
-        the UI to be updated on next run after defining new objects, and adding them
-        to their respective lists.
-
-        To ensure proper implementation of additions, simply add the item to the approporate list:
-
-        Cursors         -->         l_cursors.push(co_<name>)
-        Hitbursts       -->         l_hitbursts.push(ho_<name>)
-        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
-        Sliderballs     -->         l_sliderballs.push(so_<name>)
-        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
-        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
-        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
-        Mania Bars      -->         l_maniabars.push(mbo_<name>)
-        Mania Dots      -->         l_maniadots.push(mdo_<name>)
-        UIColors        -->         l_uicolors.push(uo_<name>)
-        Players         -->         l_players.push(po_<name>)
-    */
-
     ; Add Hitbursts to list of Hitburst Objects
     l_hitbursts.push(ho_numbers)
     l_hitbursts.push(ho_smallbars)
@@ -1841,27 +1793,6 @@ defineReverseArrows() {
     local ro_arrow := new ReverseArrow("Arrow", "ARROW", 0)
     local ro_half := new ReverseArrow("Half", "HALF", 0)
     local ro_bar := new ReverseArrow("Bar", "BAR", 1)
-
-    /*
-        To make additions to this script easier to manage going forward, each Skin customization
-        gets added to its' own "list" or "array" of similar objects.  This allows
-        the UI to be updated on next run after defining new objects, and adding them
-        to their respective lists.
-
-        To ensure proper implementation of additions, simply add the item to the approporate list:
-
-        Cursors         -->         l_cursors.push(co_<name>)
-        Hitbursts       -->         l_hitbursts.push(ho_<name>)
-        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
-        Sliderballs     -->         l_sliderballs.push(so_<name>)
-        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
-        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
-        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
-        Mania Bars      -->         l_maniabars.push(mbo_<name>)
-        Mania Dots      -->         l_maniadots.push(mdo_<name>)
-        UIColors        -->         l_uicolors.push(uo_<name>)
-        Players         -->         l_players.push(po_<name>)
-    */
 
     ; Add ReverseArrows to list of ReverseArrow Objects
     l_reversearrows.push(ro_arrow)
@@ -1882,27 +1813,6 @@ defineSliderballs() {
     local so_double := new Sliderball("Double", "DOUBLE", 0)
     local so_default := new Sliderball("Side Bars", "SIDE BARS", 1)
 
-    /*
-        To make additions to this script easier to manage going forward, each Skin customization
-        gets added to its' own "list" or "array" of similar objects.  This allows
-        the UI to be updated on next run after defining new objects, and adding them
-        to their respective lists.
-
-        To ensure proper implementation of additions, simply add the item to the approporate list:
-
-        Cursors         -->         l_cursors.push(co_<name>)
-        Hitbursts       -->         l_hitbursts.push(ho_<name>)
-        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
-        Sliderballs     -->         l_sliderballs.push(so_<name>)
-        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
-        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
-        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
-        Mania Bars      -->         l_maniabars.push(mbo_<name>)
-        Mania Dots      -->         l_maniadots.push(mdo_<name>)
-        UIColors        -->         l_uicolors.push(uo_<name>)
-        Players         -->         l_players.push(po_<name>)
-    */
-
     ; Add Sliderballs to list of Sliderball Objects
     l_sliderballs.push(so_single)
     l_sliderballs.push(so_double)
@@ -1921,27 +1831,6 @@ defineScorebarBGs() {
     local bo_sidebar := new ScorebarBG("Sidebars", "SIDEBARS", 0)
     local bo_blackbox := new ScorebarBG("Black Box", "BLACKBOX", 0)
     local bo_nothing := new ScorebarBG("Nothing", "NOTHING", 1)
-
-    /*
-        To make additions to this script easier to manage going forward, each Skin customization
-        gets added to its' own "list" or "array" of similar objects.  This allows
-        the UI to be updated on next run after defining new objects, and adding them
-        to their respective lists.
-
-        To ensure proper implementation of additions, simply add the item to the approporate list:
-
-        Cursors         -->         l_cursors.push(co_<name>)
-        Hitbursts       -->         l_hitbursts.push(ho_<name>)
-        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
-        Sliderballs     -->         l_sliderballs.push(so_<name>)
-        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
-        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
-        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
-        Mania Bars      -->         l_maniabars.push(mbo_<name>)
-        Mania Dots      -->         l_maniadots.push(mdo_<name>)
-        UIColors        -->         l_uicolors.push(uo_<name>)
-        Players         -->         l_players.push(po_<name>)
-    */
 
     ; Add ScorebarBGs to list of ScorebarBG Objects
     l_scorebarbgs.push(bo_sidebar)
@@ -1962,27 +1851,6 @@ defineCircleNumbers() {
     local no_rounded := new CircleNumber("Rounded", "ROUNDED", 0)
     local no_dots := new CircleNumber("Dots", "DOTS", 0)
 
-    /*
-        To make additions to this script easier to manage going forward, each Skin customization
-        gets added to its' own "list" or "array" of similar objects.  This allows
-        the UI to be updated on next run after defining new objects, and adding them
-        to their respective lists.
-
-        To ensure proper implementation of additions, simply add the item to the approporate list:
-
-        Cursors         -->         l_cursors.push(co_<name>)
-        Hitbursts       -->         l_hitbursts.push(ho_<name>)
-        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
-        Sliderballs     -->         l_sliderballs.push(so_<name>)
-        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
-        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
-        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
-        Mania Bars      -->         l_maniabars.push(mbo_<name>)
-        Mania Dots      -->         l_maniadots.push(mdo_<name>)
-        UIColors        -->         l_uicolors.push(uo_<name>)
-        Players         -->         l_players.push(po_<name>)
-    */
-
     ; Add CircleNumbers to list of CircleNumber Objects
     l_circlenumbers.push(no_standard)
     l_circlenumbers.push(no_rounded)
@@ -2000,26 +1868,6 @@ defineManiaArrows() {
     */
     local mao_blue := new ManiaArrow("Blue", "BLUE")
     local mao_red := new ManiaArrow("Red", "RED")
-    /*
-        To make additions to this script easier to manage going forward, each skin customization
-        gets added to its own "list" or "array" of similar objects.  This allows the
-        UI to be updated on the next run after defining new objects, and adding them to their
-        respective lists.
-
-        To ensure proper implementation of additions, simply add the item to the appropriate list:
-
-        Cursors         -->         l_cursors.push(co_<name>)
-        Hitbursts       -->         l_hitbursts.push(ho_<name>)
-        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
-        Sliderballs     -->         l_sliderballs.push(so_<name>)
-        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
-        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
-        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
-        Mania Bars      -->         l_maniabars.push(mbo_<name>)
-        Mania Dots      -->         l_maniadots.push(mdo_<name>)
-        UIColors        -->         l_uicolors.push(uo_<name>)
-        Players         -->         l_players.push(po_<name>)
-    */
 
     ; Add ManiaArrows to list of Mania Arrow Objects
     l_maniaarrows.push(mao_blue)
@@ -2037,26 +1885,6 @@ defineManiaBars() {
     */
     local mbo_blue := new ManiaBar("Blue", "BLUE")
     local mbo_red := new ManiaBar("Red", "RED")
-    /*
-        To make additions to this script easier to manage going forward, each skin customization
-        gets added to its own "list" or "array" of similar objects.  This allows the
-        UI to be updated on the next run after defining new objects, and adding them to their
-        respective lists.
-
-        To ensure proper implementation of additions, simply add the item to the appropriate list:
-
-        Cursors         -->         l_cursors.push(co_<name>)
-        Hitbursts       -->         l_hitbursts.push(ho_<name>)
-        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
-        Sliderballs     -->         l_sliderballs.push(so_<name>)
-        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
-        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
-        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
-        Mania Bars      -->         l_maniabars.push(mbo_<name>)
-        Mania Dots      -->         l_maniadots.push(mdo_<name>)
-        UIColors        -->         l_uicolors.push(uo_<name>)
-        Players         -->         l_players.push(po_<name>)
-    */
 
     ; Add ManiaArrows to list of Mania Arrow Objects
     l_maniabars.push(mbo_blue)
@@ -2074,26 +1902,6 @@ defineManiaDots() {
     */
     local mdo_blue := new ManiaDot("Blue", "BLUE")
     local mdo_red := new ManiaDot("Red", "RED")
-    /*
-        To make additions to this script easier to manage going forward, each skin customization
-        gets added to its own "list" or "array" of similar objects.  This allows the
-        UI to be updated on the next run after defining new objects, and adding them to their
-        respective lists.
-
-        To ensure proper implementation of additions, simply add the item to the appropriate list:
-
-        Cursors         -->         l_cursors.push(co_<name>)
-        Hitbursts       -->         l_hitbursts.push(ho_<name>)
-        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
-        Sliderballs     -->         l_sliderballs.push(so_<name>)
-        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
-        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
-        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
-        Mania Bars      -->         l_maniabars.push(mbo_<name>)
-        Mania Dots      -->         l_maniadots.push(mdo_<name>)
-        UIColors        -->         l_uicolors.push(uo_<name>)
-        Players         -->         l_players.push(po_<name>)
-    */
 
     ; Add ManiaArrows to list of Mania Arrow Objects
     l_maniadots.push(mdo_blue)
@@ -2119,27 +1927,6 @@ defineUIColors() {
     local uo_red := new UIColor("Red", "RED", 0)
     local uo_yellow := new UIColor("Yellow", "YELLOW", 0)
     local uo_blue := new UIColor("Blue", "BLUE", 1)
-
-    /*
-        To make additions to this script easier to manage going forward, each Skin customization
-        gets added to its' own "list" or "array" of similar objects.  This allows
-        the UI to be updated on next run after defining new objects, and adding them
-        to their respective lists.
-
-        To ensure proper implementation of additions, simply add the item to the approporate list:
-
-        Cursors         -->         l_cursors.push(co_<name>)
-        Hitbursts       -->         l_hitbursts.push(ho_<name>)
-        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
-        Sliderballs     -->         l_sliderballs.push(so_<name>)
-        ScorebarBGs     -->         l_scorebarbgs.psuh(bo_<name>)
-        CircleNumbers   -->         l_circlenumbers.push(no_<name>)
-        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
-        Mania Bars      -->         l_maniabars.push(mbo_<name>)
-        Mania Dots      -->         l_maniadots.push(mdo_<name>)
-        UIColors        -->         l_uicolors.push(uo_<name>)
-        Players         -->         l_players.push(po_<name>)
-    */
 
     ; Ad UIColors to list of UIColor Objects
     l_uicolors.push(uo_cyan)
@@ -2228,16 +2015,6 @@ definePlayers() {
             For required options
                 -Define at least two options
                 -The "require" property MUST be set to 1
-
-        What makes optionds required?
-            Required
-                If the contents of a Player Directory ONLY contains additional directories
-                with multiple versions of the skin; but doesn't actually contain any
-                skin elements itself; then the option is "required" for application
-            Optional
-                If the contents of a Player Directory contain skin elements, as well as
-                further directories with modifications; then the option is "Optional"
-                for application
     */
     ; Add Mandatory Options to PlayerOptions Objects
     ; Abyssal
@@ -2333,25 +2110,6 @@ definePlayers() {
     po_xilver.add("Blue & Plus", "BLUE CROSS")
 	po_xilver.require := 1
 
-    /*
-        To make additions to this script easier to manage going forward, each Skin customization
-        gets added to its' own "list" or "array" of similar objects.  This allows
-        the UI to be updated on next run after defining new objects, and adding them
-        to their respective lists.
-
-        To ensure proper implementation of additions, simply add the item to the approporate list:
-
-        Cursors         -->         l_cursors.push(co_<name>)
-        Hitbursts       -->         l_hitbursts.push(ho_<name>)
-        ReverseArrows   -->         l_reversearrows.push(ro_<name>)
-        Sliderballs     -->         l_sliderballs.push(so_<name>)
-        Mania Arrows    -->         l_maniaarrows.push(mao_<name>)
-        Mania Bars      -->         l_maniabars.push(mbo_<name>)
-        Mania Dots      -->         l_maniadots.push(mdo_<name>)
-        UIColors        -->         l_uicolors.push(uo_<name>)
-        Players         -->         l_players.push(po_<name>)
-    */
-
     ; Add Players to list of Player Objects
     l_players.push(po_404aimnotfound)
     l_players.push(po_abyssal)
@@ -2414,18 +2172,16 @@ BrowseDirectory(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
             updateUIColorColors(1)                              ; Update selected UIColors
             updateTreeViewBackground()                          ; Update Combo Colors
 		} 
-    } catch e {
+    } catch e
         MsgBox,,%n_app%, An Exception was thrown!`nSpecifically: %e%
-    }   
 }
 
 ; Get name of a directory based on string -- Args: $1: Name to search for, $2: Path to search
 getDirectoryName(name := "", path := "") {
-    if (name = "" || path = "") {                               ; If args not passed, return
+    if (name = "" || path = "")                                 ; If args not passed, return
         return
-    } else if (FileExist(path) = "") {                          ; If path doesn't exist, return
+    else if (FileExist(path) = "")                              ; If path doesn't exist, return
         return
-    }
 
     ; Define Local Variables
     dir := ""                                                   ; Define return val as passed name
@@ -2452,9 +2208,8 @@ resetSkin(type := "") {
     global                                                      ; Set global Scope inside Function
 
     ; If arg not passed, break
-    if (type = "") {
+    if (type = "")
         return
-    }
 
     ; Define Local variables
     local src := GamePath "\Skins"                              ; Source directory
@@ -2498,9 +2253,7 @@ applyForm() {
 
     ; Handle skin not found
     if (skin = "") {
-        Gui, SideBar: +OwnDialogs                               ; Make Dialogs Modal
-        MsgBox,,APPLY ERROR, Cannot locate skin in `"%src%`"    ; Notify user of error
-        Gui, SideBar: +OwnDialogs                               ; Disable Modal Dialogs
+        modalMsgBox(n_app ":`tApply Error", "Cannot locate skin in " src, "SideBar")
         return 1                                                ; Return
     }
 
@@ -2519,21 +2272,17 @@ applyForm() {
             
             ; Get Directories for Options
             for i, j in l_cursors {
-                if (j.name = CursorElementOptionColor) {
+                if (j.name = CursorElementOptionColor)
                     d_opt1 := j.elementsDir "\" j.cursorsDir "\" j.cursorColorDir "\" j.dir
-                }
-                if (j.name = CursorElementOptionTrail) {
+                if (j.name = CursorElementOptionTrail)
                     d_opt2 := j.elementsDir "\" j.cursorsDir "\" j.cursorTrailDir "\" j.dir
-                }
-                if (j.name = CursorElementOptionSmoke) {
+                if (j.name = CursorElementOptionSmoke)
                     d_opt3 := j.elementsDir "\" j.cursorsDir "\" j.cursorSmokeDir "\" j.dir
-                }
             }
 
             ; Get Directory for Option 4, if enabled
-            if (CursorElementOptionTrailSolid = 1) {
+            if (CursorElementOptionTrailSolid = 1)
                 d_opt4 := d_opt1 "\..\..\" d_cursor_solidtrail
-            }
             
             ; If %d_opt2% is still blank
             if (CursorElementOptionTrail = "None") {            ; If "None" is selected
@@ -2542,24 +2291,22 @@ applyForm() {
             }
 
             ; Verify Paths Exist
-            Gui, ElementForm: +OwnDialogs                       ; Make Dialogs Modal
             if (FileExist(src "\" d_opt1) = "") {
-                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                 return
             }
             if (FileExist(src "\" d_opt2) = "") {
-                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt2%
+                modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "ElementForm")
                 return
             }
             if (FileExist(src "\" d_opt3) = "") {
-                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt3%
+                modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt3, "ElementForm")
                 return
             }
 			if (FileExist(src "\" d_opt4) = "") {
-                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt4%
+                modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt4, "ElementForm")
                 return
 			}
-            Gui, ElementForm: -OwnDialogs                       ; Disable Modal Dialogs
 
 			; Delete Solid-Trail Image
             FileDelete, %dst%\cursormiddle@2x.png
@@ -2570,26 +2317,22 @@ applyForm() {
 			FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
 
 			; If SolidTrail enabled, Copy to Destination
-			if (d_opt4 != "") {
+			if (d_opt4 != "")
 				FileCopy, %src%\%d_opt4%\*.*, %dst%, 1
-			}
         } else if (etype = "hitburst") {
             local d_opt1 := ""                                  ; Directory of Option 1
 
             ; Get Directories for Options
             for i, j in l_hitbursts {
-                if (j.name = HitburstElementOptionType) {
+                if (j.name = HitburstElementOptionType)
                     d_opt1 := j.elementsDir "\" j.hitburstsDir "\" j.dir
-                }
             }
 
             ; Verify Paths Exist
-            Gui, ElementForm: +OwnDialogs                       ; Make Dialogs Modal
             if (FileExist(src "\" d_opt1) = "") {
-                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                 return
             }
-            Gui, ElementForm: -OwnDialogs                       ; Disable Modal Dialogs
 
             ; Copy Base Hitburst to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
@@ -2598,18 +2341,15 @@ applyForm() {
 
             ; Get Directories for Options
             for i, j in l_reversearrows {
-                if (j.name = ReverseArrowElementOptionType) {
+                if (j.name = ReverseArrowElementOptionType)
                     d_opt1 := j.elementsDir "\" j.reverseArrowDir "\" j.dir
-                }
             }
 
             ; Verify Paths Exist
-            Gui, ElementForm: +OwnDialogs                       ; Make Dialogs Modal
             if (FileExist(src "\" d_opt1) = "") {
-                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                 return
             }
-            Gui, ElementForm: -OwnDialogs                       ; Disable Modal Dialogs
 
             ; Copy Base Hitburst to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
@@ -2618,18 +2358,15 @@ applyForm() {
 
             ; Get Directories for Options
             for i, j in l_sliderballs {
-                if (j.name = SliderballElementOptionType) {
+                if (j.name = SliderballElementOptionType)
                     d_opt1 := j.elementsDir "\" j.sliderballDir "\" j.dir
-                }
             }
 
             ; Verify Paths Exist
-            Gui, ElementForm: +OwnDialogs                       ; Make Dialogs Modal
             if (FileExist(src "\" d_opt1) = "") {
-                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                 return
             }
-            Gui, ElementForm: -OwnDialogs                       ; Disable Modal Dialogs
 
             ; Copy Base Hitburst to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
@@ -2638,18 +2375,15 @@ applyForm() {
 
             ; Get Directories for Options
             for i, j in l_scorebarbgs {
-                if (j.name = ScorebarBGElementOptionType) {
+                if (j.name = ScorebarBGElementOptionType)
                     d_opt1 := j.elementsDir "\" j.scorebarbgDir "\" j.dir
-                }
             }
 
             ; Verify Paths Exist
-            Gui, ElementForm: +OwnDialogs                       ; Make Dialogs Modal
             if (FileExist(src "\" d_opt1) = "") {
-                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                 return
             }
-            Gui, ElementForm: -OwnDialogs
 
             ; Copy ScorebarBG to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
@@ -2658,18 +2392,15 @@ applyForm() {
 
             ; Get Directories for Options
             for i, j in l_circlenumbers {
-                if (j.name = CircleNumberElementOptionType) {
+                if (j.name = CircleNumberElementOptionType)
                     d_opt1 := j.elementsDir "\" j.circleNumberDir "\" j.dir
-                }
             }
 
             ; Verify Paths Exist
-            Gui, ElementForm: +OwnDialogs                       ; Make Dialogs Modal
             if (FileExist(src "\" d_opt1) = "") {
-                MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                 return
             }
-            Gui, ElementForm: -OwnDialogs
 
             ; Copy CircleNumbers to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
@@ -2691,16 +2422,14 @@ applyForm() {
                 }
 
                 ; Verify Paths Exist
-                Gui, ElementForm: +OwnDialogs                   ; Make Dialogs Modal
                 if (FileExist(src "\" d_main "\" d_opt1) = "") {
-                    MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_main%\%d_opt1%
+                    modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                     return
                 }
                 if (FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
-                    MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_main%\%d_opt1%\%d_opt2%
+                    modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "ElementForm")
                     return
                 }
-                Gui, ElementForm: -OwnDialogs                   ; Disable Modal Dialogs
 
                 ; Replace Path in Skin.ini file
                 updateManiaTypeSelection(d_opt1, dst "\skin.ini")
@@ -2720,16 +2449,16 @@ applyForm() {
                 }
 
                 ; Verify Paths Exist
-                Gui, ElementForm: +OwnDialogs                   ; Make Dialogs Modal
                 if (FileExist(src "\" d_opt1) = "") {
                     MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                    modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                     return
                 }
                 if (FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
                     MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_main%\%d_opt1%\%d_opt2%
+                    modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "ElementForm")
                     return
                 }
-                Gui, ElementForm: -OwnDialogs                   ; Disable Modal Dialogs
 
                 ; Replace Path in Skin.ini file
                 updateManiaTypeSelection(d_opt1, dst "\skin.ini")
@@ -2749,16 +2478,14 @@ applyForm() {
                 }
 
                 ; Verify Paths Exist
-                Gui, ElementForm: +OwnDialogs                   ; Make Dialogs Modal
                 if (FileExist(src "\" d_opt1) = "") {
-                    MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                    modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                     return
                 }
                 if (FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
-                    MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_main%\%d_opt1%\%d_opt2%
+                    modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "ElementForm")
                     return
                 }
-                Gui, ElementForm: -OwnDialogs                   ; Disable Modal Dialogs
 
                 ; Replace Path in Skin.ini file
                 updateManiaTypeSelection(d_opt1, dst "\skin.ini")
@@ -2770,16 +2497,13 @@ applyForm() {
 
         ; Get Directories for Options
         for i, j in l_uicolors {
-            if (j.name = UIColorOptionColor) {
+            if (j.name = UIColorOptionColor)
                 d_opt1 := j.uiColorDir "\" j.dir
-            }
         }
 
         ; Verify Paths Exist
         if (FileExist(src "\" d_opt1) = "") {
-            Gui, SideBar: +OwnDialogs                           ; Make Dialogs Modal
-            MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
-            Gui, SideBar: +OwnDialogs                           ; Disable Modal Dialogs
+            modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "UIColorForm")
             return
         }
 
@@ -2826,15 +2550,11 @@ applyForm() {
 
         ; Verify Paths Exist
         if (FileExist(src "\" d_opt1) = "") {
-            Gui, SideBar: +OwnDialogs                           ; Make Dialogs Modal
-            MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
-            Gui, SideBar: +OwnDialogs                           ; Disable Modal Dialogs
+            modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "PlayerForm")
             return
         }
         if (d_opt2 != "" && FileExist(src "\" d_opt2) = "") {
-            Gui, SideBar: +OwnDialogs                           ; Make Dialogs Modal
-            MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt2%
-            Gui, SideBar: +OwnDialogs                           ; Disable Modal Dialogs
+            modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "PlayerForm")
             return
         }
 
@@ -2843,9 +2563,8 @@ applyForm() {
 
         ; If option is defined && required
         if (d_opt2 != "") {
-            if (b_opt2 = 0) {
+            if (b_opt2 = 0)
                 FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
-            }
             FileCopy, %src%\%d_opt2%\*.*, %dst%, 1
         } else {
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
@@ -2855,9 +2574,8 @@ applyForm() {
         if (PlayerOptionName = "Bikko") {
             FileDelete, %dst%\cursormiddle@2x.png
         } else if (PlayerOptionName = "Cookiezi") {
-            if (PlayerOptionVersion = "Shigetora") {
+            if (PlayerOptionVersion = "Shigetora")
                 FileDelete, %dst%\cursormiddle@2x.png
-            }
         }
     }
 }
@@ -3005,9 +2723,8 @@ getSliderborderColor(path := "") {
 
     ; Handle path = "none" --> get current Skin.ini
     StringLower, path, path
-    if (lpath = "none") {
-        ini_og := src_path "\" skin_dir "\skin.ini"             ; Get current skin path 
-    }
+    if (lpath = "none")
+        ini_og := src_path "\" skin_dir "\skin.ini"             ; Get current skin path
 
     ; Read through file, searching for correct combo color
     Loop, Read, %ini_og%
@@ -3042,9 +2759,8 @@ getSlidertrackColor(path := "") {
 
     ; Handle path = "none" --> get current Skin.ini
     StringLower, path, path
-    if (lpath = "none") {
-        ini_og := src_path "\" skin_dir "\skin.ini"             ; Get current skin path 
-    }  
+    if (lpath = "none")
+        ini_og := src_path "\" skin_dir "\skin.ini"             ; Get current skin path
 
     ; Read through file, searching for correct combo color
     Loop, Read, %ini_og%
@@ -3072,6 +2788,7 @@ updateComboColor(cnt := 0, col := "") {
         return
     if (col = "")
         return
+
     ; Define local variables
     local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
     local skin_dir := getDirectoryName(n_skin, src_path)        ; Get the directory of the skin
@@ -3292,18 +3009,16 @@ Class Element {
 
         ; Check contents of o, and apply where applicable
         if (o is integer) {
-            if (o >= 0 && o <= 1) {
+            if (o >= 0 && o <= 1)
                 this.original := o
-            }
         }
     }
 
     ; Methods
     ; Append String to RootPath
     addToRootPath(val) {
-        if (val != "" && this.rootDir != val) {
+        if (val != "" && this.rootDir != val)
             this.rootDir += val
-        } 
     }
 
     ; Return if Element is Original (True/False)
@@ -3534,9 +3249,8 @@ Class UIColor {
 
         ; Check contents of o
         if (o is integer) {
-            if (o >= 0 && o <= 1) {
+            if (o >= 0 && o <= 1)
                 this.original := o
-            }
         }
     }
 
@@ -3590,9 +3304,8 @@ Class PlayerOptions Extends Player {
 
     ; Add an option to lists
     add(n := "", d := "") {
-        if (n = "" || d = "") {
+        if (n = "" || d = "")
             return
-        }
         if (this.listNames = "" && this.listDirs = "") {
             this.listNames := n
             this.listDirs := d
@@ -3605,14 +3318,12 @@ Class PlayerOptions Extends Player {
     ; Get array of listX
     getArray(v := "") {
         if (v = "listNames") {
-            if (this.listNames != "") {
+            if (this.listNames != "")
                 return StrSplit(this.listNames, ",")
-            }
             return []
         } else if (v = "listDirs") {
-            if (this.listDirs != "") {
+            if (this.listDirs != "")
                 return StrSplit(this.listDirs, ",")
-            }
             return []
         }
     }
