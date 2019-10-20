@@ -1829,8 +1829,8 @@ defineScorebarBGs() {
         See defineCursors() & defineGuiSections() for more information
     */
     local bo_sidebar := new ScorebarBG("Sidebars", "SIDEBARS", 0)
-    local bo_blackbox := new ScorebarBG("Black Box", "BLACKBOX", 0)
-    local bo_nothing := new ScorebarBG("Nothing", "NOTHING", 1)
+    local bo_blackbox := new ScorebarBG("Black Box", "BLACK BOX", 0)
+    local bo_nothing := new ScorebarBG("Default", "DEFAULT", 1)
 
     ; Add ScorebarBGs to list of ScorebarBG Objects
     l_scorebarbgs.push(bo_sidebar)
@@ -1847,13 +1847,13 @@ defineCircleNumbers() {
 
         See defineCursors() & defineGuiSections() for more information
     */
-    local no_standard := new CircleNumber("Standard", "STANDARD", 1)
-    local no_rounded := new CircleNumber("Rounded", "ROUNDED", 0)
+    local no_standard := new CircleNumber("Default", "DEFAULT", 1)
+    local no_squared := new CircleNumber("Squared", "SQUARED", 0)
     local no_dots := new CircleNumber("Dots", "DOTS", 0)
 
     ; Add CircleNumbers to list of CircleNumber Objects
     l_circlenumbers.push(no_standard)
-    l_circlenumbers.push(no_rounded)
+    l_circlenumbers.push(no_squared)
     l_circlenumbers.push(no_dots)
 }
 
@@ -3172,7 +3172,7 @@ Class ScorebarBG Extends Element {
     dir :=                                                      ; String: Name of the ScorebarBG's Directory
 
     ; Static Variables
-    Static scorebarbgDir := "SCOREBARBG"                        ; Name of the ScorebarBG Directory
+    Static scorebarbgDir := "SCOREBAR BG"                       ; Name of the ScorebarBG Directory
 
     ; Constructor
     __new(n, d, o) {
