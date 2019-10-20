@@ -1,6 +1,6 @@
 ; SPLOOSHSelector.ahk
 ; Author:       u/stewie410 <stewie410@gmail.com>
-; Date:         2019-09-15
+; Date:         2019-10-18
 ; Name:         SPLOOSH-Selector
 ; Description:  Sploosh Asset Selector for AutoHotKey
 
@@ -1276,7 +1276,7 @@ updateUIColorColors(init := 0) {
 
     ; Update colorPath
     if (init = 1)
-        color_path := d_conf
+        colorPath := "none"
     else {
         for k, v in l_uicolors {
             if (v.name = ui_select) {
@@ -1993,6 +1993,7 @@ definePlayers() {
     local po_tranquility := new PlayerOptions("Tranquil-ity", "TRANQUIL-ITY")
     local po_varvalian := new PlayerOptions("Varvalian", "VARVALIAN")
     local po_vaxei := new PlayerOptions("Vaxei", "VAXEI")
+    local po_whitecat := new PlayerOptions("WhiteCat", "WHITECAT")
     local po_wubwoofwolf := new PlayerOptions("WubWoofWolf", "WWW")
     local po_xilver := new PlayerOptions("Xilver X Recia", "XILVER X RECIA")
 
@@ -2105,6 +2106,11 @@ definePlayers() {
     po_vaxei.add("Red Slider Border", "RED SLIDER")
 	po_vaxei.require := 1
 
+    ; WhiteCat
+    po_whitecat.add("DT", "DT")
+    po_whitecat.add("No Mod", "NOMOD")
+    po_whitecat.require := 1
+
     ; Xilver & Recia
     po_xilver.add("Orange & Dots", "ORANGE DOT")
     po_xilver.add("Blue & Plus", "BLUE CROSS")
@@ -2149,6 +2155,7 @@ definePlayers() {
     l_players.push(po_tranquility)
     l_players.push(po_varvalian)
     l_players.push(po_vaxei)
+    l_players.push(po_whitecat)
     l_players.push(po_wubwoofwolf)
     l_players.push(po_xilver)
 }
@@ -2686,7 +2693,8 @@ getComboColor(cnt := 0, path := "") {
     local str_color := ""                                       ; String of RGB values
 
     ; Handle path = "none" --> get current Skin.ini
-    StringLower, path, path
+    local lpath
+    StringLower, lpath, path
     if (lpath = "none")
         ini_og := src_path "\" skin_dir "\skin.ini"             ; Get current skin path
 
