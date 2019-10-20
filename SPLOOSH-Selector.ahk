@@ -1867,11 +1867,27 @@ defineManiaArrows() {
         See defineCursors() & defineGuiSections() for more information
     */
     local mao_blue := new ManiaArrow("Blue", "BLUE")
+    local mao_cyan := new ManiaArrow("Cyan", "CYAN")
+    local mao_darkgray := new ManiaArrow("Dark Gray", "DARK GRAY")
+    local mao_evergreen := new ManiaArrow("Evergreen", "EVERGREEN")
+    local mao_hotpink := new ManiaArrow("Hot Pink", "HOT PINK")
+    local mao_lightgray := new ManiaArrow("Light Gray", "LIGHT GRAY")
+    local mao_orange := new ManiaArrow("Orange", "ORANGE")
+    local mao_purple := new ManiaArrow("Purple", "PURPLE")
     local mao_red := new ManiaArrow("Red", "RED")
+    local mao_yellow := new ManiaArrow("Yellow", "YELLOW")
 
     ; Add ManiaArrows to list of Mania Arrow Objects
     l_maniaarrows.push(mao_blue)
+    l_maniaarrows.push(mao_cyan)
+    l_maniaarrows.push(mao_darkgray)
+    l_maniaarrows.push(mao_evergreen)
+    l_maniaarrows.push(mao_hotpink)
+    l_maniaarrows.push(mao_lightgray)
+    l_maniaarrows.push(mao_orange)
+    l_maniaarrows.push(mao_purple)
     l_maniaarrows.push(mao_red)
+    l_maniaarrows.push(mao_yellow)
 }
 
 ; Define ManiaBar Objects
@@ -1884,11 +1900,27 @@ defineManiaBars() {
         See defineCursors() & defineGuiSections() for more information
     */
     local mbo_blue := new ManiaBar("Blue", "BLUE")
+    local mbo_cyan := new ManiaBar("Cyan", "CYAN")
+    local mbo_darkgray := new ManiaBar("Dark Gray", "DARK GRAY")
+    local mbo_evergreen := new ManiaBar("Evergreen", "EVERGREEN")
+    local mbo_hotpink := new ManiaBar("Hot Pink", "HOT PINK")
+    local mbo_lightgray := new ManiaBar("Light Gray", "LIGHT GRAY")
+    local mbo_orange := new ManiaBar("Orange", "ORANGE")
+    local mbo_purple := new ManiaBar("Purple", "PURPLE")
     local mbo_red := new ManiaBar("Red", "RED")
+    local mbo_yellow := new ManiaBar("Yellow", "YELLOW")
 
     ; Add ManiaArrows to list of Mania Arrow Objects
     l_maniabars.push(mbo_blue)
+    l_maniabars.push(mbo_cyan)
+    l_maniabars.push(mbo_darkgray)
+    l_maniabars.push(mbo_evergreen)
+    l_maniabars.push(mbo_hotpink)
+    l_maniabars.push(mbo_lightgray)
+    l_maniabars.push(mbo_orange)
+    l_maniabars.push(mbo_purple)
     l_maniabars.push(mbo_red)
+    l_maniabars.push(mbo_yellow)
 }
 
 ; Define ManiaDot Objects
@@ -1901,11 +1933,27 @@ defineManiaDots() {
         See defineCursors() & defineGuiSections() for more information
     */
     local mdo_blue := new ManiaDot("Blue", "BLUE")
+    local mdo_cyan := new ManiaDot("Cyan", "CYAN")
+    local mdo_darkgray := new ManiaDot("Dark Gray", "DARK GRAY")
+    local mdo_evergreen := new ManiaDot("Evergreen", "EVERGREEN")
+    local mdo_hotpink := new ManiaDot("Hot Pink", "HOT PINK")
+    local mdo_lightgray := new ManiaDot("Light Gray", "LIGHT GRAY")
+    local mdo_orange := new ManiaDot("Orange", "ORANGE")
+    local mdo_purple := new ManiaDot("Purple", "PURPLE")
     local mdo_red := new ManiaDot("Red", "RED")
+    local mdo_yellow := new ManiaDot("Yellow", "YELLOW")
 
     ; Add ManiaArrows to list of Mania Arrow Objects
     l_maniadots.push(mdo_blue)
+    l_maniadots.push(mdo_cyan)
+    l_maniadots.push(mdo_darkgray)
+    l_maniadots.push(mdo_evergreen)
+    l_maniadots.push(mdo_hotpink)
+    l_maniadots.push(mdo_lightgray)
+    l_maniadots.push(mdo_orange)
+    l_maniadots.push(mdo_purple)
     l_maniadots.push(mdo_red)
+    l_maniadots.push(mdo_yellow)
 }
 
 ; Define UIColor Objects
@@ -2516,6 +2564,7 @@ applyForm() {
 
         ; Copy Base UIColor to Destination
         FileCopy, %src%\%d_opt1%\*.png, %dst%, 1
+        FileCopy, %src%\%d_opt1%\*.jpg, %dst%, 1
 
         ; If Preserve INI changes not requested, replace skin.ini file
         if (UIColorOptionSaveIni = 1)
