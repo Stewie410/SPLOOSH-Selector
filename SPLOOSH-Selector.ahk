@@ -1716,19 +1716,7 @@ defineCursors() {
                                             To indicate a cursor is the original, use 1; otherwise use 0
 
         See defineGuiSections() for more information
-    */
-    local co_cyan := new Cursor("Cyan", "CYAN", 0)
-    local co_eclipse := new Cursor("Eclipse", "ECLIPSE", 0)
-    local co_green := new Cursor("Green", "GREEN", 0)
-    local co_hotpink := new Cursor("Hot Pink", "HOT PINK", 0)
-    local co_orange := new Cursor("Orange", "ORANGE", 0)
-    local co_pink := new Cursor("Pink", "PINK", 0)
-    local co_purple := new Cursor("Purple", "PURPLE", 0)
-    local co_red := new Cursor("Red", "RED", 0)
-    local co_turquoise := new Cursor("Turquoise", "TURQUOISE", 0)
-    local co_yellow := new Cursor("Yellow", "YELLOW", 1)
-
-    /*
+    
         To make additions to this script easier to manage going forward, each Skin customization
         gets added to its' own "list" or "array" of similar objects.  This allows
         the UI to be updated on next run after defining new objects, and adding them
@@ -1750,16 +1738,16 @@ defineCursors() {
     */
 
     ; Add Cursors to List of Cursor Objects
-    l_cursors.push(co_cyan)
-    l_cursors.push(co_eclipse)
-    l_cursors.push(co_green)
-    l_cursors.push(co_hotpink)
-    l_cursors.push(co_orange)
-    l_cursors.push(co_pink)
-    l_cursors.push(co_purple)
-    l_cursors.push(co_red)
-    l_cursors.push(co_turquoise)
-    l_cursors.push(co_yellow)
+    l_cursors.push(new Cursor("Cyan", "CYAN", 0))
+    l_cursors.push(new Cursor("Eclipse", "ECLIPSE", 0))
+    l_cursors.push(new Cursor("Green", "GREEN", 0))
+    l_cursors.push(new Cursor("Hot Pink", "HOT PINK", 0))
+    l_cursors.push(new Cursor("Orange", "ORANGE", 0))
+    l_cursors.push(new Cursor("Pink", "PINK", 0))
+    l_cursors.push(new Cursor("Purple", "PURPLE", 0))
+    l_cursors.push(new Cursor("Red", "RED", 0))
+    l_cursors.push(new Cursor("Turquoise", "TURQUOISE", 0))
+    l_cursors.push(new Cursor("Yellow", "YELLOW", 1))
 }
 
 ; Define Hitburst Objects
@@ -1771,14 +1759,11 @@ defineHitbursts() {
 
         See defineCursors() & defineGuiSections() for more information
     */
-    local ho_numbers := new Hitburst("Numbers", "NUMBERS", 0)
-    local ho_smallbars := new Hitburst("Small Bars", "SMALLER BARS", 0)
-    local ho_bars := new Hitburst("Bars", "BARS", 1)
 
     ; Add Hitbursts to list of Hitburst Objects
-    l_hitbursts.push(ho_numbers)
-    l_hitbursts.push(ho_smallbars)
-    l_hitbursts.push(ho_bars)
+    l_hitbursts.push(new Hitburst("Numbers", "NUMBERS", 0))
+    l_hitbursts.push(new Hitburst("Small Bars", "SMALLER BARS", 0))
+    l_hitbursts.push(new Hitburst("Bars", "BARS", 1))
 }
 
 ; Define ReverseArrow Objects
@@ -1790,14 +1775,11 @@ defineReverseArrows() {
 
         See defineCursors() & defineGuiSections() for more information
     */
-    local ro_arrow := new ReverseArrow("Arrow", "ARROW", 0)
-    local ro_half := new ReverseArrow("Half", "HALF", 0)
-    local ro_bar := new ReverseArrow("Bar", "BAR", 1)
 
     ; Add ReverseArrows to list of ReverseArrow Objects
-    l_reversearrows.push(ro_arrow)
-    l_reversearrows.push(ro_half)
-    l_reversearrows.push(ro_bar)
+    l_reversearrows.push(new ReverseArrow("Arrow", "ARROW", 0))
+    l_reversearrows.push(new ReverseArrow("Half", "HALF", 0))
+    l_reversearrows.push(new ReverseArrow("Bar", "BAR", 1))
 }
 
 ; Define Sliderball Objects
@@ -1809,14 +1791,11 @@ defineSliderballs() {
 
         See defineCursors() & defineGuiSections() for more information
     */
-    local so_single := new Sliderball("Single", "SINGLE", 0)
-    local so_double := new Sliderball("Double", "DOUBLE", 0)
-    local so_default := new Sliderball("Side Bars", "SIDE BARS", 1)
 
     ; Add Sliderballs to list of Sliderball Objects
-    l_sliderballs.push(so_single)
-    l_sliderballs.push(so_double)
-    l_sliderballs.push(so_default)
+    l_sliderballs.push(new Sliderball("Single", "SINGLE", 0))
+    l_sliderballs.push(new Sliderball("Double", "DOUBLE", 0))
+    l_sliderballs.push(new Sliderball("Side Bars", "SIDE BARS", 1))
 }
 
 ; Define ScorebarBG Objects
@@ -1828,14 +1807,11 @@ defineScorebarBGs() {
 
         See defineCursors() & defineGuiSections() for more information
     */
-    local bo_sidebar := new ScorebarBG("Sidebars", "SIDEBARS", 0)
-    local bo_blackbox := new ScorebarBG("Black Box", "BLACK BOX", 0)
-    local bo_nothing := new ScorebarBG("Default", "DEFAULT", 1)
 
     ; Add ScorebarBGs to list of ScorebarBG Objects
-    l_scorebarbgs.push(bo_sidebar)
-    l_scorebarbgs.push(bo_blackbox)
-    l_scorebarbgs.push(bo_nothing)
+    l_scorebarbgs.push(new ScorebarBG("Sidebars", "SIDEBARS", 0))
+    l_scorebarbgs.push(new ScorebarBG("Black Box", "BLACK BOX", 0))
+    l_scorebarbgs.push(new ScorebarBG("Default", "DEFAULT", 1))
 }
 
 ; Define CircleNumber Objects
@@ -1847,14 +1823,11 @@ defineCircleNumbers() {
 
         See defineCursors() & defineGuiSections() for more information
     */
-    local no_standard := new CircleNumber("Default", "DEFAULT", 1)
-    local no_squared := new CircleNumber("Squared", "SQUARED", 0)
-    local no_dots := new CircleNumber("Dots", "DOTS", 0)
 
     ; Add CircleNumbers to list of CircleNumber Objects
-    l_circlenumbers.push(no_standard)
-    l_circlenumbers.push(no_squared)
-    l_circlenumbers.push(no_dots)
+    l_circlenumbers.push(new CircleNumber("Default", "DEFAULT", 1))
+    l_circlenumbers.push(new CircleNumber("Squared", "SQUARED", 0))
+    l_circlenumbers.push(new CircleNumber("Dots", "DOTS", 0))
 }
 
 ; Define ManiaArrow Objects
@@ -1866,28 +1839,18 @@ defineManiaArrows() {
 
         See defineCursors() & defineGuiSections() for more information
     */
-    local mao_blue := new ManiaArrow("Blue", "BLUE")
-    local mao_cyan := new ManiaArrow("Cyan", "CYAN")
-    local mao_darkgray := new ManiaArrow("Dark Gray", "DARK GRAY")
-    local mao_evergreen := new ManiaArrow("Evergreen", "EVERGREEN")
-    local mao_hotpink := new ManiaArrow("Hot Pink", "HOT PINK")
-    local mao_lightgray := new ManiaArrow("Light Gray", "LIGHT GRAY")
-    local mao_orange := new ManiaArrow("Orange", "ORANGE")
-    local mao_purple := new ManiaArrow("Purple", "PURPLE")
-    local mao_red := new ManiaArrow("Red", "RED")
-    local mao_yellow := new ManiaArrow("Yellow", "YELLOW")
 
     ; Add ManiaArrows to list of Mania Arrow Objects
-    l_maniaarrows.push(mao_blue)
-    l_maniaarrows.push(mao_cyan)
-    l_maniaarrows.push(mao_darkgray)
-    l_maniaarrows.push(mao_evergreen)
-    l_maniaarrows.push(mao_hotpink)
-    l_maniaarrows.push(mao_lightgray)
-    l_maniaarrows.push(mao_orange)
-    l_maniaarrows.push(mao_purple)
-    l_maniaarrows.push(mao_red)
-    l_maniaarrows.push(mao_yellow)
+    l_maniaarrows.push(new ManiaArrow("Blue", "BLUE"))
+    l_maniaarrows.push(new ManiaArrow("Cyan", "CYAN"))
+    l_maniaarrows.push(new ManiaArrow("Dark Gray", "DARK GRAY"))
+    l_maniaarrows.push(new ManiaArrow("Evergreen", "EVERGREEN"))
+    l_maniaarrows.push(new ManiaArrow("Hot Pink", "HOT PINK"))
+    l_maniaarrows.push(new ManiaArrow("Light Gray", "LIGHT GRAY"))
+    l_maniaarrows.push(new ManiaArrow("Orange", "ORANGE"))
+    l_maniaarrows.push(new ManiaArrow("Purple", "PURPLE"))
+    l_maniaarrows.push(new ManiaArrow("Red", "RED"))
+    l_maniaarrows.push(new ManiaArrow("Yellow", "YELLOW"))
 }
 
 ; Define ManiaBar Objects
@@ -1899,28 +1862,18 @@ defineManiaBars() {
 
         See defineCursors() & defineGuiSections() for more information
     */
-    local mbo_blue := new ManiaBar("Blue", "BLUE")
-    local mbo_cyan := new ManiaBar("Cyan", "CYAN")
-    local mbo_darkgray := new ManiaBar("Dark Gray", "DARK GRAY")
-    local mbo_evergreen := new ManiaBar("Evergreen", "EVERGREEN")
-    local mbo_hotpink := new ManiaBar("Hot Pink", "HOT PINK")
-    local mbo_lightgray := new ManiaBar("Light Gray", "LIGHT GRAY")
-    local mbo_orange := new ManiaBar("Orange", "ORANGE")
-    local mbo_purple := new ManiaBar("Purple", "PURPLE")
-    local mbo_red := new ManiaBar("Red", "RED")
-    local mbo_yellow := new ManiaBar("Yellow", "YELLOW")
 
-    ; Add ManiaArrows to list of Mania Arrow Objects
-    l_maniabars.push(mbo_blue)
-    l_maniabars.push(mbo_cyan)
-    l_maniabars.push(mbo_darkgray)
-    l_maniabars.push(mbo_evergreen)
-    l_maniabars.push(mbo_hotpink)
-    l_maniabars.push(mbo_lightgray)
-    l_maniabars.push(mbo_orange)
-    l_maniabars.push(mbo_purple)
-    l_maniabars.push(mbo_red)
-    l_maniabars.push(mbo_yellow)
+    ; Add ManiaArrows to list of Mania Bars Objects
+    l_maniabars.push(new ManiaBar("Blue", "BLUE"))
+    l_maniabars.push(new ManiaBar("Cyan", "CYAN"))
+    l_maniabars.push(new ManiaBar("Dark Gray", "DARK GRAY"))
+    l_maniabars.push(new ManiaBar("Evergreen", "EVERGREEN"))
+    l_maniabars.push(new ManiaBar("Hot Pink", "HOT PINK"))
+    l_maniabars.push(new ManiaBar("Light Gray", "LIGHT GRAY"))
+    l_maniabars.push(new ManiaBar("Orange", "ORANGE"))
+    l_maniabars.push(new ManiaBar("Purple", "PURPLE"))
+    l_maniabars.push(new ManiaBar("Red", "RED"))
+    l_maniabars.push(new ManiaBar("Yellow", "YELLOW"))
 }
 
 ; Define ManiaDot Objects
@@ -1932,28 +1885,18 @@ defineManiaDots() {
 
         See defineCursors() & defineGuiSections() for more information
     */
-    local mdo_blue := new ManiaDot("Blue", "BLUE")
-    local mdo_cyan := new ManiaDot("Cyan", "CYAN")
-    local mdo_darkgray := new ManiaDot("Dark Gray", "DARK GRAY")
-    local mdo_evergreen := new ManiaDot("Evergreen", "EVERGREEN")
-    local mdo_hotpink := new ManiaDot("Hot Pink", "HOT PINK")
-    local mdo_lightgray := new ManiaDot("Light Gray", "LIGHT GRAY")
-    local mdo_orange := new ManiaDot("Orange", "ORANGE")
-    local mdo_purple := new ManiaDot("Purple", "PURPLE")
-    local mdo_red := new ManiaDot("Red", "RED")
-    local mdo_yellow := new ManiaDot("Yellow", "YELLOW")
 
-    ; Add ManiaArrows to list of Mania Arrow Objects
-    l_maniadots.push(mdo_blue)
-    l_maniadots.push(mdo_cyan)
-    l_maniadots.push(mdo_darkgray)
-    l_maniadots.push(mdo_evergreen)
-    l_maniadots.push(mdo_hotpink)
-    l_maniadots.push(mdo_lightgray)
-    l_maniadots.push(mdo_orange)
-    l_maniadots.push(mdo_purple)
-    l_maniadots.push(mdo_red)
-    l_maniadots.push(mdo_yellow)
+    ; Add ManiaArrows to list of Mania Dots Objects
+    l_maniadots.push(new ManiaDot("Blue", "BLUE"))
+    l_maniadots.push(new ManiaDot("Cyan", "CYAN"))
+    l_maniadots.push(new ManiaDot("Dark Gray", "DARK GRAY"))
+    l_maniadots.push(new ManiaDot("Evergreen", "EVERGREEN"))
+    l_maniadots.push(new ManiaDot("Hot Pink", "HOT PINK"))
+    l_maniadots.push(new ManiaDot("Light Gray", "LIGHT GRAY"))
+    l_maniadots.push(new ManiaDot("Orange", "ORANGE"))
+    l_maniadots.push(new ManiaDot("Purple", "PURPLE"))
+    l_maniadots.push(new ManiaDot("Red", "RED"))
+    l_maniadots.push(new ManiaDot("Yellow", "YELLOW"))
 }
 
 ; Define UIColor Objects
@@ -1965,128 +1908,60 @@ defineUIColors() {
 
         See defineCursors() & defineGuiSections() for more information
     */
-    local uo_cyan := new UIColor("Cyan", "CYAN", 0)
-    local uo_darkgray := new UIColor("Dark Gray", "DARK GRAY", 0)
-    local uo_evergreen := new UIColor("Evergreen", "EVERGREEN", 0)
-    local uo_hotpink := new UIColor("Hot Pink", "HOT PINK", 0)
-    local uo_lightgray := new UIColor("Light Gray", "LIGHT GRAY", 0)
-    local uo_orange := new UIColor("Orange", "ORANGE", 0)
-    local uo_purple := new UIColor("Purple", "PURPLE", 0)
-    local uo_red := new UIColor("Red", "RED", 0)
-    local uo_yellow := new UIColor("Yellow", "YELLOW", 0)
-    local uo_blue := new UIColor("Blue", "BLUE", 1)
 
     ; Ad UIColors to list of UIColor Objects
-    l_uicolors.push(uo_cyan)
-    l_uicolors.push(uo_darkgray)
-    l_uicolors.push(uo_evergreen)
-    l_uicolors.push(uo_hotpink)
-    l_uicolors.push(uo_lightgray)
-    l_uicolors.push(uo_orange)
-    l_uicolors.push(uo_purple)
-    l_uicolors.push(uo_red)
-    l_uicolors.push(uo_yellow)
-    l_uicolors.push(uo_blue)
+    l_uicolors.push(new UIColor("Cyan", "CYAN", 0))
+    l_uicolors.push(new UIColor("Dark Gray", "DARK GRAY", 0))
+    l_uicolors.push(new UIColor("Evergreen", "EVERGREEN", 0))
+    l_uicolors.push(new UIColor("Hot Pink", "HOT PINK", 0))
+    l_uicolors.push(new UIColor("Light Gray", "LIGHT GRAY", 0))
+    l_uicolors.push(new UIColor("Orange", "ORANGE", 0))
+    l_uicolors.push(new UIColor("Purple", "PURPLE", 0))
+    l_uicolors.push(new UIColor("Red", "RED", 0))
+    l_uicolors.push(new UIColor("Yellow", "YELLOW", 0))
+    l_uicolors.push(new UIColor("Blue", "BLUE", 1))
 }
 
 ; Define Player Objects
 definePlayers() {
     global                                                      ; Set global Scope inside Function
     /*
-        To define a new player with no additional options:
-            po_<name> := new PlayerOptions(name, dir)
+        To define a new player with additional options, follow this pattern:
+            local po_<name> := new PlayerOptions("<Player Name>", "<Player Directory Name")
+            po_<name>.add("<Option1 Name>", "<Option1 Directory Name>")
+            po_<name>.add("<Option2 Name>", "<Option2 Directory Name>")
+            po_<name>.require := 1
 
-        To define a new player with additional options:
-            po_<name> := new PlayerOptions(name, dir)
-
-        See defineCursors() & defineGuiSections() for more information
-
-        See below on how to add additional options to PlayerOptions objects
+        For Players without additional skin options, please see below
     */
-    local po_404aimnotfound := new PlayerOptions("404AimNotFound", "404ANF")
-    local po_abyssal := new PlayerOptions("Abyssal", "ABYSSAL")
-    local po_angelsim := new PlayerOptions("Angelsim", "ANGELSIM")
-    local po_axarious := new PlayerOptions("Axarious", "AXARIOUS")
-    local po_azer := new PlayerOptions("Azer", "AZER")
-    local po_azr8 := new PlayerOptions("azr8 + GayzMcGee", "AZR8 + MCGEE")
-    local po_badeu := new PlayerOptions("badeu", "BADEU")
-    local po_beasttrollmc := new PlayerOptions("BeasttrollMC", "BEASTTROLLMC")
-    local po_bikko := new PlayerOptions("Bikko", "BIKKO")
-    local po_bubbleman := new PlayerOptions("Bubbleman", "BUBBLEMAN")
-    local po_comfort := new PlayerOptions("Comfort", "COMFORT")
-    local po_cookiezi := new PlayerOptions("Cookiezi", "COOKIEZI")
-    local po_doomsday := new PlayerOptions("Doomsday", "DOOMSDAY")
-    local po_dustice := new PlayerOptions("Dustice", "DUSTICE")
-    local po_emilia := new PlayerOptions("Emilia", "EMILIA")
-    local po_flyingtuna := new PlayerOptions("FlyingTuna", "FLYINGTUNA")
-    local po_freddiebenson := new PlayerOptions("Freddie Benson", "FREDDIE BENSON")
-    local po_funorange := new PlayerOptions("FunOrange", "FUNORANGE")
-    local po_gn := new PlayerOptions("-GN", "GN")
-    local po_hvick225 := new PlayerOptions("hvick225", "HVICK225")
-    local po_idke := new PlayerOptions("idke", "IDKE")
-    local po_informous := new PlayerOptions("Informous", "INFORMOUS")
-    local po_karthy := new PlayerOptions("Karthy", "KARTHY")
-    local po_mathi := new PlayerOptions("Mathi", "MATHI")
-    local po_monko2k := new PlayerOptions("Monko2k", "MONKO2K")
-    local po_rafis := new PlayerOptions("Rafis", "RAFIS")
-    local po_rohulk := new PlayerOptions("Rohulk", "ROHULK")
-    local po_rrtyui := new PlayerOptions("rrtyui", "RRTYUI")
-    local po_rustbell := new PlayerOptions("Rustbell", "RUSTBELL")
-    local po_ryuk := new PlayerOptions("RyuK", "RYUK")
-    local po_seysant := new PlayerOptions("Seysant", "SEYSANT")
-    local po_sotarks := new PlayerOptions("Sotarks", "SOTARKS")
-    local po_sweden := new PlayerOptions("Sweden", "SWEDEN")
-    local po_talala := new PlayerOptions("talala", "TALALA")
-    local po_toy := new PlayerOptions("Toy", "TOY")
-    local po_tranquility := new PlayerOptions("Tranquil-ity", "TRANQUIL-ITY")
-    local po_varvalian := new PlayerOptions("Varvalian", "VARVALIAN")
-    local po_vaxei := new PlayerOptions("Vaxei", "VAXEI")
-    local po_whitecat := new PlayerOptions("WhiteCat", "WHITECAT")
-    local po_wubwoofwolf := new PlayerOptions("WubWoofWolf", "WWW")
-    local po_xilver := new PlayerOptions("Xilver X Recia", "XILVER X RECIA")
 
-    /*
-        To add additional options to a player:
-            -Provide at least two variants of the option
-            -Define whether or not an option is mandatory
-
-        To add an option to a player:
-            p_<name>.add(name, dir)
-        To define whether the provided options are required:
-            p_<name>.required := 1
-
-        When adding an option:
-            For non-required options
-                -The first option MUST be the "Default"
-                    -The Directory MUST be "."
-                -The "require" property MUST be set to 0
-                    -This occurs by default on object creation
-            For required options
-                -Define at least two options
-                -The "require" property MUST be set to 1
-    */
     ; Add Mandatory Options to PlayerOptions Objects
     ; Abyssal
+    local po_abyssal := new PlayerOptions("Abyssal", "ABYSSAL")
     po_abyssal.add("Purple & Pink Combo", "PINK+PURPLE")
     po_abyssal.add("Blue & Red Combo", "BLUE+RED COMBO VER")
 	po_abyssal.require := 1
 
     ; Axarious
+    local po_axarious := new PlayerOptions("Axarious", "AXARIOUS")
     po_axarious.add("Without Slider Ends", "-SLIDERENDS")
     po_axarious.add("With Slider Ends", "+SLIDERENDS")
 	po_axarious.require := 1
 
     ; Azer
+    local po_azer := new PlayerOptions("Azer", "AZER")
     po_azer.add("2017", "2017")
     po_azer.add("2018", "2018")
     po_azer.require := 1
 
     ; azr8 & GayzMcGee
+    local po_azr8 := new PlayerOptions("azr8 + GayzMcGee", "AZR8 + MCGEE")
     po_azr8.add("Fire", "FIRE")
     po_azr8.add("ICE", "ICE")
 	po_azr8.require := 1
 
     ; BeastrollMC (YungLing)
+    local po_beasttrollmc := new PlayerOptions("BeasttrollMC", "BEASTTROLLMC")
     po_beasttrollmc.add("v1.3", "V1.3")
     po_beasttrollmc.add("v3", "V3")
     po_beasttrollmc.add("v4", "V4")
@@ -2095,16 +1970,19 @@ definePlayers() {
     po_beasttrollmc.require := 1
 
     ; bikko
+    local po_bikko := new PlayerOptions("Bikko", "BIKKO")
     po_bikko.add("Without Slider Ends", "-SLIDERENDS")
     po_bikko.add("With Slider Ends", "+SLIDERENDS")
 	po_bikko.require := 1
 
     ; Comfort
+    local po_comfort := new PlayerOptions("Comfort", "COMFORT")
     po_comfort.add("Standard", "STANDARD")
     po_comfort.add("Nautz", "NAUTZ")
 	po_comfort.require := 1
 
     ; Cookiezi (chocomint)
+    local po_cookiezi := new PlayerOptions("Cookiezi", "COOKIEZI")
     po_cookiezi.add("Burakku Shippu", "BURAKKU SHIPU")
     po_cookiezi.add("nathan on osu", "NATHAN ON OSU")
     po_cookiezi.add("Panimi", "PANIMI")
@@ -2113,98 +1991,118 @@ definePlayers() {
     po_cookiezi.require := 1
 
     ; Dustice
+    local po_dustice := new PlayerOptions("Dustice", "DUSTICE")
     po_dustice.add("Outer Slider Circle", "+SLIDERCIRCLE")
     po_dustice.add("No Outer Slider Circle", "-SLIDERCIRCLE")
 	po_dustice.require := 1
 
     ; idke
+    local po_idke := new PlayerOptions("idke", "IDKE")
     po_idke.add("Without Slider Ends", "-SLIDERENDS")
     po_idke.add("With Slider Ends", "+SLIDERENDS")
 	po_idke.require := 1
 
     ; Mathi
+    local po_mathi := new PlayerOptions("Mathi", "MATHI")
     po_mathi.add("Flat Hitcircle", "-SHADER")
     po_mathi.add("Shaded Hitcircle", "+SHADER")
 	po_mathi.require := 1
 
     ; Rafis
+    local po_rafis := new PlayerOptions("Rafis", "RAFIS")
     po_rafis.add("Blue", "BLUE")
     po_rafis.add("White", "WHITE")
     po_rafis.add("Yellow", "YELLOW")
     po_rafis.require := 1
 
     ; Rohulk
+    local po_rohulk := new PlayerOptions("Rohulk", "ROHULK")
     po_rohulk.add("Flat Approach Circle", "-GAMMA")
     po_rohulk.add("Gamma Approach Circle", "+GAMMA")
 	po_rohulk.require := 1
 
 
     ; rustbell
+    local po_rustbell := new PlayerOptions("Rustbell", "RUSTBELL")
     po_rustbell.add("Without Hit-300 Explosions", "-EXPLOSIONS")
     po_rustbell.add("With Hit-300 Explosions", "+EXPLOSIONS")
 	po_rustbell.require := 1
 
     ; talala
+    local po_talala := new PlayerOptions("talala", "TALALA")
     po_talala.add("White Numbers", "WHITE NUMBERS")
     po_talala.add("Cyan Numbers", "CYAN NUMBERS")
 	po_talala.require := 1
 
     ; Vaxei
+    local po_vaxei := new PlayerOptions("Vaxei", "VAXEI")
     po_vaxei.add("Blue Slider Border", "BLUE SLIDER")
     po_vaxei.add("Red Slider Border", "RED SLIDER")
 	po_vaxei.require := 1
 
     ; WhiteCat
+    local po_whitecat := new PlayerOptions("WhiteCat", "WHITECAT")
     po_whitecat.add("DT", "DT")
     po_whitecat.add("No Mod", "NOMOD")
     po_whitecat.require := 1
 
     ; Xilver & Recia
+    local po_xilver := new PlayerOptions("Xilver X Recia", "XILVER X RECIA")
     po_xilver.add("Orange & Dots", "ORANGE DOT")
     po_xilver.add("Blue & Plus", "BLUE CROSS")
 	po_xilver.require := 1
 
+    /*
+        Now that all options have been defined, we'll need to add each of our player objects
+        to the approrpriate list.
+
+        To Add players without any additional options, simply follow the pattern:
+            l_players.push(new PlayerOptions("<Player Name>", "<Player Directory Name>"))
+
+        To Add players WITH options, simply follow the pattern:
+            l_players.push(po_<name>)
+    */
+
     ; Add Players to list of Player Objects
-    l_players.push(po_404aimnotfound)
+    l_players.push(new PlayerOptions("404AimNotFound", "404ANF"))
     l_players.push(po_abyssal)
-    l_players.push(po_angelsim)
+    l_players.push(new PlayerOptions("Angelsim", "ANGELSIM"))
     l_players.push(po_axarious)
     l_players.push(po_azer)
     l_players.push(po_azr8)
-    l_players.push(po_badeu)
+    l_players.push(new PlayerOptions("badeu", "BADEU"))
     l_players.push(po_beasttrollmc)
     l_players.push(po_bikko)
-    l_players.push(po_bubbleman)
+    l_players.push(new PlayerOptions("Bubbleman", "BUBBLEMAN"))
     l_players.push(po_comfort)
     l_players.push(po_cookiezi)
-    l_players.push(po_doomsday)
-    l_players.push(po_dustice)
-    l_players.push(po_emilia)
-    l_players.push(po_flyingtuna)
-    l_players.push(po_freddiebenson)
-    l_players.push(po_funorange)
-    l_players.push(po_gn)
-    l_players.push(po_hvick225)
+    l_players.push(new PlayerOptions("Doomsday", "DOOMSDAY"))
+    l_players.push(new PlayerOptions("Emilia", "EMILIA"))
+    l_players.push(new PlayerOptions("FlyingTuna", "FLYINGTUNA"))
+    l_players.push(new PlayerOptions("Freddie Benson", "FREDDIE BENSON"))
+    l_players.push(new PlayerOptions("FunOrange", "FUNORANGE"))
+    l_players.push(new PlayerOptions("-GN", "GN"))
+    l_players.push(new PlayerOptions("hvick225", "HVICK225"))
     l_players.push(po_idke)
-    l_players.push(po_informous)
-    l_players.push(po_karthy)
+    l_players.push(new PlayerOptions("Informous", "INFORMOUS"))
+    l_players.push(new PlayerOptions("Karthy", "KARTHY"))
     l_players.push(po_mathi)
-    l_players.push(po_monko2k)
+    l_players.push(new PlayerOptions("Monko2k", "MONKO2K"))
     l_players.push(po_rafis)
     l_players.push(po_rohulk)
-    l_players.push(po_rrtyui)
+    l_players.push(new PlayerOptions("rrtyui", "RRTYUI"))
     l_players.push(po_rustbell)
-    l_players.push(po_ryuk)
-    l_players.push(po_seysant)
-    l_players.push(po_sotarks)
-    l_players.push(po_sweden)
+    l_players.push(new PlayerOptions("RyuK", "RYUK"))
+    l_players.push(new PlayerOptions("Seysant", "SEYSANT"))
+    l_players.push(new PlayerOptions("Sotarks", "SOTARKS"))
+    l_players.push(new PlayerOptions("Sweden", "SWEDEN"))
     l_players.push(po_talala)
-    l_players.push(po_toy)
-    l_players.push(po_tranquility)
-    l_players.push(po_varvalian)
+    l_players.push(new PlayerOptions("Toy", "TOY"))
+    l_players.push(new PlayerOptions("Tranquil-ity", "TRANQUIL-ITY"))
+    l_players.push(new PlayerOptions("Varvalian", "VARVALIAN"))
     l_players.push(po_vaxei)
     l_players.push(po_whitecat)
-    l_players.push(po_wubwoofwolf)
+    l_players.push(new PlayerOptions("WubWoofWolf", "WWW"))
     l_players.push(po_xilver)
 }
 
