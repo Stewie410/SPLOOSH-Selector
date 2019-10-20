@@ -2459,6 +2459,12 @@ applyForm() {
 
             ; Copy CircleNumbers to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
+
+            ; Update Hitcircle Overlap -- Dots must be 48; otherwise default
+            if (RegExMatch(CircleNumberElementOptionType, "i).*dot.*") != 0)
+                updateHitcircleOverlap(48)
+            else
+                updateHitcircleOverlap()
         } else if (etype = "mania") {
             local mtype := ManiaElementOptionType               ; Get Mania Type
             StringLower, mtype, mtype                           ; Set mtype to lowercase
@@ -3044,6 +3050,35 @@ updateManiaColorSelection(keyword := "", f_dest := "") {
         }
         FileAppend, %A_LoopReadLine%`n
     }
+    
+    ; Update SKin.ini file
+    FileCopy, %f_temp%, %f_dest%, 1                             ; Replace original with temporary
+    FileDelete, %f_temp%                                        ; Delete Temporary
+}
+
+; Update Hitcircle Overlap value -- Args: $1: Overlap Value (integer)
+updateHitcircleOverlap(val := 3) {
+    global                                                      ; Set scope to global
+
+    ; Define local variables
+    local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
+    local skin_dir := getDirectoryName(n_skin, src_path)        ; Get the directory of the skin
+    local ini_og := src_path "\" skin_dir "\skin.ini"           ; Skin.ini file to pull colors from
+    local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
+
+    ; Build Temporary Skin file, modifying the specified line
+    Loop, Read, %ini_og%, %ini_tmp%
+    {
+        if (RegExMatch(A_LoopReadLine, "i)^HitCircleOverlap:") != 0) {
+            FileAppend, % "HitCircleOverlap: " val "`n"
+            continue
+        }
+        FileAppend, %A_LoopReadLine%`n
+    }
+    
+    ; Update SKin.ini file
+    FileCopy, %ini_tmp%, %ini_og%, 1                            ; Replace original with temporary
+    FileDelete, %ini_tmp%                                       ; Delete Temporary
 }
 
 ; ##----------------------------##
