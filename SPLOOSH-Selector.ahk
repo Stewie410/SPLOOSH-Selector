@@ -463,40 +463,14 @@ GuiElement() {
     Sort, o_mania_dot_color, CL D|
 
     ; Determine default choices
-    for k, v in (StrSplit(o_cursor, "|")) {
-        if (v = def_cursor) {
-            def_cursor := k
-            def_csmoke := k
-        }
-    }
-    for k, v in (StrSplit(o_ctrail, "|")) {
-        if (v = def_ctrail)
-            def_ctrail := k
-    }
-    for, k, v in (StrSplit(o_csmoke, "|")) {
-        if (v = def_csmoke)
-            def_csmoke = k
-    }
-    for k, v in (StrSplit(o_hitburst, "|")) {
-        if (v = def_hitburst)
-            def_hitburst := k
-    }
-    for k, v in (StrSplit(o_revarrow, "|")) {
-        if (v = def_revarrow)
-            def_revarrow := k
-    }
-    for k, v in (StrSplit(o_sliderball, "|")) {
-        if (v = def_sliderball)
-            def_sliderball := k
-    }
-    for k, v in (StrSplit(o_scorebarbg, "|")) {
-        if (v = def_scorebarbg)
-            def_scorebarbg := k
-    }
-    for k, v in (StrSplit(o_circlenumbers, "|")) {
-        if (v = def_circlenumber)
-            def_circlenumber := k
-    }
+    def_cursor := getIndexOfSubstringInString(o_cursor, def_cursor, "|")
+    def_csmoke := def_cursor
+    def_ctrail := def_cursor
+    def_hitburst := getIndexOfSubstringInString(o_hitburst, def_hitburst, "|")
+    def_revarrow := getIndexOfSubstringInString(o_revarrow, def_revarrow, "|")
+    def_sliderball := getIndexOfSubstringInString(o_sliderball, def_sliderball, "|")
+    def_scorebarbg := getIndexOfSubstringInString(o_scorebarbg, def_scorebarbg, "|")
+    def_circlenumber := getIndexOfSubstringInString(o_circlenumbers, def_circlenumber, "|")
 
     ; Add Background to GUI
     Gui, ElementForm: Add, Picture, % "x" x_bg " y" y_bg " w" w_bg " h" h_bg " +" SS_CENTERIMAGE, %formBG%
@@ -2952,6 +2926,24 @@ getDefaultObject(arr := "") {
 
     ; Return empty string
     return ""
+}
+
+; Get Index of substring in ObjNamesAsString -- Args: $1: Haystack; $2: Needle, $3: Delimiter (def: ',')
+getIndexOfSubstringInString(haystack := "", needle := "", delim := ",") {
+    ; Handle invalid inputs
+    if !(haystack)
+        return
+    if !(needle)
+        return
+    
+    ; Determine index
+    for k, v in (StrSplit(haystack, delim)) {
+        if (v = needle)
+            return k
+    }
+
+    ; Return Null
+    return
 }
 
 ; ##----------------------------##
