@@ -411,28 +411,28 @@ GuiElement() {
     local y_bg := py_form                                       ; Y Position of BG
     local y_inner := y_bg + (py_form * 1.5)                     ; Inner-Y of BG (offset)
     local a_y := []                                             ; y positions
-    local o_element := "Cursor||Hitburst|Reverse Arrow|Sliderball|Scorebar BG|Circle Numbers|Mania"   ; Element Options
-    local o_mania := "Arrow|Bar|Dot"                            ; Mania Options
-    local o_mania_arrow_color := ""                             ; ManiaArrow Color Options
-    local o_mania_bar_color := ""                               ; ManiaBar Color Options
-    local o_mania_dot_color := ""                               ; ManiaDot Color Options
-    local o_cursor := ""                                        ; Cursor Options
-    local o_ctrail := "None"                                    ; Cursor Trail Options
-    local o_csmoke := ""                                        ; Cusror Smoke Options
-    local o_hitburst := ""                                      ; Hitburst Options
-    local o_revarrow := ""                                      ; ReverseArrow Options
-    local o_sliderball := ""                                    ; Sliderball Options
-    local o_scorebarbg := ""                                    ; ScorebarBG Options
-    local o_circlenumbers := ""                                 ; CircleNumber Options
-    local def_cursor := ""                                      ; Default Cursor Selection
-    local def_ctrail := ""                                      ; Default CursorTrail Color Selection
+    local o_element := menu_element_types                       ; Element Options
+    local o_mania := menu_mania_types                           ; Mania Options
+    local o_cursor := getObjNamesAsString(l_cursors, "|")       ; Cursor Options
+    local o_ctrail := "None|" . o_cursor                        ; Cursor Trail Options
+    local o_csmoke := o_cursor                                  ; Cusror Smoke Options
+    local o_hitburst := getObjNamesAsString(l_hitbursts, "|")   ; Hitburst Options
+    local o_revarrow := getObjNamesAsString(l_reversearrows, "|")           ; ReverseArrow Options
+    local o_sliderball := getObjNamesAsString(l_sliderballs, "|")           ; Sliderball Options
+    local o_scorebarbg := getObjNamesAsString(l_scorebarbgs, "|")           ; ScorebarBG Options
+    local o_circlenumbers := getObjNamesAsString(l_circlenumbers, "|")      ; CircleNumber Options
+    local o_mania_arrow_color := getObjNamesAsString(l_maniaarrows, "|")    ; ManiaArrow Color Options
+    local o_mania_bar_color := getObjNamesAsString(l_maniabars, "|")        ; ManiaBar Color Options
+    local o_mania_dot_color := getObjNamesAsString(l_maniadots, "|")        ; ManiaDot Color Options
+    local def_cursor := getDefaultObject(l_cursors)             ; Default Cursor Selection
+    local def_ctrail := def_cursor                              ; Default CursorTrail Color Selection
     local def_csolid := 1                                       ; Default CursorTrail Solid State
-    local def_csmoke := ""                                      ; Default CusorSmoke Color Selection
-    local def_hitburst := ""                                    ; Default Hitburst Selection
-    local def_revarrow := ""                                    ; Default ReverseArrow Selection
-    local def_sliderball := ""                                  ; Default Sliderball Selection
-    local def_scorebarbg := ""                                  ; Default ScorebarBG Selection
-    local def_circlenumber := ""                                ; Default CircleNumber Selection
+    local def_csmoke := def_cursor                              ; Default CusorSmoke Color Selection
+    local def_hitburst := getDefaultObject(l_hitbursts)         ; Default Hitburst Selection
+    local def_revarrow := getDefaultObject(l_reversearrows)     ; Default ReverseArrow Selection
+    local def_sliderball := getDefaultObject(l_sliderballs)     ; Default Sliderball Selection
+    local def_scorebarbg := getDefaultObject(l_scorebarbgs)     ; Default ScorebarBG Selection
+    local def_circlenumber := getDefaultObject(l_circlenumbers) ; Default CircleNumber Selection
     local def_mania := 1                                        ; Default Mania
     local def_mania_color := 1                                  ; Default mania Color 
     local formBG := d_asset "\formBG.png"                       ; Form Background
@@ -448,80 +448,7 @@ GuiElement() {
             a_y.push(((h_inner / cy_items) * A_Index) - (h_inner / cy_items) + (py_form * 4))
         }
     }
-
-    ; Get Options
-    for k, v in l_cursors {
-        if (o_cursor = "")
-            o_cursor := v.name
-        else {
-            o_cursor .= "|" v.name
-            o_ctrail .= "|" v.name
-        }
-        if (v.original = 1) {
-            def_cursor := v.name
-            def_ctrail := v.name
-        }
-    }
-    o_csmoke := o_cursor
-    for k, v in l_hitbursts {
-        if (o_hitburst = "")
-            o_hitburst := v.name
-        else
-            o_hitburst .= "|" v.name
-        if (v.original = 1)
-            def_hitburst := v.name
-    }
-    for k, v in l_reversearrows {
-        if (o_revarrow = "")
-            o_revarrow := v.name
-        else
-            o_revarrow .= "|" v.name
-        if (v.original = 1)
-            def_revarrow := v.name
-    }
-    for k, v in l_sliderballs {
-        if (o_sliderball = "")
-            o_sliderball := v.name
-        else
-            o_sliderball .= "|" v.name
-        if (v.original = 1)
-            def_sliderball := v.name
-    }
-    for k, v in l_scorebarbgs {
-        if (o_scorebarbg = "")
-            o_scorebarbg := v.name
-        else
-            o_scorebarbg .= "|" v.name
-        if (v.original = 1)
-            def_scorebarbg := v.name
-    }
-    for k, v in l_circlenumbers {
-        if (o_circlenumbers = "")
-            o_circlenumbers := v.name
-        else
-            o_circlenumbers .= "|" v.name
-        if (v.original = 1)
-            def_circlenumber := v.name
-    }
-    for k, v in l_maniaarrows {
-        if (o_mania_arrow_color = "")
-            o_mania_arrow_color := v.name
-        else
-            o_mania_arrow_color .= "|" v.name
-    }
-    for k, v in l_maniabars {
-        if (o_mania_bar_color = "")
-            o_mania_bar_color := v.name
-        else
-            o_mania_bar_color .= "|" v.name
-    }
-    for k, v in l_maniadots {
-        if (o_mania_dot_color = "")
-            o_mania_dot_color := v.name
-        else
-            o_mania_dot_color .= "|" v.name
-    }
-
+    
     ; Sort Options Alphabetically
     Sort, o_cursor, CL D|
     Sort, o_ctrail, CL D|
@@ -1696,10 +1623,14 @@ defineGlobals() {
     l_players := []                                             ; List of Players
 
     ; Debug Background Colors
-    bg_debug_topbar := "FF8E77"
-    bg_debug_sidebar := "6DFF79"
-    bg_debug_preview := "002D52"
-    bg_debug_form := "93D7FF"
+    bg_debug_topbar := "FF8E77"                                 ; Distinct BG color for Topbar
+    bg_debug_sidebar := "6DFF79"                                ; Distinct BG color for Sidebar
+    bg_debug_preview := "002D52"                                ; Distinct BG color for PreviewPane
+    bg_debug_form := "93D7FF"                                   ; Distinct BG Color for Forms
+
+    ; Non-Object-Based Menu Options
+    menu_element_types := "Cursor||Hitburst|Reverse Arrow|Sliderball|Scorebar BG|Circle Numbers|Mania"
+    menu_mania_types := "Arrow|Bar|Dot"
 }
 
 ; Define Cursor Objects
@@ -2054,7 +1985,10 @@ definePlayers() {
 
     /*
         Now that all options have been defined, we'll need to add each of our player objects
-        to the approrpriate list.
+        to the approrpriate list.  While things are currently pushed to the list in
+        alphabetical order, it is essentially irrelevant as the list will be sorted prior to
+        being added the GUI...but, it does make it a bit easier to track stuff, especially when
+        adding a new player to the list.
 
         To Add players without any additional options, simply follow the pattern:
             l_players.push(new PlayerOptions("<Player Name>", "<Player Directory Name>"))
@@ -2977,6 +2911,47 @@ updateHitcircleOverlap(val := 3) {
     ; Update SKin.ini file
     FileCopy, %ini_tmp%, %ini_og%, 1                            ; Replace original with temporary
     FileDelete, %ini_tmp%                                       ; Delete Temporary
+}
+
+; Convert Object Array as a string (name) -- Args: $1: Array; $2: Delimiter (def: ',')
+getObjNamesAsString(arr, delim := ",") {
+    ; Handle invalid inputs
+    if !(arr)
+        return ""
+    if !(arr.MaxIndex())
+        return ""
+
+    ; Define local variables
+    str := ""
+
+    ; Builds String
+    for k, v in arr {
+        if !(str)
+            str := v.name
+        else
+            str .= delim . v.name
+    }
+
+    ; Return String
+    return str
+}
+
+; Get Default/Standard Option from Array -- Args: $1: Array
+getDefaultObject(arr := "") {
+    ; Handle invalid inputs
+    if !(arr)
+        return ""
+    if !(arr.MaxIndex())
+        return ""
+
+    ; Determine Default Option
+    for k, v in arr {
+        if (v.original)
+            return v.name
+    }
+
+    ; Return empty string
+    return ""
 }
 
 ; ##----------------------------##
