@@ -438,16 +438,8 @@ GuiElement() {
     local formBG := d_asset "\formBG.png"                       ; Form Background
 
     ; Add positions to x/y arrays
-    Loop, %cy_items%
-    {
-        if (A_Index = 1) {
-            a_x.push(x_inner + px_form)
-            a_y.push(y_inner + py_form)
-        } else {
-            a_x.push(((w_inner / cx_items) * A_Index) - (w_inner / cx_items) + (px_form * 5))
-            a_y.push(((h_inner / cy_items) * A_Index) - (h_inner / cy_items) + (py_form * 4))
-        }
-    }
+    a_x := buildPosArray(cy_items, cx_items, x_inner, w_inner, px_form, 5)
+    a_y := buildPosArray(cy_items, cy_items, y_inner, h_inner, py_form, 4)
     
     ; Sort Options Alphabetically
     Sort, o_cursor, CL D|
@@ -2885,6 +2877,30 @@ updateHitcircleOverlap(val := 3) {
     ; Update SKin.ini file
     FileCopy, %ini_tmp%, %ini_og%, 1                            ; Replace original with temporary
     FileDelete, %ini_tmp%                                       ; Delete Temporary
+}
+
+; Build Positioning Array -- Args: $1: Number of Iterations; $2: Number of elements; $3: Offset; $4: Max Height/Width; $5: Padding Amount; $6: Padding Multiplier
+buildPosArray(iterations := 0, elements := 0, offset := 0, max := 0, padding := 0, multiplier := 0) {
+    ; Handle invalid inputs
+    if !(iterations)
+        return []
+    if !(elements)
+        return []
+    
+    ; Define local variables
+    positions := []
+
+    ; Build Array
+    Loop, %iterations%
+    {
+        if (A_Index = 1)
+            positions.push(offset + padding)
+        else
+            positions.push(((max / elements) * A_Index) - (max / elements) + (padding * multiplier))
+    }
+
+    ; Return Posititions array
+    return positions
 }
 
 ; Convert Object Array as a string (name) -- Args: $1: Array; $2: Delimiter (def: ',')
