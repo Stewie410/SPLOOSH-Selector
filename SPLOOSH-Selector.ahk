@@ -903,15 +903,9 @@ OpenDownloadLink() {
 ; #|        Functions: UI Updates       |#
 ; ##------------------------------------##
 ; Global Modal Message Box
-modalMsgBox(title := "", message := "", guiname := "") {
+modalMsgBox(title := "", message, guiname) {
     global                                                      ; Set global Scope inside Function
-
-    ; Handle invalid inputs
-    if !(message)
-        return
-    if !(guiname)
-        return
-
+    
     ; Enable Modal Dialogs for provided GUI
     Gui, %guiname%: +OwnDialogs
 
@@ -925,10 +919,6 @@ modalMsgBox(title := "", message := "", guiname := "") {
 ; TopBar --> Toggle Visibility of a Form -- Args: $1: Name; $2: Visible (def: 0)
 toggleForm(name, vis := 0) {
     global                                                      ; Set global Scope inside Function
-
-    ; If Name not passed, return
-    if !(name)
-        return
 
 	; Define Local Variables
 	local hwndCtrl := ""
@@ -967,10 +957,6 @@ toggleForm(name, vis := 0) {
 ; ElementForm --> Toggle Visibility of Element Options -- Args: $1: Name, $2: Visible (def: 0)
 toggleElementForm(name, vis := 0) {
     global                                                      ; Set global Scope inside Function
-
-    ; If Name not passed, return
-    if !(name)
-        return
 
     ; Define/update local vars
     local visCmd := vis = 1 ? "Show" : "Hide"                   ; Set visibility command
@@ -1034,12 +1020,8 @@ toggleElementForm(name, vis := 0) {
 }
 
 ; ElementForm --> Toggle Visibility of Mania Options -- Args: $1: Name, $2: Visible (def: 0)
-toggleManiaForm(name := "", vis := 0) {
+toggleManiaForm(name, vis := 0) {
     global                                                      ; Set global Scope inside Function
-
-    ; If Name not passed, return
-    if !(name)
-        return
 
     ; Define/update local vars
     local visCmd := vis = 1 ? "Show" : "Hide"                   ; Set visibility command
@@ -1059,12 +1041,8 @@ toggleManiaForm(name := "", vis := 0) {
 }
 
 ; ElementForm --> Toggle state of CursorElementOptionTrailSolid checkbox
-toggleCursorTrailSolidState(state := "") {
+toggleCursorTrailSolidState(state) {
     global                                                      ; Set global Scope inside Function
-
-    ; If if state passed, 
-    if !(state)
-        return
 
     if (state = "None") {
         GuiControl, ElementForm:, CursorElementOptionTrailSolid, 0
@@ -1097,7 +1075,7 @@ updateUIColorColors(init := 0) {
     }
 
     ; Check to make sure the colorPath was updated
-    if (colorPath = "")
+    if !(colorPath)
         return
     
     ; Get selected UI Color colors
@@ -1110,24 +1088,24 @@ updateUIColorColors(init := 0) {
     a_slider.push(getSlidertrackColor(colorPath))
 
     ; If Colors were pulled, update global vars -- otherwise, assume "Combo1" as default
-    if (a_combo[1] != "") {
+    if (a_combo[1]) {
         var_combo_color_1 := a_combo[1]
         var_combo_color_2 := var_combo_color_1
         var_combo_color_3 := var_combo_color_1
         var_combo_color_4 := var_combo_color_1
         var_combo_color_5 := var_combo_color_1
-        if (a_combo[2] != "")
+        if (a_combo[2])
             var_combo_color_2 := a_combo[2]
-        if (a_combo[3] != "")
+        if (a_combo[3])
             var_combo_color_3 := a_combo[3]
-        if (a_combo[4] != "")
+        if (a_combo[4])
             var_combo_color_4 := a_combo[4]
-        if (a_combo[5] != "")
+        if (a_combo[5])
             var_combo_color_5 := a_combo[5]
     }
-    if (a_slider[1] != "")
+    if (a_slider[1])
         var_slider_border_color := a_slider[1]
-    if (a_slider[2] != "")
+    if (a_slider[2])
         var_slider_track_color := a_slider[2]
     return
 }
@@ -1149,10 +1127,6 @@ updateTreeViewBackground() {
 ; PlayerForm --> Toggle Visibility of Version Options && update Version Options -- Args: $1: name; $2: visibility (def: 0)
 togglePlayerForm(name, vis := 0) {
     global                                                      ; Set global Scope inside Function
-
-    ; Return if no name passed
-    if !(name)
-        return
 
     ; Define local vars
     local visCmd := vis = 1 ? "Show" : "Hide"                   ; Set visibility command
@@ -4010,10 +3984,7 @@ Extract_fontRobotoRegular(_Filename, _DumpData = 0) {
 		Return -1
 	
 	If (!ExtractedData){
-		ExtractedData := True
-		, Ptr := A_IsUnicode ? "Ptr" : "UInt"
-		, VarSetCapacity(TD, 235197 * (A_IsUnicode ? 2 : 1))
-		
+		ExtractedData := True, Ptr := A_IsUnicode ? "Ptr" : "UInt", VarSetCapacity(TD, 235197 * (A_IsUnicode ? 2 : 1))
 		Loop, 15
 			TD .= %A_Index%, %A_Index% := ""
 		
