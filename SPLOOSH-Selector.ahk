@@ -147,8 +147,8 @@ GuiTopBar() {
     local h_button := h_text                                    ; Button Height
     local h_edit := h_text                                      ; Edit Height
     local r_edit := 1                                           ; Rows of Edit
-    local a_x := []                                             ; X Positions
-    local a_y := []                                             ; Y Positions
+    local a_x := buildPosArray(cx_items, cx_items, 0, w_topbar, px_topbar, 1, 1)    ; X Positions
+    local a_y := buildPosArray(cx_items, cy_items, 0, h_topbar, py_topbar, 1)       ; Y Positions
     local playerNormal := d_asset "\categoryPlayersNormal.png"		; PlayerNormal image
     local uicolorNormal := d_asset "\categoryUIColorsNormal.png"	; UIColorNormal image
     local elementNormal := d_asset "\categoryElementsNormal.png"	; ElementNormal image
@@ -160,18 +160,6 @@ GuiTopBar() {
     local playerActive := d_asset "\categoryPlayersActive.png"		; PlayerActive image
     local uicolorActive := d_asset "\categoryUIColorsActive.png"	; UIColorActive image
     local elementActive := d_asset "\categoryElementsActive.png"	; ElementActive image
-
-    ; Add positions to x/y arrays
-    Loop, %cx_items%
-    {
-        if (A_Index = 1) {
-            a_x.push(px_topbar)
-            a_y.push(py_topbar)
-        } else {
-            a_x.push(((w_topbar / cx_items) * A_Index) - (w_topbar / cx_items) - (px_topbar * 1))
-            a_y.push(((h_topbar / cy_items) * A_Index) - (h_topbar / cy_items) + (py_topbar * 1))
-        }
-    }
 
     ; Update Vars based on a_x[] values
     w_edit := a_x[4] - a_x[3] + w_button
@@ -223,8 +211,8 @@ GuiSideBar() {
 	local h_outline := 400										; reset outline height
 	local h_button := 110										; button height
 	local h_gbutton := h_button - (py_sidebar * 1)				; button height inside "group"
-	local a_x := []												; x positions
-	local a_y := []												; y positions
+	local a_x := buildPosArray(cy_items, cx_items, 0, w_sidebar, px_sidebar, 1)     ; x positions
+	local a_y := buildPosArray(cy_items, cy_items, 0, h_sidebar, py_sidebar, 1, 1)  ; y positions
 	local g_x := []												; x positions inside "group"
 	local g_y := []												; y positions inside "group"
 	local resetOutline := d_asset "\sidebarResetOutline.png"		; ResetOutline image
@@ -236,18 +224,6 @@ GuiSideBar() {
 	local resetAllHover := d_asset "\resetAllHover.png"				; ResetAllHover image
 	local resetGameplayHover := d_asset "\resetGameplayHover.png"	; ResetGameplayHover image
 	local resetUIColorHover := d_asset "\resetUIColorHover.png"		; ResetUIColorHover image
-
-	; Get c[xy] positions
-	Loop, %cy_items%
-	{
-		if (A_Index = 1) {
-			a_x.push(px_sidebar)
-			a_y.push(py_sidebar)
-		} else {
-			a_x.push(((w_sidebar / cx_items) * A_Index) - (w_sidebar / cx_items) - (px_sidebar * 1))
-			a_y.push(((h_sidebar / cy_items) * A_Index) - (h_sidebar / cy_items) - (py_sidebar * 1))
-		}
-	}
 
 	; Get g[xy] positions
 	Loop, %gy_items%
@@ -298,12 +274,12 @@ GuiUIColor() {
     local h_tree := h_text                                      ; TreeView height
     local x_bg := px_form * 0.75                                ; X position of BG
     local x_inner := x_bg + (px_form * 3)                       ; Inner-X of BG (offset)
-    local a_x := []                                             ; x positions
+    local a_x := buildPosArray(cy_items, cx_items, x_inner, w_inner, px_form, 5)    ; x positions
     local y_bg := py_form                                       ; Y Position of BG
     local y_inner := y_bg + (py_form * 1.5)                     ; Inner-Y of BG (offset)
-    local a_y := []                                             ; y positions
-    local o_color := ""                                         ; color options
-    local def_color := ""                                       ; default color selection
+    local a_y := buildPosArray(cy_items, cy_items, y_inner, h_inner, py_form, 3)    ; y positions
+    local o_color := getObjNamesAsString(l_uicolors, "|")       ; color options
+    local def_color := getDefaultObject(l_uicolors)             ; default color selection
     local def_combo1 := var_combo_color_1                       ; default combo color 1
     local def_combo2 := var_combo_color_2                       ; default combo color 2
     local def_combo3 := var_combo_color_3                       ; default combo color 3
@@ -313,37 +289,11 @@ GuiUIColor() {
     local def_sltrack := var_slider_track_color                 ; default slidertrack color
     local formBG := d_asset "\formBG.png"                       ; Form Background
 
-
-    ; Add positions to x/y arrays
-    Loop, %cy_items%
-    {
-        if (A_Index = 1) {
-            a_x.push(x_inner + px_form)
-            a_y.push(y_inner + py_form)
-        } else {
-            a_x.push(((w_inner / cx_items) * A_Index) - (w_inner / cx_items) + (px_form * 5))
-            a_y.push(((h_inner / cy_items) * A_Index) - (h_inner / cy_items) + (py_form * 3))
-        }
-    }
-
-    ; Get Options
-    for k, v in l_uicolors {
-        if (o_color = "")
-            o_color := v.name
-        else
-            o_color := o_color "|" v.name
-        if (v.original = 1)
-            def_color := v.name
-    }
-
     ; Sort Options Alphabetically
     Sort, o_color, CL D|
 
     ; Determine default choices
-    for k, v in (StrSplit(o_color, "|")) {
-        if (v = def_color)
-            def_color := k
-    }
+    def_color := getIndexOfSubstringInString(o_color, def_color, "|")
 
     ; Add Background to GUI
     Gui, UIColorForm: Add, Picture, % "x" x_bg " y" y_bg " w" w_bg " h" h_bg " +" SS_CENTERIMAGE, %formBG%
@@ -526,35 +476,15 @@ GuiPlayer() {
     local h_text := (h_inner / cy_items) - (py_form * 2)        ; Height of Text
     local x_bg := px_form * 0.75                                ; X position of BG
     local x_inner := x_bg + (px_form * 3)                       ; Inner-X of BG (offset)
-    local a_x := []                                             ; x positions
+    local a_x := buildPosArray(cy_items, cx_items, x_inner, w_inner, px_form, 5)    ; x positions
     local y_bg := py_form                                       ; Y Position of BG
     local y_inner := y_bg + (py_form * 1.5)                     ; Inner-Y of BG (offset)
-    local a_y := []                                             ; y positions
-    local o_player := ""                                        ; player names
+    local a_y := buildPosArray(cy_items, cy_items, y_inner, h_inner, py_form, 3)    ; y positions
+    local o_player := getObjNamesAsString(l_players, "|")       ; player names
     local o_version := ""                                       ; player versions (ddl)
     local def_player := 1                                       ; default player selection
     local def_version := 1                                      ; default version selection
     local formBG := d_asset "\formBG.png"                       ; Form Background
-
-    ; Add positions to x/y arrays
-    Loop, %cy_items%
-    {
-        if (A_Index = 1) {
-            a_x.push(x_inner + px_form)
-            a_y.push(y_inner + py_form)
-        } else {
-            a_x.push(((w_inner / cx_items) * A_Index) - (w_inner / cx_items) + (px_form * 5))
-            a_y.push(((h_inner / cy_items) * A_Index) - (h_inner / cy_items) + (py_form * 3))
-        }
-    }
-
-    ; Get Options
-    for k, v in l_players {
-        if (o_player = "")
-            o_player := v.name
-        else
-            o_player := o_player "|" v.name
-    }
 
     ; Sort Options Alphabetically
     Sort, o_player, CL D|
@@ -596,20 +526,8 @@ GuiPreview() {
     local cy_items := 1                                         ; Number of items per column
     local w_pic := w_preview / cx_items                         ; picture width
     local h_pic := h_preview / cy_items                         ; picture height
-    local a_x := []                                             ; x positions
-    local a_y := []                                             ; y positions
-
-    ; Add positions to x/y arrays
-    Loop, %cy_items%
-    {
-        if (A_Index = 1) {
-            a_x.push(px_preview)
-            a_y.push(py_preview)
-        } else {
-            a_x.push(((w_preview / cx_items) * A_Index) - (w_preview / cx_items) + (px_preview * 1))
-            a_y.push(((h_preview / cy_items) * A_Index) - (h_preview / cy_items) + (py_preview * 1))
-        }
-    }
+    local a_x := buildPosArray(cy_items, cx_items, 0, w_preview, px_preview, 1) ; x positions
+    local a_y := buildPosArray(cy_items, cy_items, 0, h_preview, py_preview, 1) ; y positions
 
     ; Add Controls to GUI
     ;Gui, PreviewPane: Add, Picture, % "x" a_x[1] " y" a_y[1] " w" w_pic " h" h_pic " +vPreviewImageOne +Hidden1",
@@ -2879,8 +2797,8 @@ updateHitcircleOverlap(val := 3) {
     FileDelete, %ini_tmp%                                       ; Delete Temporary
 }
 
-; Build Positioning Array -- Args: $1: Number of Iterations; $2: Number of elements; $3: Offset; $4: Max Height/Width; $5: Padding Amount; $6: Padding Multiplier
-buildPosArray(iterations := 0, elements := 0, offset := 0, max := 0, padding := 0, multiplier := 0) {
+; Build Positioning Array -- Args: $1: Number of Iterations; $2: Number of elements; $3: Offset; $4: Max Height/Width; $5: Padding Amount; $6: Padding Multiplier; $7: Subtract Padding? (def: 0)
+buildPosArray(iterations := 0, elements := 0, offset := 0, max := 0, padding := 0, multiplier := 0, subtract := 0) {
     ; Handle invalid inputs
     if !(iterations)
         return []
@@ -2895,8 +2813,12 @@ buildPosArray(iterations := 0, elements := 0, offset := 0, max := 0, padding := 
     {
         if (A_Index = 1)
             positions.push(offset + padding)
-        else
-            positions.push(((max / elements) * A_Index) - (max / elements) + (padding * multiplier))
+        else {
+            if (subtract)
+                positions.push(((max / elements) * A_Index) - (max / elements) - (padding * multiplier))
+            else
+                positions.push(((max / elements) * A_Index) - (max / elements) + (padding * multiplier))
+        }
     }
 
     ; Return Posititions array
