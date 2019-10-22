@@ -927,9 +927,8 @@ toggleForm(name, vis := 0) {
     global                                                      ; Set global Scope inside Function
 
     ; If Name not passed, return
-    if (name = "") {
+    if !(name)
         return
-    }
 
 	; Define Local Variables
 	local hwndCtrl := ""
@@ -956,7 +955,7 @@ toggleForm(name, vis := 0) {
     }
 
     ; Update visibility
-    if (vis = 1) {                                              ; If visibility set to 1
+    if (vis) {                                                  ; If visibility set to 1
         Gui, %name%Form: Show                                   ; Show window
 		GuiControl, TopBar: Show, % hwndCtrl					; Show Control
     } else {                                                    ; Otherwise
@@ -970,7 +969,7 @@ toggleElementForm(name, vis := 0) {
     global                                                      ; Set global Scope inside Function
 
     ; If Name not passed, return
-    if (name = "")
+    if !(name)
         return
 
     ; Define/update local vars
@@ -1039,7 +1038,7 @@ toggleManiaForm(name := "", vis := 0) {
     global                                                      ; Set global Scope inside Function
 
     ; If Name not passed, return
-    if (name = "")
+    if !(name)
         return
 
     ; Define/update local vars
@@ -1064,7 +1063,7 @@ toggleCursorTrailSolidState(state := "") {
     global                                                      ; Set global Scope inside Function
 
     ; If if state passed, 
-    if (state = "")
+    if !(state)
         return
 
     if (state = "None") {
@@ -1086,7 +1085,7 @@ updateUIColorColors(init := 0) {
     local a_slider := []                                        ; Slider Colors
 
     ; Update colorPath
-    if (init = 1)
+    if (init)
         colorPath := "none"
     else {
         for k, v in l_uicolors {
@@ -1152,7 +1151,7 @@ togglePlayerForm(name, vis := 0) {
     global                                                      ; Set global Scope inside Function
 
     ; Return if no name passed
-    if (name = "")
+    if !(name)
         return
 
     ; Define local vars
@@ -1169,7 +1168,7 @@ togglePlayerForm(name, vis := 0) {
 
     ; Get the list of players into a string
     for k, v in l_players {
-        if (sortPlayers = "")
+        if !(sortPlayers)
             sortPlayers := v.name
         else
             sortPlayers .= "|" v.name
@@ -1192,7 +1191,7 @@ togglePlayerForm(name, vis := 0) {
         }
     }
 
-    if (optStr = "")
+    if !(optStr)
         return
 
     GuiControl, PlayerForm:, PlayerOptionVersion, |%optStr%
@@ -1219,7 +1218,7 @@ updateColorPickerRGB() {
 ; ColorPicker --> Toggle Enabled/Disabled state of all non-Color-Picker windows
 toggleParentWindow(vis := 0) {
     global                                                      ; Set global Scope inside Function
-    if (vis = 1) {
+    if (vis) {
         Gui, TopBar: -Disabled
         Gui, SideBar: -Disabled
         Gui, ElementForm: -Disabled
@@ -1265,25 +1264,15 @@ WM_MOUSEMOVE(wParam, lParam, Msg, Hwnd) {
     MouseGetPos, x_mouse, y_mouse, win_mouse, ctrl_mouse, 3
     GuiControlGet, ctrl_mouse, Pos, % ctrl_mouse
 
-    /* 
-    ; Not sure what all this does
-	VarSetCapacity(TME, 16, 0)
-	NumPut(16, TME, 0)
-	NumPut(2, TME, 4) ; TME_LEAVE
-	NumPut(win_mouse, TME, 8)
-	DllCall("User32.dll\TrackMouseEvent", "UInt", &TME)
-    */
-
     ; Iterate over button list -- if the mouse control is one of thse, update && quit
     for i in list_buttons {
         if (ctrl_mouse = list_buttons[i].key) {
             GuiControl, % list_buttons[i].ui "Bar: Show", % list_buttons[i].hwnd
             is_button := 1
-        } else {
+        } else
             GuiControl, % list_buttons[i].ui "Bar: Hide", % list_buttons[i].hwnd
-        }
     }
-    if (is_button = 1)
+    if (is_button)
         return
 
     ; If the mouse is over the color palette, set the below pixel's color to 'hover_color'
@@ -1937,7 +1926,7 @@ BrowseDirectory(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
         Gui, TopBar: -OwnDialogs                                ; Disable Modal Dialogs
 
 		; Return value, if selected
-		if (d_select != "") {
+		if (d_select) {
 			GuiControl, TopBar:, GamePath, %d_select%
 			d_game := d_select
             updateUIColorColors(1)                              ; Update selected UIColors
@@ -1948,10 +1937,9 @@ BrowseDirectory(CtrlHwnd, GuiEvent, EventInfo, ErrLevel := "") {
 }
 
 ; Get name of a directory based on string -- Args: $1: Name to search for, $2: Path to search
-getDirectoryName(name := "", path := "") {
-    if (name = "" || path = "")                                 ; If args not passed, return
-        return
-    else if (FileExist(path) = "")                              ; If path doesn't exist, return
+getDirectoryName(name, path) {
+    ; Handle invalid input
+    if !(FileExist(path))                                       ; If path doesn't exist, return
         return
 
     ; Define Local Variables
@@ -1960,12 +1948,12 @@ getDirectoryName(name := "", path := "") {
     ; Loop through a given path
     Loop, Files, %path%\*, D                                    ; Return only directories
     {
-        if (RegExMatch(A_LoopFileName, "i)"name) != 0) {        ; If skin name is found
+        if (RegExMatch(A_LoopFileName, "i)"name)) {             ; If skin name is found
 			if (RegExMatch(A_LoopFileName, "i)"name " " n_ver) != 0) {
                 dir := A_LoopFileName                           ; Set return val to name
                 break                                           ; Break loop
 			}
-            if (FileExist(path "\" A_LoopFileName "\" d_conf) != "") {
+            if (FileExist(path "\" A_LoopFileName "\" d_conf)) {
                 dir := A_LoopFileName                           ; Set return val to name
                 break                                           ; Break loop
             }
@@ -1975,12 +1963,8 @@ getDirectoryName(name := "", path := "") {
 }
 
 ; Reset Skin -- Args: $1: Type
-resetSkin(type := "") {
+resetSkin(type) {
     global                                                      ; Set global Scope inside Function
-
-    ; If arg not passed, break
-    if (type = "")
-        return
 
     ; Define Local variables
     local src := GamePath "\Skins"                              ; Source directory
@@ -1988,7 +1972,7 @@ resetSkin(type := "") {
     local skin := getDirectoryName(n_skin, src)                 ; Skin name
 
     ; Handle skin not found
-    if (skin = "") {
+    if !(skin) {
         MsgBox,,RESET ERROR, Cannot locate skin in `"%src%`"    ; Notify user of error
         return 1                                                ; return
     }
@@ -2023,7 +2007,7 @@ applyForm() {
     StringLower, form, form                                     ; Convert %form% to all lowercase
 
     ; Handle skin not found
-    if (skin = "") {
+    if !(skin) {
         modalMsgBox(n_app ":`tApply Error", "Cannot locate skin in " src, "SideBar")
         return 1                                                ; Return
     }
@@ -2052,7 +2036,7 @@ applyForm() {
             }
 
             ; Get Directory for Option 4, if enabled
-            if (CursorElementOptionTrailSolid = 1)
+            if (CursorElementOptionTrailSolid)
                 d_opt4 := d_opt1 "\..\..\" d_cursor_solidtrail
             
             ; If %d_opt2% is still blank
@@ -2100,7 +2084,7 @@ applyForm() {
             }
 
             ; Verify Paths Exist
-            if (FileExist(src "\" d_opt1) = "") {
+            if !(FileExist(src "\" d_opt1)) {
                 modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                 return
             }
@@ -2117,7 +2101,7 @@ applyForm() {
             }
 
             ; Verify Paths Exist
-            if (FileExist(src "\" d_opt1) = "") {
+            if !(FileExist(src "\" d_opt1)) {
                 modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                 return
             }
@@ -2134,7 +2118,7 @@ applyForm() {
             }
 
             ; Verify Paths Exist
-            if (FileExist(src "\" d_opt1) = "") {
+            if !(FileExist(src "\" d_opt1)) {
                 modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                 return
             }
@@ -2151,7 +2135,7 @@ applyForm() {
             }
 
             ; Verify Paths Exist
-            if (FileExist(src "\" d_opt1) = "") {
+            if !(FileExist(src "\" d_opt1)) {
                 modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                 return
             }
@@ -2168,7 +2152,7 @@ applyForm() {
             }
 
             ; Verify Paths Exist
-            if (FileExist(src "\" d_opt1) = "") {
+            if !(FileExist(src "\" d_opt1)) {
                 modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                 return
             }
@@ -2177,7 +2161,7 @@ applyForm() {
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
 
             ; Update Hitcircle Overlap -- Dots must be 48; otherwise default
-            if (RegExMatch(CircleNumberElementOptionType, "i).*dot.*") != 0)
+            if (RegExMatch(CircleNumberElementOptionType, "i).*dot.*"))
                 updateHitcircleOverlap(48)
             else
                 updateHitcircleOverlap()
@@ -2199,11 +2183,11 @@ applyForm() {
                 }
 
                 ; Verify Paths Exist
-                if (FileExist(src "\" d_main "\" d_opt1) = "") {
+                if !(FileExist(src "\" d_main "\" d_opt1)) {
                     modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                     return
                 }
-                if (FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
+                if !(FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
                     modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "ElementForm")
                     return
                 }
@@ -2226,12 +2210,12 @@ applyForm() {
                 }
 
                 ; Verify Paths Exist
-                if (FileExist(src "\" d_opt1) = "") {
+                if !(FileExist(src "\" d_opt1)) {
                     MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
                     modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                     return
                 }
-                if (FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
+                if !(FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
                     MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_main%\%d_opt1%\%d_opt2%
                     modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "ElementForm")
                     return
@@ -2255,11 +2239,11 @@ applyForm() {
                 }
 
                 ; Verify Paths Exist
-                if (FileExist(src "\" d_opt1) = "") {
+                if !(FileExist(src "\" d_opt1)) {
                     modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                     return
                 }
-                if (FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
+                if !(FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
                     modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "ElementForm")
                     return
                 }
@@ -2279,7 +2263,7 @@ applyForm() {
         }
 
         ; Verify Paths Exist
-        if (FileExist(src "\" d_opt1) = "") {
+        if !(FileExist(src "\" d_opt1)) {
             modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "UIColorForm")
             return
         }
@@ -2289,7 +2273,7 @@ applyForm() {
         FileCopy, %src%\%d_opt1%\*.jpg, %dst%, 1
 
         ; If Preserve INI changes not requested, replace skin.ini file
-        if (UIColorOptionSaveIni = 1)
+        if (UIColorOptionSaveIni)
             FileCopy, %src%\%d_opt1%\skin.ini, %dst%, 1
 
         ; If Instafade Enabled
@@ -2327,11 +2311,11 @@ applyForm() {
         }
 
         ; Verify Paths Exist
-        if (FileExist(src "\" d_opt1) = "") {
+        if !(FileExist(src "\" d_opt1)) {
             modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "PlayerForm")
             return
         }
-        if (d_opt2 != "" && FileExist(src "\" d_opt2) = "") {
+        if (d_opt2 != "" && FileExist(src "\" d_opt2)) {
             modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "PlayerForm")
             return
         }
@@ -2340,8 +2324,8 @@ applyForm() {
         resetSkin("gameplay")
 
         ; If option is defined && required
-        if (d_opt2 != "") {
-            if (b_opt2 = 0)
+        if !(d_opt2) {
+            if !(b_opt2)
                 FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
             FileCopy, %src%\%d_opt2%\*.*, %dst%, 1
         } else {
@@ -2359,13 +2343,7 @@ applyForm() {
 }
 
 ; Hex to RGB -- Args: $1: Color ([0-9A-F]{6})
-hexToRGB(color := "") {
-    ; handle invalid input
-    if (color = "")
-        return
-    if (RegExMatch(color, "i)^[0-9A-F]{6}$") = 0)
-        return
-    
+hexToRGB(color) {    
     ; Define local variables
     a_dec := []                                                 ; array of decimal values
 
@@ -2380,10 +2358,8 @@ hexToRGB(color := "") {
 }
 
 ; RGB To Hex -- Args: $1: RGB Array
-rgbToHex(arr := "") {
+rgbToHex(arr) {
     ; handle invalid input
-    if (arr = "")
-        return
     if (arr.MaxIndex() != 3)
         return
 
@@ -2400,43 +2376,35 @@ rgbToHex(arr := "") {
 }
 
 ; Convert decimal value (0-15) to a hex character -- Args: $1: value
-decToHex(val := "") {
+decToHex(val) {
     ; handle invlaid input
-    if (val = "")
-        return
-    if (val < 0 || val > 15)
+    if !(val) || (val > 15)
         return
 
     ; Find and return value
     for i, j in ["A", "B", "C", "D", "E", "F"] {
-        if ((i + 10 - 1) = val)
+        if ((i + 9) = val)
             return j
     }
     return val
 }
 
 ; Convert Hex to Decimal (0-F) -- Args: $1: Value
-hexToDec(val := "") {
+hexToDec(val) {
     ; handle invalid input
-    if (val = "")
-        return
-    if (RegExMatch(val, "i)^[0-9A-F]$") = 0)
+    if !(RegExMatch(val, "i)^[0-9A-F]$"))
         return
 
     ; Find and return value
     for i, j in ["A", "B", "C", "D", "E", "F"] {
         if (val = j)
-            return (i + 10 - 1)
+            return (i + 9)
     }
     return val
 }
 
 ; Get color of pixel color at coordinates -- Args: $1: X Position; $2: Y Position
-getCoordinateColor(x := "", y := "") {
-    ; handle invalid input
-    if (x = "" || y = "")
-        return
-
+getCoordinateColor(x, y) {
     ; Get and format color
     PixelGetColor, out, x, y, RGB
     StringRight, out, out, 6
@@ -2448,14 +2416,8 @@ getCoordinateColor(x := "", y := "") {
 }
 
 ; Get ComboColor from Selected UI Color -- Args: $1: Combo Count (1-5); $2: Path to UI Color (relative to Skin path)
-getComboColor(cnt := 0, path := "") {
+getComboColor(cnt, path) {
     global                                                      ; Set scope to global
-
-    ; Handle invalid input
-    if (cnt = 0)
-        return ""
-    if (path = "")
-        return ""
 
     ; Define local variables
     local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
@@ -2472,14 +2434,14 @@ getComboColor(cnt := 0, path := "") {
     ; Read through file, searching for correct combo color
     Loop, Read, %ini_og%
     {
-        if (RegExMatch(A_LoopReadLine, ")^Combo" cnt ":\s*") != 0) {
+        if (RegExMatch(A_LoopReadLine, ")^Combo" cnt ":\s*")) {
             str_color := RegExReplace(A_LoopReadLine, "i)^.*:\s*(.*).*$", "$1")
             break
         }
     }
 
     ; Handle if str_color is not set
-    if (str_color = "")
+    if !(str_color)
         return ""
 
     ; Return Hex color of extracted color
@@ -2487,12 +2449,8 @@ getComboColor(cnt := 0, path := "") {
 }
 
 ; Get SliderBorderColor from selected UI Color -- Args: $1: Path to UI Color (relative to Skin path) 
-getSliderborderColor(path := "") {
+getSliderborderColor(path) {
     global                                                      ; Set scope to global
-
-    ; Handle invalid input
-    if (path = "")
-        return
 
     ; Define local variables
     local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
@@ -2508,14 +2466,14 @@ getSliderborderColor(path := "") {
     ; Read through file, searching for correct combo color
     Loop, Read, %ini_og%
     {
-        if (RegExMatch(A_LoopReadLine, ")^SliderBorder:\s*") != 0) {
+        if (RegExMatch(A_LoopReadLine, ")^SliderBorder:\s*")) {
             str_color := RegExReplace(A_LoopReadLine, "i)^.*:\s*(.*).*$", "$1")
             break
         }
     }
 
     ; Handle if str_color is not set
-    if (str_color = "")
+    if !(str_color)
         return ""
     
     ; Return Hex color of extracted color
@@ -2523,12 +2481,8 @@ getSliderborderColor(path := "") {
 }
 
 ; Get SliderTrackOverrideColor from selected UI Color -- Args: $1: Path to UI Color (relative to Skin path) 
-getSlidertrackColor(path := "") {
+getSlidertrackColor(path) {
     global                                                      ; Set scope to global
-
-    ; Handle invalid input
-    if (path = "")
-        return
 
     ; Define local variables
     local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
@@ -2544,14 +2498,14 @@ getSlidertrackColor(path := "") {
     ; Read through file, searching for correct combo color
     Loop, Read, %ini_og%
     {
-        if (RegExMatch(A_LoopReadLine, ")^SliderTrackOverride:\s*") != 0) {
+        if (RegExMatch(A_LoopReadLine, ")^SliderTrackOverride:\s*")) {
             str_color := RegExReplace(A_LoopReadLine, "i)^.*:\s*(.*).*$", "$1")
             break
         }
     }
 
     ; Handle if str_color is not set
-    if (str_color = "")
+    if !(str_color)
         return ""
     
     ; Return Hex color of extracted color
@@ -2559,14 +2513,8 @@ getSlidertrackColor(path := "") {
 }
 
 ; Update Combo Colors in Skin INI file -- Args: $1: Combo1-5; $2: Color (hex)
-updateComboColor(cnt := 0, col := "") {
+updateComboColor(cnt, col) {
     global                                                      ; Set scope to global
-
-    ; Handle invalid input
-    if (cnt = 0)
-        return
-    if (col = "")
-        return
 
     ; Define local variables
     local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
@@ -2579,7 +2527,7 @@ updateComboColor(cnt := 0, col := "") {
     ; Build temporary skin file, modifying the specified line
     Loop, Read, %ini_og%, %ini_tmp%
     {
-        if (RegExMatch(A_LoopReadLine, "i)^Combo" cnt ":\s*") != 0) {
+        if (RegExMatch(A_LoopReadLine, "i)^Combo" cnt ":\s*")) {
             FileAppend, % "Combo" cnt ": " hex_rgb[1] "," hex_rgb[2] "," hex_rgb[3] "`n"
             col_found := 1
             continue
@@ -2588,7 +2536,7 @@ updateComboColor(cnt := 0, col := "") {
     }
 
     ; If color was found and updated, update skin.ini and return
-    if (col_found = 1) {
+    if (col_found) {
         FileCopy, %ini_tmp%, %ini_og%, 1                        ; Replace original with temporary
         FileDelete, %ini_tmp%                                   ; Delete temporary
         return
@@ -2598,7 +2546,7 @@ updateComboColor(cnt := 0, col := "") {
     FileDelete, %ini_tmp%                                       ; Delete previous temporary
     Loop, Read, %ini_og%, %ini_tmp%
     {
-        if (RegExMatch(A_LoopReadLine, "i)^Combo" (cnt - 1) ":\s*") != 0) {
+        if (RegExMatch(A_LoopReadLine, "i)^Combo" (cnt - 1) ":\s*")) {
             FileAppend, %A_LoopReadLine%`n
             FileAppend, % "Combo" cnt ": " hex_rgb[1] "," hex_rgb[2] "," hex_rgb[3] "`n"
             continue
@@ -2612,12 +2560,8 @@ updateComboColor(cnt := 0, col := "") {
 }
 
 ; Update Slider Border Color -- Args: $1: Color (hex)
-updateSliderborderColor(col := "") {
+updateSliderborderColor(col) {
     global                                                      ; Set scope to global
-
-    ; Handle invalid input
-    if (col = "")
-        return
 
     ; Define local variables
     local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
@@ -2629,7 +2573,7 @@ updateSliderborderColor(col := "") {
     ; Build Temporary skin file, modifying the specified line
     Loop, Read, %ini_og%, %ini_tmp%
     {
-        if (RegExMatch(A_LoopReadLine, ")^SliderBorder:\s*") != 0) {
+        if (RegExMatch(A_LoopReadLine, ")^SliderBorder:\s*")) {
             FileAppend, % "SliderBorder: " hex_rgb[1] "," hex_rgb[2] "," hex_rgb[3] "`n"
             continue
         }
@@ -2642,12 +2586,8 @@ updateSliderborderColor(col := "") {
 }
 
 ; Update Slidertrack Override Color -- Args: $1: Color (hex)
-updateSlidertrackColor(col := "") {
+updateSlidertrackColor(col) {
     global                                                      ; Set scope to global
-
-    ; Handle invalid input
-    if (col = "")
-        return
 
     ; Define local variables
     local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
@@ -2659,7 +2599,7 @@ updateSlidertrackColor(col := "") {
     ; Build Temporary skin file, modifying the specified line
     Loop, Read, %ini_og%, %ini_tmp%
     {
-        if (RegExMatch(A_LoopReadLine, ")^SliderTrackOverride:\s*") != 0) {
+        if (RegExMatch(A_LoopReadLine, ")^SliderTrackOverride:\s*")) {
             FileAppend, % "SliderTrackOverride: " hex_rgb[1] "," hex_rgb[2] "," hex_rgb[3] "`n"
             continue
         }
@@ -2672,14 +2612,8 @@ updateSlidertrackColor(col := "") {
 }
 
 ; Update Instafade Circles -- Args: $1: Enable/Disable (def: 0)
-updateInstafadeCircles(insta := 0) {
+updateInstafadeCircles(insta) {
     global                                                      ; Set scope to global
-
-    ; Handle invalid input
-    if (insta < 0)
-        insta := 0
-    else if (insta > 1)
-        insta := 1
 
     ; Define local variables
     local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
@@ -2692,7 +2626,7 @@ updateInstafadeCircles(insta := 0) {
     ; Build Temporary skin file, modifying the specified lines
     Loop, Read, %ini_og%, %ini_tmp%
     {
-        if (RegExMatch(A_LoopReadLine, ")^HitCircleOverlap:\s*[0-9]+") != 0) {
+        if (RegExMatch(A_LoopReadLine, ")^HitCircleOverlap:\s*[0-9]+")) {
             FileAppend, % "HitCircleOverlap: " (insta = 1 ? fade_inst : fade_norm) "`n"
             continue
         }
@@ -2705,14 +2639,10 @@ updateInstafadeCircles(insta := 0) {
 }
 
 ; Update ManiaType Selection -- Args; $1: Directory Name; $2: Destination File Path
-updateManiaTypeSelection(keyword := "", f_dest := "") {
+updateManiaTypeSelection(keyword, f_dest) {
     global                                                      ; Set scope to global
 
     ; Handle invalid input
-    if (keyword = "")
-        return
-    if (f_dest = "")
-        return
     if !(FileExist(f_dest))
         return
 
@@ -2723,7 +2653,7 @@ updateManiaTypeSelection(keyword := "", f_dest := "") {
     ; Build Temporary Skin file, modifying the specified line(s)
     Loop, Read, %f_dest%, %f_temp%
     {
-        if (RegExMatch(A_LoopReadLine, "i)^KeyImage[0-9]+[dhlt]?:\s*") != 0) {
+        if (RegExMatch(A_LoopReadLine, "i)^KeyImage[0-9]+[dhlt]?:\s*")) {
             local this_key := RegExReplace(A_LoopReadLine, "i)^([a-z]+[0-9][dhlt]?):\s+.*$", "$1")
             local this_path := RegExReplace(A_LoopReadLine, "i)^.*:\s+((([a-z0-9_-]+\s?)+\\?)+)$", "$1")
             this_path := RegExReplace(this_path, "i)arrows|bars|dots", keyword)
@@ -2739,14 +2669,10 @@ updateManiaTypeSelection(keyword := "", f_dest := "") {
 }
 
 ; Update ManiaColor Selection -- Args; $1: Directory Name; $2: Destination File Path
-updateManiaColorSelection(keyword := "", f_dest := "") {
+updateManiaColorSelection(keyword, f_dest) {
     global                                                      ; Set scope to global
 
     ; Handle invalid input
-    if (keyword = "")
-        return
-    if (f_dest = "")
-        return
     if !(FileExist(f_dest))
         return
 
@@ -2757,7 +2683,7 @@ updateManiaColorSelection(keyword := "", f_dest := "") {
     ; Build Temporary Skin file, modifying the specified line(s)
     Loop, Read, %f_dest%, %f_temp%
     {
-        if (RegExMatch(A_LoopReadLine, "i)^KeyImage[0-9]+[dhlt]?:\s*") != 0) {
+        if (RegExMatch(A_LoopReadLine, "i)^KeyImage[0-9]+[dhlt]?:\s*")) {
             local this_key := RegExReplace(A_LoopReadLine, "i)^([a-z]+[0-9][dhlt]?):\s+.*$", "$1")
             local this_path := RegExReplace(A_LoopReadLine, "i)^.*:\s+((([a-z0-9_-]+\s?)+\\?)+)$", "$1")
             this_path := RegExReplace(this_path "i)red|blue", keyword)
@@ -2785,7 +2711,7 @@ updateHitcircleOverlap(val := 3) {
     ; Build Temporary Skin file, modifying the specified line
     Loop, Read, %ini_og%, %ini_tmp%
     {
-        if (RegExMatch(A_LoopReadLine, "i)^HitCircleOverlap:") != 0) {
+        if (RegExMatch(A_LoopReadLine, "i)^HitCircleOverlap:")) {
             FileAppend, % "HitCircleOverlap: " val "`n"
             continue
         }
@@ -2798,13 +2724,7 @@ updateHitcircleOverlap(val := 3) {
 }
 
 ; Build Positioning Array -- Args: $1: Number of Iterations; $2: Number of elements; $3: Offset; $4: Max Height/Width; $5: Padding Amount; $6: Padding Multiplier; $7: Subtract Padding? (def: 0)
-buildPosArray(iterations := 0, elements := 0, offset := 0, max := 0, padding := 0, multiplier := 0, subtract := 0) {
-    ; Handle invalid inputs
-    if !(iterations)
-        return []
-    if !(elements)
-        return []
-    
+buildPosArray(iterations, elements, offset := 0, max := 0, padding := 0, multiplier := 0, subtract := 0) {
     ; Define local variables
     positions := []
 
@@ -2827,12 +2747,6 @@ buildPosArray(iterations := 0, elements := 0, offset := 0, max := 0, padding := 
 
 ; Convert Object Array as a string (name) -- Args: $1: Array; $2: Delimiter (def: ',')
 getObjNamesAsString(arr, delim := ",") {
-    ; Handle invalid inputs
-    if !(arr)
-        return ""
-    if !(arr.MaxIndex())
-        return ""
-
     ; Define local variables
     str := ""
 
@@ -2849,13 +2763,7 @@ getObjNamesAsString(arr, delim := ",") {
 }
 
 ; Get Default/Standard Option from Array -- Args: $1: Array
-getDefaultObject(arr := "") {
-    ; Handle invalid inputs
-    if !(arr)
-        return ""
-    if !(arr.MaxIndex())
-        return ""
-
+getDefaultObject(arr) {
     ; Determine Default Option
     for k, v in arr {
         if (v.original)
@@ -2867,13 +2775,7 @@ getDefaultObject(arr := "") {
 }
 
 ; Get Index of substring in ObjNamesAsString -- Args: $1: Haystack; $2: Needle, $3: Delimiter (def: ',')
-getIndexOfSubstringInString(haystack := "", needle := "", delim := ",") {
-    ; Handle invalid inputs
-    if !(haystack)
-        return
-    if !(needle)
-        return
-    
+getIndexOfSubstringInString(haystack, needle, delim := ",") {
     ; Determine index
     for k, v in (StrSplit(haystack, delim)) {
         if (v = needle)
@@ -2912,7 +2814,7 @@ Class Element {
     ; Methods
     ; Append String to RootPath
     addToRootPath(val) {
-        if (val != "" && this.rootDir != val)
+        if (this.rootDir != val)
             this.rootDir += val
     }
 
@@ -3059,8 +2961,6 @@ Class Mania {
     ; Methods
     ; Append String to RootPath
     addToRootPath(val) {
-        if (val = "")
-            return
         if (val = this.rootDir)
             return
         this.rootDir += val
@@ -3198,10 +3098,8 @@ Class PlayerOptions Extends Player {
     }
 
     ; Add an option to lists
-    add(n := "", d := "") {
-        if (n = "" || d = "")
-            return
-        if (this.listNames = "" && this.listDirs = "") {
+    add(n, d) {
+        if !(this.listNames) && !(his.listDirs) {
             this.listNames := n
             this.listDirs := d
         } else {
@@ -3211,31 +3109,21 @@ Class PlayerOptions Extends Player {
     }
 
     ; Get array of listX
-    getArray(v := "") {
+    getArray(v) {
         if (v = "listNames") {
-            if (this.listNames != "")
+            if (this.listNames)
                 return StrSplit(this.listNames, ",")
-            return []
         } else if (v = "listDirs") {
-            if (this.listDirs != "")
+            if (this.listDirs)
                 return StrSplit(this.listDirs, ",")
-            return []
         }
+        return []
     }
 }
 
 ; ##--------------------------------------------------------------------##
 ; #|        Embedded Assets: Category Button: Players: Normal           |#
 ; ##--------------------------------------------------------------------##
-; Category Button: Players --> Normal, Hover & Active
-categoryPlayersNormal_Get(_What) {
-	Static Size = 2873, Name = "categoryPlayersNormal.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_categoryPlayersNormal(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3273,14 +3161,6 @@ Extract_categoryPlayersNormal(_Filename, _DumpData = 0) {
 ; ##--------------------------------------------------------------------##
 ; #|        Embedded Assets: Category Button: Players: Hover            |#
 ; ##--------------------------------------------------------------------##
-categoryPlayersHover_Get(_What) {
-	Static Size = 2849, Name = "categoryPlayersHover.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_categoryPlayersHover(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3318,14 +3198,6 @@ Extract_categoryPlayersHover(_Filename, _DumpData = 0) {
 ; ##--------------------------------------------------------------------##
 ; #|        Embedded Assets: Category Button: Players: Active           |#
 ; ##--------------------------------------------------------------------##
-categoryPlayersActive_Get(_What) {
-	Static Size = 2737, Name = "categoryPlayersActive.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_categoryPlayersActive(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3363,14 +3235,6 @@ Extract_categoryPlayersActive(_Filename, _DumpData = 0) {
 ; ##--------------------------------------------------------------------##
 ; #|        Embedded Assets: Category Button: Elements: Normal          |#
 ; ##--------------------------------------------------------------------##
-categoryElementsNormal_Get(_What) {
-	Static Size = 2697, Name = "categoryElementsNormal.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_categoryElementsNormal(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3408,14 +3272,6 @@ Extract_categoryElementsNormal(_Filename, _DumpData = 0) {
 ; ##--------------------------------------------------------------------##
 ; #|        Embedded Assets: Category Button: Elements: Hover           |#
 ; ##--------------------------------------------------------------------##
-categoryElementsHover_Get(_What) {
-	Static Size = 2665, Name = "categoryElementsHover.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_categoryElementsHover(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3453,14 +3309,6 @@ Extract_categoryElementsHover(_Filename, _DumpData = 0) {
 ; ##--------------------------------------------------------------------##
 ; #|        Embedded Assets: Category Button: Elements: Active          |#
 ; ##--------------------------------------------------------------------##
-categoryElementsActive_Get(_What) {
-	Static Size = 2657, Name = "categoryElementsActive.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_categoryElementsActive(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3498,14 +3346,6 @@ Extract_categoryElementsActive(_Filename, _DumpData = 0) {
 ; ##--------------------------------------------------------------------##
 ; #|        Embedded Assets: Category Button: UI Colors: Normal         |#
 ; ##--------------------------------------------------------------------##
-categoryUIColorsNormal_Get(_What) {
-	Static Size = 2764, Name = "categoryUIColorsNormal.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_categoryUIColorsNormal(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3543,14 +3383,6 @@ Extract_categoryUIColorsNormal(_Filename, _DumpData = 0) {
 ; ##--------------------------------------------------------------------##
 ; #|        Embedded Assets: Category Button: UI Colors: Hover          |#
 ; ##--------------------------------------------------------------------##
-categoryUIColorsHover_Get(_What) {
-	Static Size = 2701, Name = "categoryUIColorsHover.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_categoryUIColorsHover(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3588,17 +3420,6 @@ Extract_categoryUIColorsHover(_Filename, _DumpData = 0) {
 ; ##--------------------------------------------------------------------##
 ; #|        Embedded Assets: Category Button: UI Colors: Active         |#
 ; ##--------------------------------------------------------------------##
-categoryUIColorsActive_Get(_What) {
-	Static Size = 2600
-        , Name = "categoryUIColorsActive.png"
-        , Extension = "png"
-        , Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	    , Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_categoryUIColorsActive(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3636,14 +3457,6 @@ Extract_categoryUIColorsActive(_Filename, _DumpData = 0) {
 ; ##--------------------------------------------------------##
 ; #|        Embedded Assets: Browse Button: Normal          |#
 ; ##--------------------------------------------------------##
-browseGameDirectoryNormal_Get(_What) {
-	Static Size = 3133, Name = "browseGameDirectoryNormal.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_browseGameDirectoryNormal(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3681,14 +3494,6 @@ Extract_browseGameDirectoryNormal(_Filename, _DumpData = 0) {
 ; ##--------------------------------------------------------##
 ; #|        Embedded Assets: Browse Button: Hover           |#
 ; ##--------------------------------------------------------##
-browseGameDirectoryHover_Get(_What) {
-	Static Size = 3074, Name = "browseGameDirectoryHover.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_browseGameDirectoryHover(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3726,14 +3531,6 @@ Extract_browseGameDirectoryHover(_Filename, _DumpData = 0) {
 ; ##----------------------------------------------------##
 ; #|		Embedded Assets: Apply Button: Normal		|#
 ; ##----------------------------------------------------##
-applyNormal_Get(_What) {
-	Static Size = 4382, Name = "applyNormal.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_applyNormal(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3771,14 +3568,6 @@ Extract_applyNormal(_Filename, _DumpData = 0) {
 ; ##----------------------------------------------------##
 ; #|		Embedded Assets: Apply Button: Hover		|#
 ; ##----------------------------------------------------##
-applyHover_Get(_What) {
-	Static Size = 4335, Name = "applyHover.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_applyHover(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3816,14 +3605,6 @@ Extract_applyHover(_Filename, _DumpData = 0) {
 ; ##--------------------------------------------------------##
 ; #|		Embedded Assets: Reset All Button: Normal		|#
 ; ##--------------------------------------------------------##
-resetAllNormal_Get(_What) {
-	Static Size = 3780, Name = "resetAllNormal.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_resetAllNormal(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3861,14 +3642,6 @@ Extract_resetAllNormal(_Filename, _DumpData = 0) {
 ; ##--------------------------------------------------------##
 ; #|		Embedded Assets: Reset All Button: Hover		|#
 ; ##--------------------------------------------------------##
-resetAllHover_Get(_What) {
-	Static Size = 3736, Name = "resetAllHover.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_resetAllHover(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3906,14 +3679,6 @@ Extract_resetAllHover(_Filename, _DumpData = 0) {
 ; ##------------------------------------------------------------##
 ; #|		Embedded Assets: Reset Gameplay Button: Normal		|#
 ; ##------------------------------------------------------------##
-resetGameplayNormal_Get(_What) {
-	Static Size = 6739, Name = "resetGameplayNormal.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_resetGameplayNormal(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3951,14 +3716,6 @@ Extract_resetGameplayNormal(_Filename, _DumpData = 0) {
 ; ##------------------------------------------------------------##
 ; #|		Embedded Assets: Reset Gameplay Button: Hover		|#
 ; ##------------------------------------------------------------##
-resetGameplayHover_Get(_What) {
-	Static Size = 6628, Name = "resetGameplayHover.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_resetGameplayHover(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -3996,14 +3753,6 @@ Extract_resetGameplayHover(_Filename, _DumpData = 0) {
 ; ##------------------------------------------------------------##
 ; #|		Embedded Assets: Reset UI Color Button: Normal		|#
 ; ##------------------------------------------------------------##
-resetUIColorNormal_Get(_What) {
-	Static Size = 5474, Name = "resetUIColorNormal.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_resetUIColorNormal(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -4041,14 +3790,6 @@ Extract_resetUIColorNormal(_Filename, _DumpData = 0) {
 ; ##------------------------------------------------------------##
 ; #|		Embedded Assets: Reset UI Color Button: Hover		|#
 ; ##------------------------------------------------------------##
-resetUIColorHover_Get(_What) {
-	Static Size = 5447, Name = "resetUIColorHover.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_resetUIColorHover(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -4086,14 +3827,6 @@ Extract_resetUIColorHover(_Filename, _DumpData = 0) {
 ; ##------------------------------------------------------------##
 ; #|		Embedded Assets: Sidebar Outline: With Text			|#
 ; ##------------------------------------------------------------##
-sidebarResetOutline_Get(_What) {
-	Static Size = 3086, Name = "sidebarResetOutline.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_sidebarResetOutline(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -4131,14 +3864,6 @@ Extract_sidebarResetOutline(_Filename, _DumpData = 0) {
 ; ##----------------------------------------##
 ; #|        Embedded Assets: Form BG        |#
 ; ##----------------------------------------##
-formBG_Get(_What) {
-	Static Size = 5220, Name = "formBG_450x450.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\image\original\Trans"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_formBG(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -4176,14 +3901,6 @@ Extract_formBG(_Filename, _DumpData = 0) {
 ; ##----------------------------------------##
 ; #|        Embedded Asset: HSB Image       |#
 ; ##----------------------------------------##
-hsbImg_Get(_What) {
-	Static Size = 82772, Name = "hsb.png", Extension = "png", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\lib\img"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_hsbImg(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -4227,14 +3944,6 @@ Extract_hsbImg(_Filename, _DumpData = 0) {
 ; ##------------------------------------------------##
 ; #|        Embedded Assets: Fonts: Debussy         |#
 ; ##------------------------------------------------##
-fontDebussy_Get(_What) {
-	Static Size = 75992, Name = "debussy.ttf", Extension = "ttf", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\font\debussy"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_fontDebussy(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
@@ -4278,14 +3987,6 @@ Extract_fontDebussy(_Filename, _DumpData = 0) {
 ; ##--------------------------------------------------------##
 ; #|        Embedded Assets: Fonts: Roboto-Regular          |#
 ; ##--------------------------------------------------------##
-fontRobotoRegular_Get(_What) {
-	Static Size = 171676, Name = "Roboto-Regular.ttf", Extension = "ttf", Directory = "D:\Users\Alex\Documents\Programming\AHK\SPLOOSH-Selector\assets\font\Roboto"
-	, Options = "Size,Name,Extension,Directory"
-	;This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.
-	If (InStr("," Options ",", "," _What ","))
-		Return %_What%
-}
-
 Extract_fontRobotoRegular(_Filename, _DumpData = 0) {
 	;This function "extracts" the file to the location+name you pass to it.
 	Static HasData = 1, Out_Data, Ptr, ExtractedData
