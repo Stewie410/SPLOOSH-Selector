@@ -663,7 +663,7 @@ ResetAll() {
     global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
     Gui, SideBar: Submit, NoHide                                ; Get vVar values without hiding GUI
-    if (resetSkin("gameplay") = 0)                              ; Reset Gameplay, if successful
+    if (resetSkin("gameplay"))                              ; Reset Gameplay, if successful
         resetSkin("uicolor")                                    ; Reset UIColor
 }
 
@@ -859,20 +859,8 @@ ColorPickerSubmitForm() {
     Gui, ColorPicker: Destroy                                   ; Close ColorPicker
     toggleParentWindow(1) 
 
-    if (var_picker_count = 1)
-        var_combo_color_1 := var_picker_selected_color
-    if (var_picker_count = 2)
-        var_combo_color_2 := var_picker_selected_color
-    if (var_picker_count = 3)
-        var_combo_color_3 := var_picker_selected_color
-    if (var_picker_count = 4)
-        var_combo_color_4 := var_picker_selected_color
-    if (var_picker_count = 5)
-        var_combo_color_5 := var_picker_selected_color
-    if (var_picker_count = 6)
-        var_slider_border_color := var_picker_selected_color
-    if (var_picker_count = 7)
-        var_slider_track_color := var_picker_selected_color
+    ; Update Selected Color Var
+    var_combo_color_%var_picker_count% := var_picker_selected_color
 
     ; Update BG Colors
     updateTreeViewBackground()
@@ -1923,7 +1911,7 @@ getDirectoryName(name, path) {
     Loop, Files, %path%\*, D                                    ; return only directories
     {
         if (RegExMatch(A_LoopFileName, "i)"name)) {             ; If skin name is found
-			if (RegExMatch(A_LoopFileName, "i)"name " " n_ver) != 0) {
+			if (RegExMatch(A_LoopFileName, "i)"name " " n_ver)) {
                 dir := A_LoopFileName                           ; Set return val to name
                 break                                           ; Break loop
 			}
@@ -2020,19 +2008,19 @@ applyForm() {
             }
 
             ; Verify Paths Exist
-            if (FileExist(src "\" d_opt1) = "") {
+            if !(FileExist(src "\" d_opt1)) {
                 modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                 return
             }
-            if (FileExist(src "\" d_opt2) = "") {
+            if !(FileExist(src "\" d_opt2)) {
                 modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "ElementForm")
                 return
             }
-            if (FileExist(src "\" d_opt3) = "") {
+            if !(FileExist(src "\" d_opt3)) {
                 modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt3, "ElementForm")
                 return
             }
-			if (FileExist(src "\" d_opt4) = "") {
+			if !(FileExist(src "\" d_opt4)) {
                 modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt4, "ElementForm")
                 return
 			}
@@ -2046,7 +2034,7 @@ applyForm() {
 			FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
 
 			; If SolidTrail enabled, Copy to Destination
-			if (d_opt4 != "")
+			if (d_opt4)
 				FileCopy, %src%\%d_opt4%\*.*, %dst%, 1
         } else if (etype = "hitburst") {
             local d_opt1 := ""                                  ; Directory of Option 1
@@ -2272,7 +2260,7 @@ applyForm() {
         for i, j in l_players {
             if (j.name = PlayerOptionName) {
                 d_opt1 := j.playersDir "\" j.dir
-                if (j.listNames != "") {
+                if (j.listNames) {
                     for k, l in j.getArray("listNames") {
                         if (l = PlayerOptionVersion) {
                             local arr := j.getArray("listDirs")
@@ -2289,7 +2277,7 @@ applyForm() {
             modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "PlayerForm")
             return
         }
-        if (d_opt2 != "" && FileExist(src "\" d_opt2)) {
+        if (d_opt2) && (FileExist(src "\" d_opt2)) {
             modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "PlayerForm")
             return
         }
@@ -2779,10 +2767,8 @@ Class Element {
         this.original := 0
 
         ; Check contents of o, and apply where applicable
-        if (o is integer) {
-            if (o >= 0 && o <= 1)
-                this.original := o
-        }
+        if (o is integer)
+            this.original := o ? 1 : 0
     }
 
     ; Methods
@@ -3018,8 +3004,7 @@ Class UIColor {
 
         ; Check contents of o
         if (o is integer) {
-            if (o >= 0 && o <= 1)
-                this.original := o
+            this.original := o ? 1 : 0
         }
     }
 
@@ -3073,7 +3058,7 @@ Class PlayerOptions Extends Player {
 
     ; Add an option to lists
     add(n, d) {
-        if (!this.listNames) && (!his.listDirs) {
+        if (!this.listNames) && (!this.listDirs) {
             this.listNames := n
             this.listDirs := d
         } else {
