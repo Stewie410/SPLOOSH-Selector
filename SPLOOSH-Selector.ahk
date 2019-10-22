@@ -1,6 +1,6 @@
 ; SPLOOSHSelector.ahk
 ; Author:       u/stewie410 <stewie410@gmail.com>
-; Date:         2019-10-18
+; Date:         2019-10-21
 ; Name:         SPLOOSH-Selector
 ; Description:  Sploosh Asset Selector for AutoHotKey
 
@@ -406,8 +406,8 @@ GuiElement() {
 
     ; Determine default choices
     def_cursor := getIndexOfSubstringInString(o_cursor, def_cursor, "|")
-    def_csmoke := def_cursor
-    def_ctrail := def_cursor
+    def_csmoke := getIndexOfSubstringInString(o_csmoke, def_csmoke, "|")
+    def_ctrail := getIndexOfSubstringInString(o_ctrail, def_ctrail, "|")
     def_hitburst := getIndexOfSubstringInString(o_hitburst, def_hitburst, "|")
     def_revarrow := getIndexOfSubstringInString(o_revarrow, def_revarrow, "|")
     def_sliderball := getIndexOfSubstringInString(o_sliderball, def_sliderball, "|")
@@ -713,7 +713,7 @@ ToggleCursorElementOptionTrailSolid() {
     local ctrl_enabled := 0                                     ; Placeholder for "is control enabled"
     local ctrl_state := CursorElementOptionTrailSolid           ; Placeholder for "is control checked"
     GuiControlGet, ctrl_enabled, Enabled, CursorElementOptionTrailSolid     ; Get whether control is enabled or disabled
-    if (ctrl_enabled = 1)                                       ; If Control is enabled
+    if (ctrl_enabled)                                       ; If Control is enabled
         GuiControl, ElementForm:, CursorElementOptionTrailSolid, % (ctrl_state = 1 ? 0 : 1)
 }
 
@@ -907,9 +907,9 @@ modalMsgBox(title := "", message := "", guiname := "") {
     global                                                      ; Set global Scope inside Function
 
     ; Handle invalid inputs
-    if (message = "")
+    if !(message)
         return
-    if (guiname)
+    if !(guiname)
         return
 
     ; Enable Modal Dialogs for provided GUI
@@ -1389,8 +1389,8 @@ InitEnv() {
 initCheckPath() {
     global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get vVar values without hiding GUI
-    if (getDirectoryName(n_skin, GameDirectory "\Skins") = "")
-        MsgBox,, %n_app%, WARNING: Please update Game Path before continuing!
+    if !(getDirectoryName(n_skin, GameDirectory "\Skins"))
+        modalMsgBox(n_app ": Game Directory", "WARNING: Please update Game Path before continuing!", "Parent")
 }
 
 ; Cleanup Environment
