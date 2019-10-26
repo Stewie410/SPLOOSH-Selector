@@ -1562,7 +1562,7 @@ defineSliderballs() {
     ; Add Sliderballs to list of Sliderball Objects
     l_sliderballs.push(new Sliderball("Single", "SINGLE", 0))
     l_sliderballs.push(new Sliderball("Double", "DOUBLE", 0))
-    l_sliderballs.push(new Sliderball("Side Bars", "SIDE BARS", 1))
+    l_sliderballs.push(new Sliderball("Default", "DEFAULT", 1))
 }
 
 ; Define ScorebarBG Objects
