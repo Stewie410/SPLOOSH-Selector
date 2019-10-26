@@ -2140,15 +2140,11 @@ applyForm() {
             StringLower, mtype, mtype                           ; Set mtype to lowercase
             if (mtype = "arrow") {
                 local d_opt1 := ""                              ; Directory of Option 1
-                local d_opt2 := ""                              ; Directory of Option 2
-                local d_main := ""                              ; Directory containing opt 1 & 2
 
                 ; Get Directories for options
                 for i, j in l_maniaarrows {
                     if (j.name = ManiaElementArrowOptionColor) {
-                        d_opt1 := j.arrowDir
-                        d_opt2 := j.dir
-                        d_main := j.maniaDir
+                        d_opt1 := j.maniaDir "\" j.arrowDir "\" j.dir
                     }
                 }
 
@@ -2157,70 +2153,45 @@ applyForm() {
                     modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                     return
                 }
-                if (!FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
-                    modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "ElementForm")
-                    return
-                }
 
-                ; Replace Path in Skin.ini file
-                updateManiaTypeSelection(d_opt1, dst "\skin.ini")
-                updateManiaColorSelection(d_opt2, dst "\skin.ini")
+                ; Copy ManiaArrows to Current Mania
+                FileCopyDir, %src%\%d_opt1%, %src%\%d_mania_current%\, 1
             } else if (mtype = "bar") {
                 local d_opt1 := ""                              ; Directory of Option 1
-                local d_opt2 := ""                              ; Directory of Option 2
-                local d_main := ""                              ; Directory containing opt 1 & 2
 
                 ; Get Directories for options
-                for i, j in l_maniaarrows {
+                for i, j in l_maniabars {
                     if (j.name = ManiaElementBarOptionColor) {
-                        d_opt1 := j.barDir
-                        d_opt2 := j.dir
-                        d_main := j.maniaDir
+                        d_opt1 := j.maniaDir "\" j.barDir "\" j.dir
                     }
                 }
 
                 ; Verify Paths Exist
-                if (!FileExist(src "\" d_opt1)) {
-                    MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_opt1%
+                if (!FileExist(src "\" d_main "\" d_opt1)) {
                     modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                     return
                 }
-                if (!FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
-                    MsgBox,,APPLY ERROR, Cannot locate path:`t%src%\%d_main%\%d_opt1%\%d_opt2%
-                    modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "ElementForm")
-                    return
-                }
 
-                ; Replace Path in Skin.ini file
-                updateManiaTypeSelection(d_opt1, dst "\skin.ini")
-                updateManiaColorSelection(d_opt2, dst "\skin.ini")
+                ; Copy ManiaArrows to Current Mania
+                FileCopyDir, %src%\%d_opt1%, %src%\%d_mania_current%\, 1
             } else if (mtype = "dot") {
                 local d_opt1 := ""                              ; Directory of Option 1
-                local d_opt2 := ""                              ; Directory of Option 2
-                local d_main := ""                              ; Directory containing opt 1 & 2
 
                 ; Get Directories for options
-                for i, j in l_maniaarrows {
+                for i, j in l_maniadots {
                     if (j.name = ManiaElementDotOptionColor) {
-                        d_opt1 := j.dotDir
-                        d_opt2 := j.dir
-                        d_main := j.maniaDir
+                        d_opt1 := j.maniaDir "\" j.dotDir "\" j.dir
                     }
                 }
 
                 ; Verify Paths Exist
-                if (!FileExist(src "\" d_opt1)) {
+                if (!FileExist(src "\" d_main "\" d_opt1)) {
                     modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
                     return
                 }
-                if (!FileExist(src "\" d_main "\" d_opt1 "\" d_opt2)) {
-                    modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "ElementForm")
-                    return
-                }
 
-                ; Replace Path in Skin.ini file
-                updateManiaTypeSelection(d_opt1, dst "\skin.ini")
-                updateManiaColorSelection(d_opt2, dst "\skin.ini")
+                ; Copy ManiaArrows to Current Mania
+                FileCopyDir, %src%\%d_opt1%, %src%\%d_mania_current%\, 1
             }
         }
     } else if (form = "uicolor") {
@@ -2606,66 +2577,6 @@ updateInstafadeCircles(insta) {
     ; Update Skin.ini file
     FileCopy, %ini_tmp%, %ini_og%, 1                            ; Replace original with temporary
     FileDelete, %ini_tmp%                                       ; Delete temporary 
-}
-
-; Update ManiaType Selection -- Args; $1: Directory Name; $2: Destination File Path
-updateManiaTypeSelection(keyword, f_dest) {
-    global                                                      ; Set scope to global
-
-    ; Handle invalid input
-    if (!FileExist(f_dest))
-        return
-
-    ; Define local variables
-    local f_temp := d_asset "\new_skin.ini"                     ; Temporary skin.ini file
-    StringUpper, keyword, keyword                               ; Set Keyword to Uppercase
-
-    ; Build Temporary Skin file, modifying the specified line(s)
-    Loop, Read, %f_dest%, %f_temp%
-    {
-        if (RegExMatch(A_LoopReadLine, "i)^KeyImage[0-9]+[dhlt]?:\s*")) {
-            local this_key := RegExReplace(A_LoopReadLine, "i)^([a-z]+[0-9][dhlt]?):\s+.*$", "$1")
-            local this_path := RegExReplace(A_LoopReadLine, "i)^.*:\s+((([a-z0-9_-]+\s?)+\\?)+)$", "$1")
-            this_path := RegExReplace(this_path, "i)arrows|bars|dots", keyword)
-            FileAppend, % this_key ": " this_path "`n"
-            continue
-        }
-        FileAppend, %A_LoopReadLine%`n
-    }
-    
-    ; Update SKin.ini file
-    FileCopy, %f_temp%, %f_dest%, 1                             ; Replace original with temporary
-    FileDelete, %f_temp%                                        ; Delete Temporary
-}
-
-; Update ManiaColor Selection -- Args; $1: Directory Name; $2: Destination File Path
-updateManiaColorSelection(keyword, f_dest) {
-    global                                                      ; Set scope to global
-
-    ; Handle invalid input
-    if (!FileExist(f_dest))
-        return
-
-    ; Define local variables
-    local f_temp := d_asset "\new_skin.ini"                     ; Temporary skin.ini file
-    StringUpper, keyword, keyword                               ; Set Keyword to Uppercase
-
-    ; Build Temporary Skin file, modifying the specified line(s)
-    Loop, Read, %f_dest%, %f_temp%
-    {
-        if (RegExMatch(A_LoopReadLine, "i)^KeyImage[0-9]+[dhlt]?:\s*")) {
-            local this_key := RegExReplace(A_LoopReadLine, "i)^([a-z]+[0-9][dhlt]?):\s+.*$", "$1")
-            local this_path := RegExReplace(A_LoopReadLine, "i)^.*:\s+((([a-z0-9_-]+\s?)+\\?)+)$", "$1")
-            this_path := RegExReplace(this_path "i)red|blue", keyword)
-            FileAppend, % this_key ": " this_path "`n"
-            continue
-        }
-        FileAppend, %A_LoopReadLine%`n
-    }
-    
-    ; Update SKin.ini file
-    FileCopy, %f_temp%, %f_dest%, 1                             ; Replace original with temporary
-    FileDelete, %f_temp%                                        ; Delete Temporary
 }
 
 ; Update Hitcircle Overlap value -- Args: $1: Overlap Value (integer)
