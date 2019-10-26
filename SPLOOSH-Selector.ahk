@@ -1880,7 +1880,7 @@ definePlayers() {
     l_players.push(po_whitecat)
     l_players.push(new PlayerOptions("WubWoofWolf", "WWW"))
     l_players.push(po_xilver)
-    l_players.psuh(new PlayerOptions("Yaong", "YAONG"))
+    l_players.push(new PlayerOptions("Yaong", "YAONG"))
 }
 
 
