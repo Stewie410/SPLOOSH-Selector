@@ -1546,7 +1546,7 @@ defineReverseArrows() {
     ; Add ReverseArrows to list of ReverseArrow Objects
     l_reversearrows.push(new ReverseArrow("Arrow", "ARROW", 0))
     l_reversearrows.push(new ReverseArrow("Half", "HALF", 0))
-    l_reversearrows.push(new ReverseArrow("Bar", "BAR", 1))
+    l_reversearrows.push(new ReverseArrow("Default", "DEFAULT", 1))
 }
 
 ; Define Sliderball Objects
