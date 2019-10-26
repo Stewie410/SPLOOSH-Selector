@@ -1443,6 +1443,7 @@ defineGlobals() {
     d_cursor_notrail := "Z NO CT"                          		; Directory containing ELements to disable Cursor Trails
     d_cursor_solidtrail := "Z CM"                     			; Directory containing Elements to enable a solid cursor trail
     d_uicolor_instafade := "SKIN.INI FOR INSTAFADE HITCIRCLE"   ; Directory containing Elements to enable instant-fade circles
+    d_mania_current := "CURRENT MANIA"
 
     ; Object Lists
     l_cursors := []                                             ; List of Cursors
@@ -1529,7 +1530,7 @@ defineHitbursts() {
     ; Add Hitbursts to list of Hitburst Objects
     l_hitbursts.push(new Hitburst("Numbers", "NUMBERS", 0))
     l_hitbursts.push(new Hitburst("Small Bars", "SMALLER BARS", 0))
-    l_hitbursts.push(new Hitburst("Bars", "BARS", 1))
+    l_hitbursts.push(new Hitburst("Default", "DEFAULT", 1))
 }
 
 ; Define ReverseArrow Objects
