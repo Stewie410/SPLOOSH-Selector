@@ -1763,6 +1763,12 @@ definePlayers() {
     po_dustice.add("No Outer Slider Circle", "-SLIDERCIRCLE")
 	po_dustice.require := 1
 
+    ; FlyingTuna
+    local po_flyingtuna := new PlayerOptions("FlyingTuna", "FLYINGTUNA")
+    po_flyingtuna.add("MathiTuna", "MATHITUNA")
+    po_flyingtuna.add("Selyu", "SELYU")
+    po_flyingtuna.require := 1
+
     ; idke
     local po_idke := new PlayerOptions("idke", "IDKE")
     po_idke.add("Without Slider Ends", "-SLIDERENDS")
@@ -1848,7 +1854,7 @@ definePlayers() {
     l_players.push(po_cookiezi)
     l_players.push(new PlayerOptions("Doomsday", "DOOMSDAY"))
     l_players.push(new PlayerOptions("Emilia", "EMILIA"))
-    l_players.push(new PlayerOptions("FlyingTuna", "FLYINGTUNA"))
+    l_players.push(po_flyingtuna)
     l_players.push(new PlayerOptions("Freddie Benson", "FREDDIE BENSON"))
     l_players.push(new PlayerOptions("FunOrange", "FUNORANGE"))
     l_players.push(new PlayerOptions("-GN", "GN"))
