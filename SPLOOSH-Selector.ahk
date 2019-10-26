@@ -2137,62 +2137,41 @@ applyForm() {
                 updateHitcircleOverlap()
         } else if (etype = "mania") {
             local mtype := ManiaElementOptionType               ; Get Mania Type
+            local d_opt1                                        ; Directory of Selected Mania Pack
+
+            ; Get Directories for Options
             StringLower, mtype, mtype                           ; Set mtype to lowercase
             if (mtype = "arrow") {
-                local d_opt1 := ""                              ; Directory of Option 1
-
-                ; Get Directories for options
                 for i, j in l_maniaarrows {
                     if (j.name = ManiaElementArrowOptionColor) {
                         d_opt1 := j.maniaDir "\" j.arrowDir "\" j.dir
                     }
                 }
-
-                ; Verify Paths Exist
-                if (!FileExist(src "\" d_main "\" d_opt1)) {
-                    modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
-                    return
-                }
-
-                ; Copy ManiaArrows to Current Mania
-                FileCopyDir, %src%\%d_opt1%, %src%\%d_mania_current%\, 1
             } else if (mtype = "bar") {
-                local d_opt1 := ""                              ; Directory of Option 1
-
-                ; Get Directories for options
                 for i, j in l_maniabars {
                     if (j.name = ManiaElementBarOptionColor) {
                         d_opt1 := j.maniaDir "\" j.barDir "\" j.dir
                     }
                 }
-
-                ; Verify Paths Exist
-                if (!FileExist(src "\" d_main "\" d_opt1)) {
-                    modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
-                    return
-                }
-
-                ; Copy ManiaArrows to Current Mania
-                FileCopyDir, %src%\%d_opt1%, %src%\%d_mania_current%\, 1
             } else if (mtype = "dot") {
-                local d_opt1 := ""                              ; Directory of Option 1
-
-                ; Get Directories for options
                 for i, j in l_maniadots {
                     if (j.name = ManiaElementDotOptionColor) {
                         d_opt1 := j.maniaDir "\" j.dotDir "\" j.dir
                     }
                 }
-
-                ; Verify Paths Exist
-                if (!FileExist(src "\" d_main "\" d_opt1)) {
-                    modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
-                    return
-                }
-
-                ; Copy ManiaArrows to Current Mania
-                FileCopyDir, %src%\%d_opt1%, %src%\%d_mania_current%\, 1
+            } else {
+                modalMsgBox(n_app ":`tApply Error", "Unrecognized Mania Type:`t" mtype)
+                return
             }
+
+            ; Verify Paths exist
+            if (!FileExist(src "\" d_opt1)) {
+                modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
+                return
+            }
+
+            ; Copy Mania<Type> to Current Mania
+            FileCopyDir, %src%\%d_opt1%, %src%\%d_mania_current%, 1
         }
     } else if (form = "uicolor") {
         local d_opt1 := ""                                      ; Directory of Option 1
