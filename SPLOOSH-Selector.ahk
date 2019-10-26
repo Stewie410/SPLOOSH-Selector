@@ -2235,7 +2235,7 @@ applyForm() {
             modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "PlayerForm")
             return
         }
-        if (d_opt2) && (FileExist(src "\" d_opt2)) {
+        if (d_opt2) && (!FileExist(src "\" d_opt2)) {
             modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt2, "PlayerForm")
             return
         }
