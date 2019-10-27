@@ -371,6 +371,7 @@ GuiElement() {
     local o_sliderball := getObjNamesAsString(l_sliderballs, "|")           ; Sliderball Options
     local o_scorebarbg := getObjNamesAsString(l_scorebarbgs, "|")           ; ScorebarBG Options
     local o_circlenumbers := getObjNamesAsString(l_circlenumbers, "|")      ; CircleNumber Options
+    local o_hitsounds := getObjNamesAsString(l_hitsounds, "|")              ; Hitsound Pack Options
     local o_mania_arrow_color := getObjNamesAsString(l_maniaarrows, "|")    ; ManiaArrow Color Options
     local o_mania_bar_color := getObjNamesAsString(l_maniabars, "|")        ; ManiaBar Color Options
     local o_mania_dot_color := getObjNamesAsString(l_maniadots, "|")        ; ManiaDot Color Options
@@ -383,6 +384,7 @@ GuiElement() {
     local def_sliderball := getDefaultObject(l_sliderballs)     ; Default Sliderball Selection
     local def_scorebarbg := getDefaultObject(l_scorebarbgs)     ; Default ScorebarBG Selection
     local def_circlenumber := getDefaultObject(l_circlenumbers) ; Default CircleNumber Selection
+    local def_hitsound := getDefaultObject(l_hitsounds)         ; Default Hitsound Pack Selection
     local def_mania := 1                                        ; Default Mania
     local def_mania_color := 1                                  ; Default mania Color 
     local formBG := d_asset "\formBG.png"                       ; Form Background
@@ -400,6 +402,7 @@ GuiElement() {
     Sort, o_sliderball, CL D|
     Sort, o_scorebarbg, CL D|
     Sort, o_circlenumbers, CL D|
+    Sort, o_hitsounds, CL D|
     Sort, o_mania_arrow_color, CL D|
     Sort, o_mania_bar_color, CL D|
     Sort, o_mania_dot_color, CL D|
@@ -413,6 +416,7 @@ GuiElement() {
     def_sliderball := getIndexOfSubstringInString(o_sliderball, def_sliderball, "|")
     def_scorebarbg := getIndexOfSubstringInString(o_scorebarbg, def_scorebarbg, "|")
     def_circlenumber := getIndexOfSubstringInString(o_circlenumbers, def_circlenumber, "|")
+    def_hitsound := getIndexOfSubstringInString(o_hitsounds, def_hitsound, "|")
 
     ; Add Background to GUI
     Gui, ElementForm: Add, Picture, % "x" x_bg " y" y_bg " w" w_bg " h" h_bg " +" SS_CENTERIMAGE, %formBG%
@@ -439,6 +443,7 @@ GuiElement() {
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_sliderball " +vSliderballElementOptionType +Hidden1", %o_sliderball%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_scorebarbg " +vScorebarBGElementOptionType +Hidden1", %o_scorebarbg%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_circlenumber " +vCircleNumberElementOptionType +Hidden1", %o_circlenumbers%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_hitsound " +vHitsoundElementOptionType +Hidden1", %o_hitsounds%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_mania " +gGetElementManiaType +vManiaElementOptionType +Hidden1", %o_mania%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[3] " w" w_ddl " +Choose" def_ctrail " +vCursorElementOptionTrail +gCheckCursorTrailSolidState", %o_ctrail%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[3] " w" w_ddl " +Choose1 +vManiaElementArrowOptionColor +Hidden1", %o_mania_arrow_color%
@@ -968,6 +973,7 @@ toggleElementForm(name, vis := 0) {
         GuiControl, %visCmd%, SliderballElementOptionType
         GuiControl, %visCmd%, ScorebarBGElementOptionType
         GuiControl, %visCmd%, CircleNumberElementOptionType
+        GuiControl, %visCmd%, HitsoundElementOptionType
         GuiControl, %visCmd%, ManiaElementOptionType
         GuiControl, %visCmd%, ManiaElementArrowOptionColor
         GuiControl, %visCmd%, ManiaELementBarOptionColor
@@ -998,6 +1004,9 @@ toggleElementForm(name, vis := 0) {
     } else if (name = "circle numbers") {
         GuiControl, %visCmd%, OtherElementOptionTypeText
         GuiControl, %visCmd%, CircleNumberElementOptionType
+    } else if (name = "hitsounds") {
+        GuiControl, %visCmd%, OtherElementOptionTypeText
+        GuiControl, %visCmd%, HitsoundElementOptionType
     } else if (name = "mania") {
         GuiControl, %visCmd%, OtherElementOptionTypeText
         GuiControl, %visCmd%, OtherElementOptionColorText
@@ -1320,6 +1329,7 @@ InitEnv() {
     defineSliderballs()
     defineScorebarBGs()
     defineCircleNumbers()
+    defineHitsounds()
     defineManiaArrows()
     defineManiaBars()
     defineManiaDots()
@@ -1455,6 +1465,7 @@ defineGlobals() {
     l_maniaarrows := []                                         ; list of ManiaArrows
     l_maniabars := []                                           ; List of ManiaBars
     l_maniadots := []                                           ; List of ManiaDots
+    l_hitsounds := []                                           ; List of Hitsounds
     l_uicolors := []                                            ; List of UI Colors
     l_players := []                                             ; List of Players
 
@@ -1465,7 +1476,7 @@ defineGlobals() {
     bg_debug_form := "93D7FF"                                   ; Distinct BG Color for Forms
 
     ; Non-Object-Based Menu Options
-    menu_element_types := "Cursor||Hitburst|Reverse Arrow|Sliderball|Scorebar BG|Circle Numbers|Mania"
+    menu_element_types := "Cursor||Hitburst|Hitsounds|Reverse Arrow|Sliderball|Scorebar BG|Circle Numbers|Mania"
     menu_mania_types := "Arrow|Bar|Dot"
 }
 
@@ -1569,8 +1580,8 @@ defineSliderballs() {
 defineScorebarBGs() {
     global                                                      ; Set global Scope inside Function
     /*
-        To define a new Sliderball, follow the following pattern:
-        ho_<type> := new Sliderball(name, dir, original)
+        To define a new ScorebarBG, follow the following pattern:
+        ho_<type> := new ScorebarBG(name, dir, original)
 
         See defineCursors() & defineGuiSections() for more information
     */
@@ -1585,8 +1596,8 @@ defineScorebarBGs() {
 defineCircleNumbers() {
     global                                                      ; Set global Scope inside Function
     /*
-        To define a new Sliderball, follow the following pattern:
-        ho_<type> := new Sliderball(name, dir, original)
+        To define a new Circle Number, follow the following pattern:
+        ho_<type> := new Circle Number(name, dir, original)
 
         See defineCursors() & defineGuiSections() for more information
     */
@@ -1595,6 +1606,32 @@ defineCircleNumbers() {
     l_circlenumbers.push(new CircleNumber("Default", "DEFAULT", 1))
     l_circlenumbers.push(new CircleNumber("Squared", "SQUARED", 0))
     l_circlenumbers.push(new CircleNumber("Dots", "DOTS", 0))
+}
+
+; Define Hitsound Pack Objects
+defineHitsounds() {
+    global                                                      ; Set global Scope inside Function
+    /*
+        To define a new Hitsound Pack, follow the following pattern:
+        ho_<type> := new Hitsound Pack(name, dir, original)
+
+        See defineCursors() & defineGuiSections() for more information
+    */
+
+    ; Add Hitsound Pack to list of Hitsound Pack Objects
+    l_hitsounds.push(new Hitsound("Clacks 1", "CLACKS 1", 0))
+    l_hitsounds.push(new Hitsound("Clacks 2", "CLACKS 2", 0))
+    l_hitsounds.push(new Hitsound("Default", "DEFAULT", 1))
+    l_hitsounds.push(new Hitsound("Hats", "HATS", 0))
+    l_hitsounds.push(new Hitsound("Kicks", "KICKS", 0))
+    l_hitsounds.push(new Hitsound("osu!", "OSU", 0))
+    l_hitsounds.push(new Hitsound("Pong", "PONG", 0))
+    l_hitsounds.push(new Hitsound("Pops", "POPS", 0))
+    l_hitsounds.push(new Hitsound("SDVX 1", "SDVX 1", 0))
+    l_hitsounds.push(new Hitsound("SDVX 2", "SDVX 2", 0))
+    l_hitsounds.push(new Hitsound("Slim", "SLIM", 0))
+    l_hitsounds.push(new Hitsound("Ticks", "TICKS", 0))
+    l_hitsounds.push(new Hitsound("Wood", "WOOD", 0))
 }
 
 ; Define ManiaArrow Objects
@@ -2136,6 +2173,23 @@ applyForm() {
                 updateHitcircleOverlap(48)
             else
                 updateHitcircleOverlap()
+        } else if (etype = "hitsounds") {
+            local d_opt1 := ""                                  ; Directory of Option 1
+
+            ; Get Directories for Options
+            for i, j in l_hitsounds {
+                if (j.name = HitsoundElementOptionType)
+                    d_opt1 := j.elementsDir "\" j.hitsoundDir "\" j.dir
+            }
+
+            ; Verify Paths Exist
+            if (!FileExist(src "\" d_opt1)) {
+                modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
+                return
+            }
+
+            ; Copy Hitsound Pack Files to Destination
+            FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
         } else if (etype = "mania") {
             local mtype := ManiaElementOptionType               ; Get Mania Type
             local d_opt1                                        ; Directory of Selected Mania Pack
@@ -2792,6 +2846,25 @@ Class CircleNumber Extends Element {
     ; Constructor
     __new(n, d, o) {
         base.__new("numbers", circleNumberDir, o)
+        this.name := n
+        this.dir := d
+    }
+}
+
+; ##--------------------------------------------##
+; #|        Class: Element: Hitsound Pack       |#
+; ##--------------------------------------------##
+Class Hitsound Extends Element {
+    ; Instance Variables
+    name :=                                                     ; String: Hitsound Pack Name (type)
+    dir :=                                                      ; String: Name of the Hitsound Pack's Directory
+
+    ; Static Variables
+    Static hitsoundDir := "HITSOUNDS"                           ; Name of the Hitsound Packs Directory
+
+    ; Constructor
+    __new(n, d, o) {
+        base.__new("hitsound", hitsoundDir, o)
         this.name := n
         this.dir := d
     }
