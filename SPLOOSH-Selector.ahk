@@ -817,7 +817,7 @@ GetPlayerOptionVersion() {
     global                                                      ; Set global Scope inside Function
     Gui, PlayerForm: Submit, NoHide                             ; Get +vVar values without hiding GUI
     togglePlayerForm("ALL")                                     ; Hide all PlayerForm options
-    togglePlayerForm(PlayerOptionName, 1)                       ; Display PlayerOptions, if any
+    togglePlayerForm(PlayerOptionName, 1)                       ; Display Player, if any
 }
 
 ; ColorPicker --> Select Color from Palette
@@ -1694,7 +1694,7 @@ definePlayers() {
     global                                                      ; Set global Scope inside Function
     /*
         To define a new player with additional options, follow this pattern:
-            local po_<name> := new PlayerOptions("<Player Name>", "<Player Directory Name")
+            local po_<name> := new Player("<Player Name>", "<Player Directory Name")
             po_<name>.add("<Option1 Name>", "<Option1 Directory Name>")
             po_<name>.add("<Option2 Name>", "<Option2 Directory Name>")
             po_<name>.require := 1
@@ -1702,33 +1702,33 @@ definePlayers() {
         For Players without additional skin options, please see below
     */
 
-    ; Add Mandatory Options to PlayerOptions Objects
+    ; Add Mandatory Options to Player Objects
     ; Abyssal
-    local po_abyssal := new PlayerOptions("Abyssal", "ABYSSAL")
+    local po_abyssal := new Player("Abyssal", "ABYSSAL")
     po_abyssal.add("Purple & Pink Combo", "PINK+PURPLE")
     po_abyssal.add("Blue & Red Combo", "BLUE+RED COMBO VER")
 	po_abyssal.require := 1
 
     ; Axarious
-    local po_axarious := new PlayerOptions("Axarious", "AXARIOUS")
+    local po_axarious := new Player("Axarious", "AXARIOUS")
     po_axarious.add("Without Slider Ends", "-SLIDERENDS")
     po_axarious.add("With Slider Ends", "+SLIDERENDS")
 	po_axarious.require := 1
 
     ; Azer
-    local po_azer := new PlayerOptions("Azer", "AZER")
+    local po_azer := new Player("Azer", "AZER")
     po_azer.add("2017", "2017")
     po_azer.add("2018", "2018")
     po_azer.require := 1
 
     ; azr8 & GayzMcGee
-    local po_azr8 := new PlayerOptions("azr8 + GayzMcGee", "AZR8 + MCGEE")
+    local po_azr8 := new Player("azr8 + GayzMcGee", "AZR8 + MCGEE")
     po_azr8.add("Fire", "FIRE")
     po_azr8.add("ICE", "ICE")
 	po_azr8.require := 1
 
     ; BeastrollMC (YungLing)
-    local po_beasttrollmc := new PlayerOptions("BeasttrollMC", "BEASTTROLLMC")
+    local po_beasttrollmc := new Player("BeasttrollMC", "BEASTTROLLMC")
     po_beasttrollmc.add("v1.3", "V1.3")
     po_beasttrollmc.add("v3", "V3")
     po_beasttrollmc.add("v4", "V4")
@@ -1737,19 +1737,19 @@ definePlayers() {
     po_beasttrollmc.require := 1
 
     ; bikko
-    local po_bikko := new PlayerOptions("Bikko", "BIKKO")
+    local po_bikko := new Player("Bikko", "BIKKO")
     po_bikko.add("Without Slider Ends", "-SLIDERENDS")
     po_bikko.add("With Slider Ends", "+SLIDERENDS")
 	po_bikko.require := 1
 
     ; Comfort
-    local po_comfort := new PlayerOptions("Comfort", "COMFORT")
+    local po_comfort := new Player("Comfort", "COMFORT")
     po_comfort.add("Standard", "STANDARD")
     po_comfort.add("Nautz", "NAUTZ")
 	po_comfort.require := 1
 
     ; Cookiezi (chocomint)
-    local po_cookiezi := new PlayerOptions("Cookiezi", "COOKIEZI")
+    local po_cookiezi := new Player("Cookiezi", "COOKIEZI")
     po_cookiezi.add("Burakku Shippu", "BURAKKU SHIPU")
     po_cookiezi.add("nathan on osu", "NATHAN ON OSU")
     po_cookiezi.add("Panimi", "PANIMI")
@@ -1758,69 +1758,69 @@ definePlayers() {
     po_cookiezi.require := 1
 
     ; Dustice
-    local po_dustice := new PlayerOptions("Dustice", "DUSTICE")
+    local po_dustice := new Player("Dustice", "DUSTICE")
     po_dustice.add("Outer Slider Circle", "+SLIDERCIRCLE")
     po_dustice.add("No Outer Slider Circle", "-SLIDERCIRCLE")
 	po_dustice.require := 1
 
     ; FlyingTuna
-    local po_flyingtuna := new PlayerOptions("FlyingTuna", "FLYINGTUNA")
+    local po_flyingtuna := new Player("FlyingTuna", "FLYINGTUNA")
     po_flyingtuna.add("MathiTuna", "MATHITUNA")
     po_flyingtuna.add("Selyu", "SELYU")
     po_flyingtuna.require := 1
 
     ; idke
-    local po_idke := new PlayerOptions("idke", "IDKE")
+    local po_idke := new Player("idke", "IDKE")
     po_idke.add("Without Slider Ends", "-SLIDERENDS")
     po_idke.add("With Slider Ends", "+SLIDERENDS")
 	po_idke.require := 1
 
     ; Mathi
-    local po_mathi := new PlayerOptions("Mathi", "MATHI")
+    local po_mathi := new Player("Mathi", "MATHI")
     po_mathi.add("Flat Hitcircle", "-SHADER")
     po_mathi.add("Shaded Hitcircle", "+SHADER")
 	po_mathi.require := 1
 
     ; Rafis
-    local po_rafis := new PlayerOptions("Rafis", "RAFIS")
+    local po_rafis := new Player("Rafis", "RAFIS")
     po_rafis.add("Blue", "BLUE")
     po_rafis.add("White", "WHITE")
     po_rafis.add("Yellow", "YELLOW")
     po_rafis.require := 1
 
     ; Rohulk
-    local po_rohulk := new PlayerOptions("Rohulk", "ROHULK")
+    local po_rohulk := new Player("Rohulk", "ROHULK")
     po_rohulk.add("Flat Approach Circle", "-GAMMA")
     po_rohulk.add("Gamma Approach Circle", "+GAMMA")
 	po_rohulk.require := 1
 
 
     ; rustbell
-    local po_rustbell := new PlayerOptions("Rustbell", "RUSTBELL")
+    local po_rustbell := new Player("Rustbell", "RUSTBELL")
     po_rustbell.add("Without Hit-300 Explosions", "-EXPLOSIONS")
     po_rustbell.add("With Hit-300 Explosions", "+EXPLOSIONS")
 	po_rustbell.require := 1
 
     ; talala
-    local po_talala := new PlayerOptions("talala", "TALALA")
+    local po_talala := new Player("talala", "TALALA")
     po_talala.add("White Numbers", "WHITE NUMBERS")
     po_talala.add("Cyan Numbers", "CYAN NUMBERS")
 	po_talala.require := 1
 
     ; Vaxei
-    local po_vaxei := new PlayerOptions("Vaxei", "VAXEI")
+    local po_vaxei := new Player("Vaxei", "VAXEI")
     po_vaxei.add("Blue Slider Border", "BLUE SLIDER")
     po_vaxei.add("Red Slider Border", "RED SLIDER")
 	po_vaxei.require := 1
 
     ; WhiteCat
-    local po_whitecat := new PlayerOptions("WhiteCat", "WHITECAT")
+    local po_whitecat := new Player("WhiteCat", "WHITECAT")
     po_whitecat.add("DT", "DT")
     po_whitecat.add("No Mod", "NOMOD")
     po_whitecat.require := 1
 
     ; Xilver & Recia
-    local po_xilver := new PlayerOptions("Xilver X Recia", "XILVER X RECIA")
+    local po_xilver := new Player("Xilver X Recia", "XILVER X RECIA")
     po_xilver.add("Orange & Dots", "ORANGE DOT")
     po_xilver.add("Blue & Plus", "BLUE CROSS")
 	po_xilver.require := 1
@@ -1833,54 +1833,55 @@ definePlayers() {
         adding a new player to the list.
 
         To Add players without any additional options, simply follow the pattern:
-            l_players.push(new PlayerOptions("<Player Name>", "<Player Directory Name>"))
+            l_players.push(new Player("<Player Name>", "<Player Directory Name>"))
 
         To Add players WITH options, simply follow the pattern:
             l_players.push(po_<name>)
     */
 
     ; Add Players to list of Player Objects
-    l_players.push(new PlayerOptions("404AimNotFound", "404ANF"))
+    l_players.push(new Player("404AimNotFound", "404ANF"))
     l_players.push(po_abyssal)
-    l_players.push(new PlayerOptions("Angelsim", "ANGELSIM"))
+    l_players.push(new Player("Angelsim", "ANGELSIM"))
     l_players.push(po_axarious)
     l_players.push(po_azer)
     l_players.push(po_azr8)
-    l_players.push(new PlayerOptions("badeu", "BADEU"))
+    l_players.push(new Player("badeu", "BADEU"))
     l_players.push(po_beasttrollmc)
     l_players.push(po_bikko)
-    l_players.push(new PlayerOptions("Bubbleman", "BUBBLEMAN"))
+    l_players.push(new Player("Bubbleman", "BUBBLEMAN"))
     l_players.push(po_comfort)
     l_players.push(po_cookiezi)
-    l_players.push(new PlayerOptions("Doomsday", "DOOMSDAY"))
-    l_players.push(new PlayerOptions("Emilia", "EMILIA"))
+    l_players.push(new Player("Doomsday", "DOOMSDAY"))
+    l_players.push(po_dustice)
+    l_players.push(new Player("Emilia", "EMILIA"))
     l_players.push(po_flyingtuna)
-    l_players.push(new PlayerOptions("Freddie Benson", "FREDDIE BENSON"))
-    l_players.push(new PlayerOptions("FunOrange", "FUNORANGE"))
-    l_players.push(new PlayerOptions("-GN", "GN"))
-    l_players.push(new PlayerOptions("hvick225", "HVICK225"))
+    l_players.push(new Player("Freddie Benson", "FREDDIE BENSON"))
+    l_players.push(new Player("FunOrange", "FUNORANGE"))
+    l_players.push(new Player("-GN", "GN"))
+    l_players.push(new Player("hvick225", "HVICK225"))
     l_players.push(po_idke)
-    l_players.push(new PlayerOptions("Informous", "INFORMOUS"))
-    l_players.push(new PlayerOptions("Karthy", "KARTHY"))
+    l_players.push(new Player("Informous", "INFORMOUS"))
+    l_players.push(new Player("Karthy", "KARTHY"))
     l_players.push(po_mathi)
-    l_players.push(new PlayerOptions("Monko2k", "MONKO2K"))
+    l_players.push(new Player("Monko2k", "MONKO2K"))
     l_players.push(po_rafis)
     l_players.push(po_rohulk)
-    l_players.push(new PlayerOptions("rrtyui", "RRTYUI"))
+    l_players.push(new Player("rrtyui", "RRTYUI"))
     l_players.push(po_rustbell)
-    l_players.push(new PlayerOptions("RyuK", "RYUK"))
-    l_players.push(new PlayerOptions("Seysant", "SEYSANT"))
-    l_players.push(new PlayerOptions("Sotarks", "SOTARKS"))
-    l_players.push(new PlayerOptions("Sweden", "SWEDEN"))
+    l_players.push(new Player("RyuK", "RYUK"))
+    l_players.push(new Player("Seysant", "SEYSANT"))
+    l_players.push(new Player("Sotarks", "SOTARKS"))
+    l_players.push(new Player("Sweden", "SWEDEN"))
     l_players.push(po_talala)
-    l_players.push(new PlayerOptions("Toy", "TOY"))
-    l_players.push(new PlayerOptions("Tranquil-ity", "TRANQUIL-ITY"))
-    l_players.push(new PlayerOptions("Varvalian", "VARVALIAN"))
+    l_players.push(new Player("Toy", "TOY"))
+    l_players.push(new Player("Tranquil-ity", "TRANQUIL-ITY"))
+    l_players.push(new Player("Varvalian", "VARVALIAN"))
     l_players.push(po_vaxei)
     l_players.push(po_whitecat)
-    l_players.push(new PlayerOptions("WubWoofWolf", "WWW"))
+    l_players.push(new Player("WubWoofWolf", "WWW"))
     l_players.push(po_xilver)
-    l_players.push(new PlayerOptions("Yaong", "YAONG"))
+    l_players.push(new Player("Yaong", "YAONG"))
 }
 
 
@@ -2212,7 +2213,6 @@ applyForm() {
     } else if (form = "player") {
         local d_opt1 := ""                                      ; Directory of Option 1
         local d_opt2 := ""                                      ; Directory of Option 2
-        local b_opt2 := ""                                      ; Boolean of Option 2 (required)
 
         ; Get Directories for Options
         for i, j in l_players {
@@ -2222,13 +2222,14 @@ applyForm() {
                     for k, l in j.getArray("listNames") {
                         if (l = PlayerOptionVersion) {
                             local arr := j.getArray("listDirs")
-							d_opt2 := d_opt1 "\" arr[k]
+                            d_opt2 := d_opt1 "\" arr[k]
+                            arr := ""
                         }
                     }
-                    b_opt2 := j.require
                 }
             }
         }
+
 
         ; Verify Paths Exist
         if (!FileExist(src "\" d_opt1)) {
@@ -2244,6 +2245,11 @@ applyForm() {
         resetSkin("gameplay")
 
         ; If option is defined && required
+        if (d_opt2)
+            FileCopy, %src%\%d_opt2%\*.*, %dst%, 1
+        else
+            FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
+        /*
         if (!d_opt2) {
             if (!b_opt2)
                 FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
@@ -2251,6 +2257,7 @@ applyForm() {
         } else {
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
         }
+        */
 
         ; Remove Files if necessary
         if (PlayerOptionName = "Bikko") {
@@ -2920,6 +2927,9 @@ Class Player {
     ; Instance Variables
     name :=                                                     ; String: Name of the Player
     dir :=                                                      ; String: Name of the Player's Directory
+    listNames :=                                                ; Name of Options
+    listDirs :=                                                 ; Directory Names of Options
+    require :=                                                  ; Integer: 1/0 (T/F) are options required to select skin?
 
     ; Static Variables
     Static playersDir := "PLAYER PACKS"                         ; Name of the Player Packs Directory
@@ -2928,23 +2938,8 @@ Class Player {
     __new(n, d) {
         this.name := n
         this.dir := d
-    }
-}
-
-; ##------------------------------------##
-; #|        Class: Player: Options      |#
-; ##------------------------------------##
-Class PlayerOptions Extends Player {
-    ; Instance Variables
-    listNames :=                                                ; Name of Options
-    listDirs :=                                                 ; Directory Names of Options
-    require :=                                                  ; Integer: 1/0 (T/F) are options required to select skin?
-
-    ; Constructor
-    __new(n :="" , d := "") {
-        base.__new(n, d)
-        this.listNames := ""
-        this.listDirs := ""
+        this.listNames :=
+        this.listDirs :=
         this.require := 0
     }
 
@@ -2960,8 +2955,8 @@ Class PlayerOptions Extends Player {
             this.listNames := n
             this.listDirs := d
         } else {
-            this.listNames := this.listNames "," n
-            this.listDirs := this.listDirs "," d
+            this.listNames .= "," n
+            this.listDirs .= "," d
         }
     }
 
