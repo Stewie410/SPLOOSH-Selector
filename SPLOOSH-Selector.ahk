@@ -2249,15 +2249,6 @@ applyForm() {
             FileCopy, %src%\%d_opt2%\*.*, %dst%, 1
         else
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
-        /*
-        if (!d_opt2) {
-            if (!b_opt2)
-                FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
-            FileCopy, %src%\%d_opt2%\*.*, %dst%, 1
-        } else {
-            FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
-        }
-        */
 
         ; Remove Files if necessary
         if (PlayerOptionName = "Bikko") {
