@@ -751,7 +751,6 @@ ToggleUIColorOptionComboCount() {
     global                                                      ; Set global Scope inside Function
     Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
     updateComboColorVisibility(UIColorComboColorCount - 1)      ; Update Visibility
-    ;<%%>
 }
 
 ; UIColorForm --> Toggle UIColorOptionSaveIni state (workaround)
@@ -2531,7 +2530,7 @@ getSliderborderColor(path) {
 
     ; Handle path = "none" --> get current Skin.ini
     local lpath
-    StringLower, lath, path
+    StringLower, lpath, path
     if (lpath = "none")
         ini_og := src_path "\" skin_dir "\skin.ini"             ; Get current skin path
 
