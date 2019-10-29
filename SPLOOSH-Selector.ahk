@@ -202,19 +202,22 @@ GuiSideBar() {
 
     ; Define Local Variables for sizing and placement
 	local cx_items := 1											; Number of items per row
-	local cy_items := 4											; Number of items per column
+	local cy_items := 4										    ; Number of items per column
 	local gx_items := 1											; Number of items per row in "group"
-	local gy_items := 3											; Number of items per column in "group"
+	local gy_items := 5											; Number of items per column in "group"
 	local w_outline := 140										; reset outline width
 	local w_button := 110										; button width
-	local w_gbutton := w_button - (px_sidebar * 1)				; button width inside "group"
+    local w_sbutton := w_button - (px_sidebar * 1)              ; button width of submit button
+	local w_gbutton := w_button - (px_sidebar * 3)				; button width inside "group"
 	local h_outline := 400										; reset outline height
 	local h_button := 110										; button height
-	local h_gbutton := h_button - (py_sidebar * 1)				; button height inside "group"
+    local h_sbutton := h_button - (py_sidebar * 1)              ; button height of submit button
+	local h_gbutton := h_button - (py_sidebar * 3)				; button height inside "group"
 	local a_x := buildPosArray(cy_items, cx_items, 0, w_sidebar, px_sidebar, 1)     ; x positions
 	local a_y := buildPosArray(cy_items, cy_items, 0, h_sidebar, py_sidebar, 1, 1)  ; y positions
 	local g_x := []												; x positions inside "group"
 	local g_y := []												; y positions inside "group"
+    local x_sbutton := (w_sidebar - w_outline) + (px_sidebar * 1.5) ; x position of submit button
 	local resetOutline := d_asset "\sidebarResetOutline.png"		; ResetOutline image
 	local applyNormal := d_asset "\applyNormal.png"					; ApplyNormal image
 	local resetAllNormal := d_asset "\resetAllNormal.png"			; ResetAllNormal image
@@ -228,20 +231,22 @@ GuiSideBar() {
 	; Get g[xy] positions
 	Loop, %gy_items%
 	{
-		g_x.push(((w_sidebar - w_outline) * A_Index) + (px_sidebar * 1.5))
-		g_y.push(((h_outline / gy_items) * A_Index) + (py_sidebar * ((7 - A_Index) - A_Index)))
+		g_x.push(((w_sidebar - w_outline) * A_Index) + (px_sidebar * 2.5))
+		;g_y.push(((h_outline / gy_items) * A_Index) + (py_sidebar * ((6.5 - A_Index) - A_Index)))
+        g_y.push((((h_outline + (py_sidebar * 2)) / gy_items) * A_Index) + (py_sidebar * 1))
 	}
 
     ; Add Images to the GUI
-	Gui, SideBar: Add, Picture, % "x" g_x[1] " y" a_y[1] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +gSubmitForm +HWNDhSidebarApplyNormal", %applyNormal%
-	Gui, SideBar: Add, Picture, % "x" g_x[1] " y" a_y[1] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +HWNDhSidebarApplyHover +Hidden1", %applyHover%
+	Gui, SideBar: Add, Picture, % "x" x_sbutton " y" a_y[1] " w" w_sbutton " h" h_sbutton " +" SS_CENTERIMAGE " +gSubmitForm +HWNDhSidebarApplyNormal", %applyNormal%
+	Gui, SideBar: Add, Picture, % "x" x_sbutton " y" a_y[1] " w" w_sbutton " h" h_sbutton " +" SS_CENTERIMAGE " +HWNDhSidebarApplyHover +Hidden1", %applyHover%
 	Gui, Sidebar: Add, Picture, % "x" a_x[1] " y" a_y[2] " w" w_outline " h" h_outline " +" SS_CENTERIMAGE, %resetOutline%
-	Gui, Sidebar: Add, Picture, % "x" g_x[1] " y" g_y[1] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +gResetAll +HWNDhSidebarResetAllNormal", %resetAllNormal%
-	Gui, Sidebar: Add, Picture, % "x" g_x[1] " y" g_y[1] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +gResetAll +HWNDhSidebarResetAllHover +Hidden1", %resetAllHover%
-	Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[2] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +gResetGameplay +HWNDhSidebarResetGameplayNormal", %resetGameplayNormal%
-	Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[2] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +HWNDhSidebarResetGameplayHover +Hidden1", %resetGameplayHover%
-	Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[3] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +gResetUIColor +HWNDhSidebarResetUIColorNormal", %resetUIColorNormal%
-	Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[3] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +HWNDhSidebarResetUIColorHover +Hidden1", %resetUIColorHover%
+	Gui, Sidebar: Add, Picture, % "x" g_x[1] " y" g_y[2] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +gResetAll +HWNDhSidebarResetAllNormal", %resetAllNormal%
+	Gui, Sidebar: Add, Picture, % "x" g_x[1] " y" g_y[2] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +gResetAll +HWNDhSidebarResetAllHover +Hidden1", %resetAllHover%
+	Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[3] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +gResetGameplay +HWNDhSidebarResetGameplayNormal", %resetGameplayNormal%
+	Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[3] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +HWNDhSidebarResetGameplayHover +Hidden1", %resetGameplayHover%
+	Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[4] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +gResetUIColor +HWNDhSidebarResetUIColorNormal", %resetUIColorNormal%
+	Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[4] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +HWNDhSidebarResetUIColorHover +Hidden1", %resetUIColorHover%
+    Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[5] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE, %resetUIColorNormal%
 }
 
 ; ##----------------------------##
@@ -317,27 +322,28 @@ GuiUIColor() {
     Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[11] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", Skin.ini:
 
 	; Add CheckBox to GUI
-    Gui, UIColorForm: Add, CheckBox, % "x" a_x[2] " y" (a_y[2] + 3) " w15 h15 -Wrap +vUIColorOptionInstafade"
+    Gui, UIColorForm: Add, CheckBox, % "x" a_x[2] " y" (a_y[2] + 3) " w15 h15 -Wrap +vUIColorOptionInstafade +gToggleUIColorOptionInstafade"
     Gui, UIColorForm: Add, Text, % "x" (a_x[2] + 20) " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vUIColorOptionInstafadeText +gToggleUIColorOptionInstafade", Enable
 
-    Gui, UIColorForm: Add, CheckBox, % "x" a_x[2] " y" (a_y[10] + 3) " w15 h15 -Wrap +vUIColorOptionSaveIni"
-    Gui, UIColorForm: Add, Text, % "x" (a_x[2] + 20) " y" a_y[10] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vUIColorOptionSaveIniText +gToggleUIColorOptionSaveIni", Overwrite
+    Gui, UIColorForm: Add, CheckBox, % "x" a_x[2] " y" (a_y[11] + 3) " w15 h15 -Wrap +vUIColorOptionSaveIni +gToggleUIColorOptionSaveIniCheckbox"
+    Gui, UIColorForm: Add, Text, % "x" (a_x[2] + 20) " y" a_y[11] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vUIColorOptionSaveIniText +gToggleUIColorOptionSaveIni", Overwrite
 
     ; Add controls to GUI
     Gui, UIColorForm: Font, s%fs_input% c%fg_input%, %ff_input% ; Font for Edit Box
     Gui, UIColorForm: Add, DropDownList, % "x" a_x[2] " y" a_y[1] " w" w_ddl " +Choose" def_color " +vUIColorOptionColor +gGetUIColorComboSliderColors", %o_color%
-    Gui, UIColorForm: Add, Edit, % "x" a_x[2] " y" a_y[3] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vUIColorComboColorCount +BackgroundFFFFFF"
+    Gui, UIColorForm: Add, Edit, % "x" a_x[2] " y" a_y[3] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vUIColorComboColorCount +gToggleUIColorOptionComboCount +BackgroundFFFFFF"
     Gui, UIColorForm: Add, UpDown, % "+Range" lo_count "-" hi_count, 1
     Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[4] " w" w_tree " h" h_tree " +Background" def_combo1 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor1 +gChangeComboColorFirst +AltSubmit"
-    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[5] " w" w_tree " h" h_tree " +Background" def_combo2 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor2 +gChangeComboColorSecond +AltSubmit"
-    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[6] " w" w_tree " h" h_tree " +Background" def_combo3 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor3 +gChangeComboColorThird +AltSubmit"
-    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[7] " w" w_tree " h" h_tree " +Background" def_combo4 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor4 +gChangeComboColorFourth +AltSubmit"
-    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[8] " w" w_tree " h" h_tree " +Background" def_combo5 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor5 +gChangeComboColorFifth +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[5] " w" w_tree " h" h_tree " +Background" def_combo2 " +" SS_CENTERIMAGE " +ReadOnly +Hidden1 +vUIColorComboColor2 +gChangeComboColorSecond +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[6] " w" w_tree " h" h_tree " +Background" def_combo3 " +" SS_CENTERIMAGE " +ReadOnly +Hidden1 +vUIColorComboColor3 +gChangeComboColorThird +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[7] " w" w_tree " h" h_tree " +Background" def_combo4 " +" SS_CENTERIMAGE " +ReadOnly +Hidden1 +vUIColorComboColor4 +gChangeComboColorFourth +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[8] " w" w_tree " h" h_tree " +Background" def_combo5 " +" SS_CENTERIMAGE " +ReadOnly +Hidden1 +vUIColorComboColor5 +gChangeComboColorFifth +AltSubmit"
     Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[9] " w" w_tree " h" h_tree " +Background" def_slborder " +" SS_CENTERIMAGE " +ReadOnly +vUIColorSliderborderColor +gChangeSliderborderColor +AltSubmit"
     Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[10] " w" w_tree " h" h_tree " +Background" def_sltrack " +" SS_CENTERIMAGE " +ReadOnly +vUIColorSlidertrackColor +gChangeSlidertrackColor +AltSubmit"
 
     ; Check UIColor Skin.ini Overwrite checkbox
     ToggleUIColorOptionSaveIni()
+    ToggleUIColorOptionComboCount()
 }
 
 ; ##-----------------------------##
@@ -726,11 +732,10 @@ CheckCursorTrailSolidState() {
 ToggleCursorElementOptionTrailSolid() {
     global                                                      ; Set global Scope inside Function
     Gui, ElementForm: Submit, NoHide                            ; Get +vVar values without hiding GUI
-    local ctrl_enabled := 0                                     ; Placeholder for "is control enabled"
-    local ctrl_state := CursorElementOptionTrailSolid           ; Placeholder for "is control checked"
+    local ctrl_enabled                                          ; Placeholder for "is control enabled"
     GuiControlGet, ctrl_enabled, Enabled, CursorElementOptionTrailSolid     ; Get whether control is enabled or disabled
-    if (ctrl_enabled)                                       ; If Control is enabled
-        GuiControl, ElementForm:, CursorElementOptionTrailSolid, % (ctrl_state = 1 ? 0 : 1)
+    if (ctrl_enabled)                                           ; If Control is enabled
+        GuiControl, ElementForm:, CursorElementOptionTrailSolid, % (!CursorElementOptionTrailSolid)
 }
 
 ; UIColorForm --> Toggle UIColorOptionInstafade state (workaround)
@@ -741,14 +746,29 @@ ToggleUIColorOptionInstafade() {
     GuiControl, UIColorForm:, UIColorOptionInstafade, % (ctrl_state = 1 ? 0 : 1)
 }
 
+; UIColorFomr --> Toggle ComboColor[x] & Labels based on requested combo count
+ToggleUIColorOptionComboCount() {
+    global                                                      ; Set global Scope inside Function
+    Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
+    updateComboColorVisibility(UIColorComboColorCount - 1)      ; Update Visibility
+    ;<%%>
+}
+
 ; UIColorForm --> Toggle UIColorOptionSaveIni state (workaround)
 ToggleUIColorOptionSaveIni() {
     global                                                      ; Set global Scope inside Function
     Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
-    local ctrl_state := UIColorOptionSaveIni                    ; Placeholder for "is control checked"
-    GuiControl, UIColorForm:, UIColorOptionSaveIni, % (ctrl_state = 1 ? 0 : 1)
+    GuiControl, UIColorForm:, UIColorOptionSaveIni, % (!UIColorOptionSaveIni)
     updateUIColorColors(UIColorOptionSaveIni)
     updateTreeViewBackground()
+}
+
+; UIColorForm --> Toggle UIColorOptionSaveIni state for Checkbox
+ToggleUIColorOptionSaveIniCheckbox() {
+    global                                                      ; Set global Scope inside Function
+    Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
+    updateUIColorColors(!UIColorOptionSaveIni)                  ; Get Current/Overwrite Colors
+    updateTreeViewBackground()                                  ; Update Treeview Colors
 }
 
 ; UIColorForm --> Get Combo/Slider Colors by UIColor Option
@@ -756,7 +776,7 @@ GetUIColorComboSliderColors() {
     global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
     Gui, UIColorForm: Submit, NoHide                            ; Get +vVar values without hiding GUI
-    updateUIColorColors(UIColorOptionSaveIni)                   ; Update selected UIColors
+    updateUIColorColors(!UIColorOptionSaveIni)                  ; Update selected UIColors
     updateTreeViewBackground()                                  ; Update Combo Colors
 }
 
@@ -1073,9 +1093,9 @@ updateUIColorColors(init := 0) {
     local a_slider := []                                        ; Slider Colors
 
     ; Update colorPath
-    if (init)
+    if (init) {
         colorPath := "none"
-    else {
+    } else {
         for k, v in l_uicolors {
             if (v.name = ui_select) {
                 colorPath := d_conf "\" v.uicolorDir "\" v.dir
@@ -1134,8 +1154,58 @@ updateTreeViewBackground() {
     GuiControl, % "UIColorForm: +Background" var_slider_track_color, UIColorSlidertrackColor
 }
 
-; UIColorForm --> Show/Hide the ComboColor 2-5 based on UIColorComboColorCount value
-;<%%>
+; UIColorForm --> Show/Hide the ComboColor 2-5 based on UIColorComboColorCount value -- Args: $1: Number of colors to show (0-4)
+updateComboColorVisibility(cnt := 0) {
+    global                                                      ; Set global scope inside function
+
+    ; Show requested controls
+    if (!cnt) {
+        GuiControl, Hide, UIColorComboColor2                    ; Hide ComboColor2
+        GuiControl, Hide, UIColorComboColor3                    ; Hide ComboColor3
+        GuiControl, Hide, UIColorComboColor4                    ; Hide ComboColor4
+        GuiControl, Hide, UIColorComboColor5                    ; Hide ComboColor5
+        GuiControl, Hide, UIColorComboColor2Text                ; Hide ComboColor2Text
+        GuiControl, Hide, UIColorComboColor3Text                ; Hide ComboColor3Text
+        GuiControl, Hide, UIColorComboColor4Text                ; Hide ComboColor4Text
+        GuiControl, Hide, UIColorComboColor5Text                ; Hide ComboColor5Text
+    } else if (cnt = 1) {
+        GuiControl, Show, UIColorComboColor2                    ; Show ComboColor2
+        GuiControl, Hide, UIColorComboColor3                    ; Hide ComboColor3
+        GuiControl, Hide, UIColorComboColor4                    ; Hide ComboColor4
+        GuiControl, Hide, UIColorComboColor5                    ; Hide ComboColor5
+        GuiControl, Show, UIColorComboColor2Text                ; Show ComboColor2Text
+        GuiControl, Hide, UIColorComboColor3Text                ; Hide ComboColor3Text
+        GuiControl, Hide, UIColorComboColor4Text                ; Hide ComboColor4Text
+        GuiControl, Hide, UIColorComboColor5Text                ; Hide ComboColor5Text
+    } else if (cnt = 2) {
+        GuiControl, Show, UIColorComboColor2                    ; Show ComboColor2
+        GuiControl, Show, UIColorComboColor3                    ; Show ComboColor3
+        GuiControl, Hide, UIColorComboColor4                    ; Hide ComboColor4
+        GuiControl, Hide, UIColorComboColor5                    ; Hide ComboColor5
+        GuiControl, Show, UIColorComboColor2Text                ; Show ComboColor2Text
+        GuiControl, Show, UIColorComboColor3Text                ; Show ComboColor3Text
+        GuiControl, Hide, UIColorComboColor4Text                ; Hide ComboColor4Text
+        GuiControl, Hide, UIColorComboColor5Text                ; Hide ComboColor5Text
+    } else if (cnt = 3) {
+        GuiControl, Show, UIColorComboColor2                    ; Show ComboColor2
+        GuiControl, Show, UIColorComboColor3                    ; Show ComboColor3
+        GuiControl, Show, UIColorComboColor4                    ; Show ComboColor4
+        GuiControl, Hide, UIColorComboColor5                    ; Hide ComboColor5
+        GuiControl, Show, UIColorComboColor2Text                ; Show ComboColor2Text
+        GuiControl, Show, UIColorComboColor3Text                ; Show ComboColor3Text
+        GuiControl, Show, UIColorComboColor4Text                ; Show ComboColor4Text
+        GuiControl, Hide, UIColorComboColor5Text                ; Hide ComboColor5Text
+    } else if (cnt = 4) {
+        GuiControl, Show, UIColorComboColor2                    ; Show ComboColor2
+        GuiControl, Show, UIColorComboColor3                    ; Show ComboColor3
+        GuiControl, Show, UIColorComboColor4                    ; Show ComboColor4
+        GuiControl, Show, UIColorComboColor5                    ; Show ComboColor5
+        GuiControl, Show, UIColorComboColor2Text                ; Show ComboColor2Text
+        GuiControl, Show, UIColorComboColor3Text                ; Show ComboColor3Text
+        GuiControl, Show, UIColorComboColor4Text                ; Show ComboColor4Text
+        GuiControl, Show, UIColorComboColor5Text                ; Show ComboColor5Text
+    }
+}
 
 ; PlayerForm --> Toggle Visibility of Version Options && update Version Options -- Args: $1: name; $2: visibility (def: 0)
 togglePlayerForm(name, vis := 0) {
@@ -1804,9 +1874,10 @@ definePlayers() {
     ; Cookiezi (chocomint)
     local po_cookiezi := new Player("Cookiezi", "COOKIEZI", 0)
     po_cookiezi.add("Burakku Shippu", "BURAKKU SHIPU", 0)
-    po_cookiezi.add("nathan on osu", "NATHAN ON OSU", 0)
+    po_cookiezi.add("Chocomint", "CHOCOMINT", 0)
+    po_cookiezi.add("nathan on osu", "NATHAN", 0)
     po_cookiezi.add("Panimi", "PANIMI", 0)
-    po_cookiezi.add("Seoul", "SEOUL", 0)
+    po_cookiezi.add("Seoulless", "SEOULLESS", 0)
     po_cookiezi.add("Shigetora", "SHIGETORA", 1)
     po_cookiezi.require := 1
 
@@ -1815,6 +1886,12 @@ definePlayers() {
     po_dustice.add("Outer Slider Circle", "+SLIDERCIRCLE", 0)
     po_dustice.add("No Outer Slider Circle", "-SLIDERCIRCLE", 0)
 	po_dustice.require := 1
+
+    ; Emilia
+    local po_emilia := new Player("Emilia", "EMILIA", 0)
+    po_emilia.add("New", "NEW", 0)
+    po_emilia.add("Old", "OLD", 0)
+    po_emilia.require := 1
 
     ; FlyingTuna
     local po_flyingtuna := new Player("FlyingTuna", "FLYINGTUNA", 0)
@@ -1910,7 +1987,7 @@ definePlayers() {
     l_players.push(po_cookiezi)
     l_players.push(new Player("Doomsday", "DOOMSDAY", 0))
     l_players.push(po_dustice)
-    l_players.push(new Player("Emilia", "EMILIA", 0))
+    l_players.push(po_emilia)
     l_players.push(po_flyingtuna)
     l_players.push(new Player("Freddie Benson", "FREDDIE BENSON", 0))
     l_players.push(new Player("FunOrange", "FUNORANGE", 0))
@@ -1919,6 +1996,7 @@ definePlayers() {
     l_players.push(po_idke)
     l_players.push(new Player("Informous", "INFORMOUS", 0))
     l_players.push(new Player("Karthy", "KARTHY", 0))
+    l_players.push(new Player("Koi Fish", "KOI FISH", 0))
     l_players.push(po_mathi)
     l_players.push(new Player("Monko2k", "MONKO2K", 0))
     l_players.push(po_rafis)
@@ -2062,7 +2140,7 @@ applyForm() {
                     d_opt3 := j.elementsDir "\" j.cursorsDir "\" j.cursorSmokeDir "\" j.dir
             }
             
-            ; If %d_opt2% is still blank
+            ; Handle Cursor Trail == None && Solid Cursor Trail
             if (CursorElementOptionTrail = "None") {            ; If "None" is selected
 				d_opt2 := d_opt1 "\..\..\" d_cursor_notrail	    ; Set path to one directory higher than opt1, followed by d_cursor_notrail
             } else if (CursorElementOptionTrailSolid)
@@ -2268,13 +2346,19 @@ applyForm() {
 
         ; If Instafade Enabled
         updateInstafadeCircles(UIColorOptionInstafade)
-
-        ; Update Combo Colors
+        
+        ; Update Requested Combo Colors
+        removeComboColors()
         updateComboColor(1, var_combo_color_1)
-        updateComboColor(2, var_combo_color_2)
-        updateComboColor(3, var_combo_color_3)
-        updateComboColor(4, var_combo_color_4)
-        updateComboColor(5, var_combo_color_5)
+        if (UIColorComboColorCount >= 2)
+            updateComboColor(2, var_combo_color_2)
+        if (UIColorComboColorCount >= 3)
+            updateComboColor(3, var_combo_color_3)
+        if (UIColorComboColorCount >= 4)
+            updateComboColor(4, var_combo_color_4)
+        if (UIColorComboColorCount >= 5)
+            updateComboColor(5, var_combo_color_5)
+        
 
         ; Update SliderBorder
         updateSliderborderColor(var_slider_border_color)
@@ -2499,6 +2583,29 @@ getSlidertrackColor(path) {
     
     ; return Hex color of extracted color
     return rgbToHex(StrSplit(str_color, ","))
+}
+
+; Remove Combo Colors 2-5 in Skin INI file
+removeComboColors() {
+    global                                                      ; Set scope to global
+
+    ; Define local variables
+    local src_path := GamePath "\Skins"                         ; Define the path to the skins directory
+    local skin_dir := getDirectoryName(n_skin, src_path)        ; Get the directory of the skin
+    local ini_og := src_path "\" skin_dir "\skin.ini"           ; Skin.ini file to pull colors from
+    local ini_tmp := d_asset "\new_skin.ini"                    ; Temporary skin.ini file
+
+    ; Build temporary skin file, modifying the specified line(s)
+    Loop, Read, %ini_og%, %ini_tmp%
+    {
+        if (RegExMatch(A_LoopReadLine, "i)^Combo[2-5]:\s*"))
+            continue
+        FileAppend, %A_LoopReadLine%`n
+    }
+
+    ; Update Skin.ini
+    FileCopy, %ini_tmp%, %ini_og%, 1                            ; Replace original with temporary
+    FileDelete, %ini_tmp%                                       ; Delete temporary
 }
 
 ; Update Combo Colors in Skin INI file -- Args: $1: Combo1-5; $2: Color (hex)
