@@ -260,18 +260,23 @@ GuiUIColor() {
 
     ; Define local variables
     local cx_items := 2                                         ; Number of items per row
-    local cy_items := 10                                        ; Number of items per column
+    local cy_items := 11                                        ; Number of items per column
     local w_bg := w_form - (px_form * 2)                        ; Width of BG
     local w_inner := w_bg - (px_form * 6)                       ; Inner-Width of BG
     local w_text := (w_inner / cx_items) - (px_form * 2)        ; Width of Text
     local w_ddl := w_text                                       ; Width of DropDownList
     local w_check := w_text                                     ; CheckBox width
     local w_tree := w_text                                      ; TreeView width
+    local w_edit := w_text                                      ; Edit width
     local h_bg := h_form - (py_form * 2)                        ; Height of BG
     local h_inner := h_bg - (py_form * 3)                       ; Inner-Height of BG
     local h_text := (h_inner / cy_items) - (py_form * 2)        ; Height of Text
     local h_check := h_text                                     ; CheckBox height
     local h_tree := h_text                                      ; TreeView height
+    local h_edit := h_text                                      ; Edit height
+    local r_edit := 1                                           ; Edit rows
+    local lo_count := 1                                         ; Minimum Count Value
+    local hi_count := 5                                         ; Maximum Count Value
     local x_bg := px_form * 0.75                                ; X position of BG
     local x_inner := x_bg + (px_form * 3)                       ; Inner-X of BG (offset)
     local a_x := buildPosArray(cy_items, cx_items, x_inner, w_inner, px_form, 5)    ; x positions
@@ -301,14 +306,15 @@ GuiUIColor() {
     ; Add labels to GUI
     Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[1] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", COLOR:
     Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[2] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", INSTAFADE:
-    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[3] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", COMBO COLOR 1:
-    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[4] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", COMBO COLOR 2:
-    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[5] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", COMBO COLOR 3:
-    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[6] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", COMBO COLOR 4:
-    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[7] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", COMBO COLOR 5:
-    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[8] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", Sliderborder:
-    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[9] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", Slidertrack:
-    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[10] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", Skin.ini:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[3] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", COMBO COUNT:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[4] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", COMBO COLOR 1:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[5] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vUIColorComboColor2Text", COMBO COLOR 2:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[6] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vUIColorComboColor3Text", COMBO COLOR 3:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[7] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vUIColorComboColor4Text", COMBO COLOR 4:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[8] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans +vUIColorComboColor5Text", COMBO COLOR 5:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[9] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", Sliderborder:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[10] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", Slidertrack:
+    Gui, UIColorForm: Add, Text, % "x" a_x[1] " y" a_y[11] " w" w_text " h" h_text " +" SS_CENTERIMAGE " +BackgroundTrans", Skin.ini:
 
 	; Add CheckBox to GUI
     Gui, UIColorForm: Add, CheckBox, % "x" a_x[2] " y" (a_y[2] + 3) " w15 h15 -Wrap +vUIColorOptionInstafade"
@@ -320,13 +326,18 @@ GuiUIColor() {
     ; Add controls to GUI
     Gui, UIColorForm: Font, s%fs_input% c%fg_input%, %ff_input% ; Font for Edit Box
     Gui, UIColorForm: Add, DropDownList, % "x" a_x[2] " y" a_y[1] " w" w_ddl " +Choose" def_color " +vUIColorOptionColor +gGetUIColorComboSliderColors", %o_color%
-    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[3] " w" w_tree " h" h_tree " +Background" def_combo1 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor1 +gChangeComboColorFirst +AltSubmit"
-    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[4] " w" w_tree " h" h_tree " +Background" def_combo2 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor2 +gChangeComboColorSecond +AltSubmit"
-    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[5] " w" w_tree " h" h_tree " +Background" def_combo3 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor3 +gChangeComboColorThird +AltSubmit"
-    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[6] " w" w_tree " h" h_tree " +Background" def_combo4 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor4 +gChangeComboColorFourth +AltSubmit"
-    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[7] " w" w_tree " h" h_tree " +Background" def_combo5 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor5 +gChangeComboColorFifth +AltSubmit"
-    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[8] " w" w_tree " h" h_tree " +Background" def_slborder " +" SS_CENTERIMAGE " +ReadOnly +vUIColorSliderborderColor +gChangeSliderborderColor +AltSubmit"
-    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[9] " w" w_tree " h" h_tree " +Background" def_sltrack " +" SS_CENTERIMAGE " +ReadOnly +vUIColorSlidertrackColor +gChangeSlidertrackColor +AltSubmit"
+    Gui, UIColorForm: Add, Edit, % "x" a_x[2] " y" a_y[3] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vUIColorComboColorCount +BackgroundFFFFFF"
+    Gui, UIColorForm: Add, UpDown, % "+Range" lo_count "-" hi_count, 1
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[4] " w" w_tree " h" h_tree " +Background" def_combo1 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor1 +gChangeComboColorFirst +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[5] " w" w_tree " h" h_tree " +Background" def_combo2 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor2 +gChangeComboColorSecond +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[6] " w" w_tree " h" h_tree " +Background" def_combo3 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor3 +gChangeComboColorThird +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[7] " w" w_tree " h" h_tree " +Background" def_combo4 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor4 +gChangeComboColorFourth +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[8] " w" w_tree " h" h_tree " +Background" def_combo5 " +" SS_CENTERIMAGE " +ReadOnly +vUIColorComboColor5 +gChangeComboColorFifth +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[9] " w" w_tree " h" h_tree " +Background" def_slborder " +" SS_CENTERIMAGE " +ReadOnly +vUIColorSliderborderColor +gChangeSliderborderColor +AltSubmit"
+    Gui, UIColorForm: Add, TreeView, % "x" a_x[2] " y" a_y[10] " w" w_tree " h" h_tree " +Background" def_sltrack " +" SS_CENTERIMAGE " +ReadOnly +vUIColorSlidertrackColor +gChangeSlidertrackColor +AltSubmit"
+
+    ; Check UIColor Skin.ini Overwrite checkbox
+    ToggleUIColorOptionSaveIni()
 }
 
 ; ##-----------------------------##
@@ -736,6 +747,8 @@ ToggleUIColorOptionSaveIni() {
     Gui, UIColorForm: Submit, NoHide                            ; Get +vVare values without hiding GUI
     local ctrl_state := UIColorOptionSaveIni                    ; Placeholder for "is control checked"
     GuiControl, UIColorForm:, UIColorOptionSaveIni, % (ctrl_state = 1 ? 0 : 1)
+    updateUIColorColors(UIColorOptionSaveIni)
+    updateTreeViewBackground()
 }
 
 ; UIColorForm --> Get Combo/Slider Colors by UIColor Option
@@ -743,7 +756,7 @@ GetUIColorComboSliderColors() {
     global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
     Gui, UIColorForm: Submit, NoHide                            ; Get +vVar values without hiding GUI
-    updateUIColorColors()                                       ; Update selected UIColors
+    updateUIColorColors(UIColorOptionSaveIni)                   ; Update selected UIColors
     updateTreeViewBackground()                                  ; Update Combo Colors
 }
 
@@ -1120,6 +1133,9 @@ updateTreeViewBackground() {
     GuiControl, % "UIColorForm: +Background" var_slider_border_color, UIColorSliderborderColor
     GuiControl, % "UIColorForm: +Background" var_slider_track_color, UIColorSlidertrackColor
 }
+
+; UIColorForm --> Show/Hide the ComboColor 2-5 based on UIColorComboColorCount value
+;<%%>
 
 ; PlayerForm --> Toggle Visibility of Version Options && update Version Options -- Args: $1: name; $2: visibility (def: 0)
 togglePlayerForm(name, vis := 0) {
@@ -1731,9 +1747,9 @@ definePlayers() {
     global                                                      ; Set global Scope inside Function
     /*
         To define a new player with additional options, follow this pattern:
-            local po_<name> := new Player("<Player Name>", "<Player Directory Name")
-            po_<name>.add("<Option1 Name>", "<Option1 Directory Name>")
-            po_<name>.add("<Option2 Name>", "<Option2 Directory Name>")
+            local po_<name> := new Player("<Player Name>", "<Player Directory Name>", <Include Cursor Middle (0=False; 1=True)>)
+            po_<name>.add("<Option1 Name>", "<Option1 Directory Name>", <Include Cursor Middle (0=False; 1=True)>)
+            po_<name>.add("<Option2 Name>", "<Option2 Directory Name>", <Include Cursor Middle (0=False; 1=True)>)
             po_<name>.require := 1
 
         For Players without additional skin options, please see below
@@ -1741,125 +1757,127 @@ definePlayers() {
 
     ; Add Mandatory Options to Player Objects
     ; Abyssal
-    local po_abyssal := new Player("Abyssal", "ABYSSAL")
-    po_abyssal.add("Purple & Pink Combo", "PINK+PURPLE")
-    po_abyssal.add("Blue & Red Combo", "BLUE+RED COMBO VER")
+    local po_abyssal := new Player("Abyssal", "ABYSSAL", 0)
+    po_abyssal.add("Purple & Pink Combo", "PINK+PURPLE", 0)
+    po_abyssal.add("Blue & Red Combo", "BLUE+RED COMBO VER", 0)
 	po_abyssal.require := 1
 
     ; Axarious
-    local po_axarious := new Player("Axarious", "AXARIOUS")
-    po_axarious.add("Without Slider Ends", "-SLIDERENDS")
-    po_axarious.add("With Slider Ends", "+SLIDERENDS")
+    local po_axarious := new Player("Axarious", "AXARIOUS", 0)
+    po_axarious.add("Without Slider Ends", "-SLIDERENDS", 0)
+    po_axarious.add("With Slider Ends", "+SLIDERENDS", 0)
 	po_axarious.require := 1
 
     ; Azer
-    local po_azer := new Player("Azer", "AZER")
-    po_azer.add("2017", "2017")
-    po_azer.add("2018", "2018")
+    local po_azer := new Player("Azer", "AZER", 0)
+    po_azer.add("2017", "2017", 0)
+    po_azer.add("2018", "2018", 0)
     po_azer.require := 1
 
     ; azr8 & GayzMcGee
-    local po_azr8 := new Player("azr8 + GayzMcGee", "AZR8 + MCGEE")
-    po_azr8.add("Fire", "FIRE")
-    po_azr8.add("ICE", "ICE")
+    local po_azr8 := new Player("azr8 + GayzMcGee", "AZR8 + MCGEE", 0)
+    po_azr8.add("Fire", "FIRE", 0)
+    po_azr8.add("ICE", "ICE", 0)
 	po_azr8.require := 1
 
     ; BeastrollMC (YungLing)
-    local po_beasttrollmc := new Player("BeasttrollMC", "BEASTTROLLMC")
-    po_beasttrollmc.add("v1.3", "V1.3")
-    po_beasttrollmc.add("v3", "V3")
-    po_beasttrollmc.add("v4", "V4")
-    po_beasttrollmc.add("v5", "V5")
-    po_beasttrollmc.add("v6", "V6")
+    local po_beasttrollmc := new Player("BeasttrollMC", "BEASTTROLLMC", 0)
+    po_beasttrollmc.add("v1.3", "V1.3", 0)
+    po_beasttrollmc.add("v3", "V3", 0)
+    po_beasttrollmc.add("v4", "V4", 0)
+    po_beasttrollmc.add("v5", "V5", 0)
+    po_beasttrollmc.add("v6", "V6", 0)
     po_beasttrollmc.require := 1
 
     ; bikko
-    local po_bikko := new Player("Bikko", "BIKKO")
-    po_bikko.add("Without Slider Ends", "-SLIDERENDS")
-    po_bikko.add("With Slider Ends", "+SLIDERENDS")
+    local po_bikko := new Player("Bikko", "BIKKO", 1)
+    po_bikko.add("Without Slider Ends", "-SLIDERENDS", 1)
+    po_bikko.add("With Slider Ends", "+SLIDERENDS", 1)
 	po_bikko.require := 1
 
     ; Comfort
-    local po_comfort := new Player("Comfort", "COMFORT")
-    po_comfort.add("Standard", "STANDARD")
-    po_comfort.add("Nautz", "NAUTZ")
+    local po_comfort := new Player("Comfort", "COMFORT", 0)
+    po_comfort.add("Standard", "STANDARD", 0)
+    po_comfort.add("Nautz", "NAUTZ", 0)
 	po_comfort.require := 1
 
     ; Cookiezi (chocomint)
-    local po_cookiezi := new Player("Cookiezi", "COOKIEZI")
-    po_cookiezi.add("Burakku Shippu", "BURAKKU SHIPU")
-    po_cookiezi.add("nathan on osu", "NATHAN ON OSU")
-    po_cookiezi.add("Panimi", "PANIMI")
-    po_cookiezi.add("Seoul", "SEOUL")
-    po_cookiezi.add("Shigetora", "SHIGETORA")
+    local po_cookiezi := new Player("Cookiezi", "COOKIEZI", 0)
+    po_cookiezi.add("Burakku Shippu", "BURAKKU SHIPU", 0)
+    po_cookiezi.add("nathan on osu", "NATHAN ON OSU", 0)
+    po_cookiezi.add("Panimi", "PANIMI", 0)
+    po_cookiezi.add("Seoul", "SEOUL", 0)
+    po_cookiezi.add("Shigetora", "SHIGETORA", 1)
     po_cookiezi.require := 1
 
     ; Dustice
-    local po_dustice := new Player("Dustice", "DUSTICE")
-    po_dustice.add("Outer Slider Circle", "+SLIDERCIRCLE")
-    po_dustice.add("No Outer Slider Circle", "-SLIDERCIRCLE")
+    local po_dustice := new Player("Dustice", "DUSTICE", 0)
+    po_dustice.add("Outer Slider Circle", "+SLIDERCIRCLE", 0)
+    po_dustice.add("No Outer Slider Circle", "-SLIDERCIRCLE", 0)
 	po_dustice.require := 1
 
     ; FlyingTuna
-    local po_flyingtuna := new Player("FlyingTuna", "FLYINGTUNA")
-    po_flyingtuna.add("MathiTuna", "MATHITUNA")
-    po_flyingtuna.add("Selyu", "SELYU")
+    local po_flyingtuna := new Player("FlyingTuna", "FLYINGTUNA", 0)
+    po_flyingtuna.add("MathiTuna", "MATHITUNA", 0)
+    po_flyingtuna.add("Selyu", "SELYU", 0)
     po_flyingtuna.require := 1
 
     ; idke
-    local po_idke := new Player("idke", "IDKE")
-    po_idke.add("Without Slider Ends", "-SLIDERENDS")
-    po_idke.add("With Slider Ends", "+SLIDERENDS")
+    local po_idke := new Player("idke", "IDKE", 0)
+    po_idke.add("Old without Slider Ends", "OLD\-SLIDERENDS", 1)
+    po_idke.add("Old with Slider Ends", "OLD\+SLIDERENDS", 1)
+    po_idke.add("New without Slider Ends", "NEW\-SLIDERENDS", 0)
+    po_idke.add("New with Slider Ends", "NEW\+SLIDERENDS", 0)
 	po_idke.require := 1
 
     ; Mathi
-    local po_mathi := new Player("Mathi", "MATHI")
-    po_mathi.add("Flat Hitcircle", "-SHADER")
-    po_mathi.add("Shaded Hitcircle", "+SHADER")
+    local po_mathi := new Player("Mathi", "MATHI", 0)
+    po_mathi.add("Flat Hitcircle", "-SHADER", 0)
+    po_mathi.add("Shaded Hitcircle", "+SHADER", 0)
 	po_mathi.require := 1
 
     ; Rafis
-    local po_rafis := new Player("Rafis", "RAFIS")
-    po_rafis.add("Blue", "BLUE")
-    po_rafis.add("White", "WHITE")
-    po_rafis.add("Yellow", "YELLOW")
+    local po_rafis := new Player("Rafis", "RAFIS", 0)
+    po_rafis.add("Blue", "BLUE", 0)
+    po_rafis.add("White", "WHITE", 0)
+    po_rafis.add("Yellow", "YELLOW", 0)
     po_rafis.require := 1
 
     ; Rohulk
-    local po_rohulk := new Player("Rohulk", "ROHULK")
-    po_rohulk.add("Flat Approach Circle", "-GAMMA")
-    po_rohulk.add("Gamma Approach Circle", "+GAMMA")
+    local po_rohulk := new Player("Rohulk", "ROHULK", 0)
+    po_rohulk.add("Flat Approach Circle", "-GAMMA", 0)
+    po_rohulk.add("Gamma Approach Circle", "+GAMMA", 0)
 	po_rohulk.require := 1
 
 
     ; rustbell
-    local po_rustbell := new Player("Rustbell", "RUSTBELL")
-    po_rustbell.add("Without Hit-300 Explosions", "-EXPLOSIONS")
-    po_rustbell.add("With Hit-300 Explosions", "+EXPLOSIONS")
+    local po_rustbell := new Player("Rustbell", "RUSTBELL", 0)
+    po_rustbell.add("Without Hit-300 Explosions", "-EXPLOSIONS", 0)
+    po_rustbell.add("With Hit-300 Explosions", "+EXPLOSIONS", 0)
 	po_rustbell.require := 1
 
     ; talala
-    local po_talala := new Player("talala", "TALALA")
-    po_talala.add("White Numbers", "WHITE NUMBERS")
-    po_talala.add("Cyan Numbers", "CYAN NUMBERS")
+    local po_talala := new Player("talala", "TALALA", 0)
+    po_talala.add("White Numbers", "WHITE NUMBERS", 0)
+    po_talala.add("Cyan Numbers", "CYAN NUMBERS", 0)
 	po_talala.require := 1
 
     ; Vaxei
-    local po_vaxei := new Player("Vaxei", "VAXEI")
-    po_vaxei.add("Blue Slider Border", "BLUE SLIDER")
-    po_vaxei.add("Red Slider Border", "RED SLIDER")
+    local po_vaxei := new Player("Vaxei", "VAXEI", 0)
+    po_vaxei.add("Blue Slider Border", "BLUE SLIDER", 0)
+    po_vaxei.add("Red Slider Border", "RED SLIDER", 0)
 	po_vaxei.require := 1
 
     ; WhiteCat
-    local po_whitecat := new Player("WhiteCat", "WHITECAT")
-    po_whitecat.add("DT", "DT")
-    po_whitecat.add("No Mod", "NOMOD")
+    local po_whitecat := new Player("WhiteCat", "WHITECAT", 0)
+    po_whitecat.add("DT", "DT", 0)
+    po_whitecat.add("No Mod", "NOMOD", 0)
     po_whitecat.require := 1
 
     ; Xilver & Recia
-    local po_xilver := new Player("Xilver X Recia", "XILVER X RECIA")
-    po_xilver.add("Orange & Dots", "ORANGE DOT")
-    po_xilver.add("Blue & Plus", "BLUE CROSS")
+    local po_xilver := new Player("Xilver X Recia", "XILVER X RECIA", 0)
+    po_xilver.add("Orange & Dots", "ORANGE DOT", 0)
+    po_xilver.add("Blue & Plus", "BLUE CROSS", 0)
 	po_xilver.require := 1
 
     /*
@@ -1877,48 +1895,49 @@ definePlayers() {
     */
 
     ; Add Players to list of Player Objects
-    l_players.push(new Player("404AimNotFound", "404ANF"))
+    l_players.push(new Player("404AimNotFound", "404ANF", 0))
     l_players.push(po_abyssal)
-    l_players.push(new Player("Angelsim", "ANGELSIM"))
+    l_players.push(new Player("Andros", "ANDROS", 0))
+    l_players.push(new Player("Angelsim", "ANGELSIM", 0))
     l_players.push(po_axarious)
     l_players.push(po_azer)
     l_players.push(po_azr8)
-    l_players.push(new Player("badeu", "BADEU"))
+    l_players.push(new Player("badeu", "BADEU", 0))
     l_players.push(po_beasttrollmc)
     l_players.push(po_bikko)
-    l_players.push(new Player("Bubbleman", "BUBBLEMAN"))
+    l_players.push(new Player("Bubbleman", "BUBBLEMAN", 0))
     l_players.push(po_comfort)
     l_players.push(po_cookiezi)
-    l_players.push(new Player("Doomsday", "DOOMSDAY"))
+    l_players.push(new Player("Doomsday", "DOOMSDAY", 0))
     l_players.push(po_dustice)
-    l_players.push(new Player("Emilia", "EMILIA"))
+    l_players.push(new Player("Emilia", "EMILIA", 0))
     l_players.push(po_flyingtuna)
-    l_players.push(new Player("Freddie Benson", "FREDDIE BENSON"))
-    l_players.push(new Player("FunOrange", "FUNORANGE"))
-    l_players.push(new Player("-GN", "GN"))
-    l_players.push(new Player("hvick225", "HVICK225"))
+    l_players.push(new Player("Freddie Benson", "FREDDIE BENSON", 0))
+    l_players.push(new Player("FunOrange", "FUNORANGE", 0))
+    l_players.push(new Player("-GN", "GN", 0))
+    l_players.push(new Player("hvick225", "HVICK225", 0))
     l_players.push(po_idke)
-    l_players.push(new Player("Informous", "INFORMOUS"))
-    l_players.push(new Player("Karthy", "KARTHY"))
+    l_players.push(new Player("Informous", "INFORMOUS", 0))
+    l_players.push(new Player("Karthy", "KARTHY", 0))
     l_players.push(po_mathi)
-    l_players.push(new Player("Monko2k", "MONKO2K"))
+    l_players.push(new Player("Monko2k", "MONKO2K", 0))
     l_players.push(po_rafis)
     l_players.push(po_rohulk)
-    l_players.push(new Player("rrtyui", "RRTYUI"))
+    l_players.push(new Player("rrtyui", "RRTYUI", 0))
     l_players.push(po_rustbell)
-    l_players.push(new Player("RyuK", "RYUK"))
-    l_players.push(new Player("Seysant", "SEYSANT"))
-    l_players.push(new Player("Sotarks", "SOTARKS"))
-    l_players.push(new Player("Sweden", "SWEDEN"))
+    l_players.push(new Player("RyuK", "RYUK", 0))
+    l_players.push(new Player("Seysant", "SEYSANT", 0))
+    l_players.push(new Player("Sotarks", "SOTARKS", 0))
+    l_players.push(new Player("Sweden", "SWEDEN", 0))
     l_players.push(po_talala)
-    l_players.push(new Player("Toy", "TOY"))
-    l_players.push(new Player("Tranquil-ity", "TRANQUIL-ITY"))
-    l_players.push(new Player("Varvalian", "VARVALIAN"))
+    l_players.push(new Player("Toy", "TOY", 0))
+    l_players.push(new Player("Tranquil-ity", "TRANQUIL-ITY", 0))
+    l_players.push(new Player("Varvalian", "VARVALIAN", 0))
     l_players.push(po_vaxei)
     l_players.push(po_whitecat)
-    l_players.push(new Player("WubWoofWolf", "WWW"))
+    l_players.push(new Player("WubWoofWolf", "WWW", 0))
     l_players.push(po_xilver)
-    l_players.push(new Player("Yaong", "YAONG"))
+    l_players.push(new Player("Yaong", "YAONG", 0))
 }
 
 
@@ -2042,16 +2061,12 @@ applyForm() {
                 if (j.name = CursorElementOptionSmoke)
                     d_opt3 := j.elementsDir "\" j.cursorsDir "\" j.cursorSmokeDir "\" j.dir
             }
-
-            ; Get Directory for Option 4, if enabled
-            if (CursorElementOptionTrailSolid)
-                d_opt4 := d_opt1 "\..\..\" d_cursor_solidtrail
             
             ; If %d_opt2% is still blank
             if (CursorElementOptionTrail = "None") {            ; If "None" is selected
 				d_opt2 := d_opt1 "\..\..\" d_cursor_notrail	    ; Set path to one directory higher than opt1, followed by d_cursor_notrail
-                d_opt4 := ""
-            }
+            } else if (CursorElementOptionTrailSolid)
+                d_opt4 := d_opt1 "\..\..\" d_cursor_solidtrail
 
             ; Verify Paths Exist
             if !(FileExist(src "\" d_opt1)) {
@@ -2267,6 +2282,7 @@ applyForm() {
     } else if (form = "player") {
         local d_opt1 := ""                                      ; Directory of Option 1
         local d_opt2 := ""                                      ; Directory of Option 2
+        local cmiddle := 0                                      ; Check to determine if cursormiddle should remain
 
         ; Get Directories for Options
         for i, j in l_players {
@@ -2275,15 +2291,17 @@ applyForm() {
                 if (j.listNames) {
                     for k, l in j.getArray("listNames") {
                         if (l = PlayerOptionVersion) {
-                            local arr := j.getArray("listDirs")
-                            d_opt2 := d_opt1 "\" arr[k]
-                            arr := ""
+                            local dirs := j.getArray("listDirs")
+                            local mids := j.getArray("listMiddle")
+                            d_opt2 := d_opt1 "\" dirs[k]
+                            cmiddle := mids[k]
+                            dirs :=
                         }
                     }
-                }
+                } else
+                    cmiddle := j.mids
             }
         }
-
 
         ; Verify Paths Exist
         if (!FileExist(src "\" d_opt1)) {
@@ -2305,12 +2323,9 @@ applyForm() {
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
 
         ; Remove Files if necessary
-        if (PlayerOptionName = "Bikko") {
-            FileDelete, %dst%\cursormiddle@2x.png
-        } else if (PlayerOptionName = "Cookiezi") {
-            if (PlayerOptionVersion = "Shigetora")
-                FileDelete, %dst%\cursormiddle@2x.png
-        }
+        if (cmiddle)
+            return
+        FileDelete, %dst%\cusormiddle@2x.png
     }
 }
 
@@ -2431,7 +2446,8 @@ getSliderborderColor(path) {
     local str_color := ""                                       ; String of RGB values
 
     ; Handle path = "none" --> get current Skin.ini
-    StringLower, path, path
+    local lpath
+    StringLower, lath, path
     if (lpath = "none")
         ini_og := src_path "\" skin_dir "\skin.ini"             ; Get current skin path
 
@@ -2463,7 +2479,8 @@ getSlidertrackColor(path) {
     local str_color := ""                                       ; String of RGB values
 
     ; Handle path = "none" --> get current Skin.ini
-    StringLower, path, path
+    local lpath
+    StringLower, lpath, path
     if (lpath = "none")
         ini_og := src_path "\" skin_dir "\skin.ini"             ; Get current skin path
 
@@ -2993,17 +3010,19 @@ Class Player {
     dir :=                                                      ; String: Name of the Player's Directory
     listNames :=                                                ; Name of Options
     listDirs :=                                                 ; Directory Names of Options
+    listMiddle :=                                               ; Names of Verions to contain cursormiddle.png & cursormiddle@2x.png
     require :=                                                  ; Integer: 1/0 (T/F) are options required to select skin?
 
     ; Static Variables
     Static playersDir := "PLAYER PACKS"                         ; Name of the Player Packs Directory
 
     ; Constructor
-    __new(n, d) {
+    __new(n, d, m) {
         this.name := n
         this.dir := d
         this.listNames :=
         this.listDirs :=
+        this.listMiddle := m
         this.require := 0
     }
 
@@ -3014,14 +3033,16 @@ Class Player {
     }
 
     ; Add an option to lists
-    add(n, d) {
+    add(n, d, m) {
         if (!this.listNames) && (!this.listDirs) {
             this.listNames := n
             this.listDirs := d
-        } else {
-            this.listNames .= "," n
-            this.listDirs .= "," d
+            this.listMiddle := m
+            return
         }
+        this.listNames .= "," n
+        this.listDirs .= "," d
+        this.listMiddle .= "," m
     }
 
     ; Get array of listX
@@ -3032,6 +3053,9 @@ Class Player {
         } else if (v = "listDirs") {
             if (this.listDirs)
                 return StrSplit(this.listDirs, ",")
+        } else if (v = "listMiddle") {
+            if (this.listMiddle)
+                return StrSplit(this.listMiddle, ",")
         }
         return []
     }
