@@ -626,14 +626,17 @@ GuiColorPicker(w := 600, h := 600, hex := "FFFFFF") {
 
     ; Add Controls to the GUI
     Gui, ColorPicker: Add, Picture, % "x" x_palette " y" y_palette " w" w_palette " h" h_palette " +" SS_CENTERIMAGE " +HWNDhColorPickerPalette +gColorPickerSelectColor +AltSubmit", %img_palette%
-    Gui, ColorPicker: Add, Edit, % "x" a_x[1] " y" a_y[2] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vColorPickerRGBRed +ReadOnly +BackgroundFFFFFF"
-    Gui, ColorPicker: Add, UpDown, % "+Range" lo_rgb "-" hi_rgb " +gColorPickerModifyRed", % def_rgb[1]
-    Gui, ColorPicker: Add, Edit, % "x" a_x[2] " y" a_y[2] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vColorPickerRGBGreen +ReadOnly +BackgroundFFFFFF"
-    Gui, ColorPicker: Add, UpDown, % "+Range" lo_rgb "-" hi_rgb " +gColorPickerModifyGreen", % def_rgb[2]
-    Gui, ColorPicker: Add, Edit, % "x" a_x[3] " y" a_y[2] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vColorPickerRGBBlue +ReadOnly +BackgroundFFFFFF"
-    Gui, ColorPicker: Add, UpDown, % "+Range" lo_rgb "-" hi_rgb " +gColorPickerModifyBlue", % def_rgb[3]
     Gui, ColorPicker: Add, TreeView, % "x" a_x[4] " y" a_y[2] " w" w_tree " h" h_tree " +Background" def_selected " +" SS_CENTERIMAGE " +ReadOnly +vColorPickerSelectedColor +Background" hex
     Gui, ColorPicker: Add, Button, % "x" a_x[5] " y" a_y[2] " w" w_button " h" h_button " +gColorPickerSubmitForm", &SELECT
+
+    ; Add writable Edits to the GUI
+    Gui, ColorPicker: Font, s%fs_picker% c000000, %ff_picker%
+    Gui, ColorPicker: Add, Edit, % "x" a_x[1] " y" a_y[2] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vColorPickerRGBRed +BackgroundFFFFFF +gColorPickerModifyRed"
+    Gui, ColorPicker: Add, UpDown, % "+Range" lo_rgb "-" hi_rgb " +gColorPickerModifyRed", % def_rgb[1]
+    Gui, ColorPicker: Add, Edit, % "x" a_x[2] " y" a_y[2] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vColorPickerRGBGreen +BackgroundFFFFFF +gColorPickerModifyRed"
+    Gui, ColorPicker: Add, UpDown, % "+Range" lo_rgb "-" hi_rgb " +gColorPickerModifyGreen", % def_rgb[2]
+    Gui, ColorPicker: Add, Edit, % "x" a_x[3] " y" a_y[2] " w" w_edit " h" h_edit " r" r_edit " +Number -Wrap +vColorPickerRGBBlue +BackgroundFFFFFF +gColorPickerModifyRed"
+    Gui, ColorPicker: Add, UpDown, % "+Range" lo_rgb "-" hi_rgb " +gColorPickerModifyBlue", % def_rgb[3]
 }
 
 ; ##--------------------------------##
@@ -1275,9 +1278,9 @@ updateColorPickerSelectedColor() {
 updateColorPickerRGB() {
     global                                                      ; Set global Scope inside Function
     local a_rgb := hexToRGB(var_picker_selected_color)          ; Convert Selected HEX to RGB array
-    GuiControl, ColorPicker:, ColorPickerRGBRed, % (a_rgb[1] != "" ? a_rgb[1] : 0)
-    GuiControl, ColorPicker:, ColorPickerRGBGreen, % (a_rgb[2] != "" ? a_rgb[2] : 0)
-    GuiControl, ColorPicker:, ColorPickerRGBBlue, % (a_rgb[3] != "" ? a_rgb[3] : 0)
+    GuiControl, ColorPicker:, ColorPickerRGBRed, % a_rgb[1]
+    GuiControl, ColorPicker:, ColorPickerRGBGreen, % a_rgb[2]
+    GuiControl, ColorPicker:, ColorPickerRGBBlue, % a_rgb[3]
 }
 
 ; ColorPicker --> Toggle Enabled/Disabled state of all non-Color-Picker windows
@@ -2462,7 +2465,7 @@ rgbToHex(arr) {
 ; Convert decimal value (0-15) to a hex character -- Args: $1: value
 decToHex(val) {
     ; handle invlaid input
-    if (!val) || (val > 15)
+    if (val < 0) || (val > 15)
         return
 
     ; Find and return value
@@ -2475,8 +2478,8 @@ decToHex(val) {
 
 ; Convert Hex to Decimal (0-F) -- Args: $1: Value
 hexToDec(val) {
-    ; handle invalid input
-    if (!RegExMatch(val, "i)^[0-9A-F]$"))
+    ; Handle non-hex input
+    if (RegExMatch(val, "i)[^0-9A-F]"))
         return
 
     ; Find and return value
