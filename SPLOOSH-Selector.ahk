@@ -1641,7 +1641,8 @@ defineReverseArrows() {
 
     ; Add ReverseArrows to list of ReverseArrow Objects
     l_reversearrows.push(new ReverseArrow("Arrow", "ARROW", 0))
-    l_reversearrows.push(new ReverseArrow("Half", "HALF", 0))
+    l_reversearrows.push(new ReverseArrow("Half Circle", "HALF CIRCLE", 0))
+    l_reversearrows.push(new ReverseArrow("Full Circle", "FULL CIRCLE", 0))
     l_reversearrows.push(new ReverseArrow("Default", "DEFAULT", 1))
 }
 
