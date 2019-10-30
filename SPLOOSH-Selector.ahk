@@ -658,7 +658,7 @@ GetUIColorForm() {
     Gui, UIColorForm: Submit, NoHide                            ; Get +vVar values without hiding GUI
     toggleForm("ALL")                                           ; Hide all forms
     toggleForm("UIColor", 1)                                    ; Show UIColorForm
-    updateUIColorColors()                                       ; Update selected UIColors
+    updateUIColorColors(UIColorOptionSaveIni)                   ; Update selected UIColors
     updateTreeViewBackground()                                  ; Update Combo Colors
     var_selected_form := "UIColor"                              ; Update Selected Form
 }
@@ -910,6 +910,12 @@ ColorPickerSubmitForm() {
 
     ; Update Selected Color Var
     var_combo_color_%var_picker_count% := var_picker_selected_color
+    if (var_picker_count <= 5)
+        var_combo_color_%var_picker_count% := var_picker_selected_color
+    else if (var_picker_count = 6)
+        var_slider_border_color := var_picker_selected_color
+    else if (var_picker_count = 7)
+        var_slider_track_color := var_picker_selected_color
 
     ; Update BG Colors
     updateTreeViewBackground()
