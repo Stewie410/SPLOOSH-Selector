@@ -685,8 +685,9 @@ ResetAll() {
     global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
     Gui, SideBar: Submit, NoHide                                ; Get vVar values without hiding GUI
-    if (resetSkin("gameplay"))                              ; Reset Gameplay, if successful
-        resetSkin("uicolor")                                    ; Reset UIColor
+    resetSkin("gameplay")                                       ; Reset Gameplay elements
+    resetSkin("uicolor")                                        ; Reset UI Color elements
+    resetSkin("hitsounds")                                      ; Reset Hitsounds
 }
 
 ; SideBar --> Reset Gameplay Elements
@@ -703,6 +704,14 @@ ResetUIColor() {
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
     Gui, SideBar: Submit, NoHide                                ; Get vVar values without hiding GUI
     resetSkin("uicolor")                                        ; Reset UIColor
+}
+
+; SideBar --> Reset Hitsounds
+ResetHitsounds() {
+    global                                                      ; Set global Scope inside Function
+    Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
+    Gui, SideBar: Submit, NoHide                                ; Get vVar values without hiding GUI
+    resetSkin("hitsounds")                                      ; Reset Hitsounds
 }
 
 ; ElementForm --> Get Element Type (options)
@@ -1535,6 +1544,7 @@ defineGlobals() {
     d_default := "DEFAULT ASSETS"								; Directory containing Default/Reset Assets
     d_default_gameplay := d_default "\GP"         				; Directory containing Original Gameplay Elements
     d_default_uicolor := d_default "\UI"				        ; Directory containing Original UI Color Elements
+    d_default_hitsounds := d_default "\HS"                      ; Directory containing Original Hitsounds
     d_cursor_notrail := "Z NO CT"                          		; Directory containing ELements to disable Cursor Trails
     d_cursor_solidtrail := "Z CM"                     			; Directory containing Elements to enable a solid cursor trail
     d_uicolor_instafade := "SKIN.INI FOR INSTAFADE HITCIRCLE"   ; Directory containing Elements to enable instant-fade circles
@@ -2089,10 +2099,12 @@ resetSkin(type) {
     ; Reset Skin
     StringLower,type,type                                       ; Set all characters in type to lowercase
     if (type = "gameplay") {                                    ; If type is gameplay
-        FileCopy, %src%\%d_default_gameplay%\*.*, %dst%, 1        ; Copy reset-gameplay elements to dst
+        FileCopy, %src%\%d_default_gameplay%\*.*, %dst%, 1      ; Copy reset-gameplay elements to dst
         FileDelete, %dst%\cursormiddle@2x.png                   ; Delete CursorMiddle
     } else if (type = "uicolor") {                              ; If type is uicolor
-        FileCopy, %src%\%d_default_uicolor%\*.*, %dst%, 1         ; Copy reset-uicolor elements to dst
+        FileCopy, %src%\%d_default_uicolor%\*.*, %dst%, 1       ; Copy reset-uicolor elements to dst
+    } else if (type = "hitsounds") {                            ; If type is hitsounds
+        FileCopy, %src%\%d_default_hitsounds%\*.*, %dst%, 1     ; Copy reset-hitsounds elements to dst
     } else {
         MsgBox,,RESET ERROR, Unknown Reset Type: %type%         ; Notify Error
         return 1
@@ -2282,7 +2294,8 @@ applyForm() {
             }
 
             ; Copy Hitsound Pack Files to Destination
-            FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
+            resetSkin("hitsounds")                              ; Reset Hitsound elements, to avoid bad-mixes
+            FileCopy, %src%\%d_opt1%\*.*, %dst%, 1              ; Update Hitsounds
         } else if (etype = "mania") {
             local mtype := ManiaElementOptionType               ; Get Mania Type
             local d_opt1                                        ; Directory of Selected Mania Pack
