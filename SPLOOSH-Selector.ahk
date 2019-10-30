@@ -389,6 +389,7 @@ GuiElement() {
     local o_scorebarbg := getObjNamesAsString(l_scorebarbgs, "|")           ; ScorebarBG Options
     local o_circlenumbers := getObjNamesAsString(l_circlenumbers, "|")      ; CircleNumber Options
     local o_hitsounds := getObjNamesAsString(l_hitsounds, "|")              ; Hitsound Pack Options
+    local o_followpoints := getObjNamesAsString(l_followpoints, "|")        ; FollowPoint Options
     local o_mania_arrow_color := getObjNamesAsString(l_maniaarrows, "|")    ; ManiaArrow Color Options
     local o_mania_bar_color := getObjNamesAsString(l_maniabars, "|")        ; ManiaBar Color Options
     local o_mania_dot_color := getObjNamesAsString(l_maniadots, "|")        ; ManiaDot Color Options
@@ -402,6 +403,7 @@ GuiElement() {
     local def_scorebarbg := getDefaultObject(l_scorebarbgs)     ; Default ScorebarBG Selection
     local def_circlenumber := getDefaultObject(l_circlenumbers) ; Default CircleNumber Selection
     local def_hitsound := getDefaultObject(l_hitsounds)         ; Default Hitsound Pack Selection
+    local def_followpoint := getDefaultObject(l_followpoints)   ; Default FollowPoint Selection
     local def_mania := 1                                        ; Default Mania
     local def_mania_color := 1                                  ; Default mania Color 
     local formBG := d_asset "\formBG.png"                       ; Form Background
@@ -420,6 +422,7 @@ GuiElement() {
     Sort, o_scorebarbg, CL D|
     Sort, o_circlenumbers, CL D|
     Sort, o_hitsounds, CL D|
+    Sort, o_followpoints, CL D|
     Sort, o_mania_arrow_color, CL D|
     Sort, o_mania_bar_color, CL D|
     Sort, o_mania_dot_color, CL D|
@@ -434,6 +437,7 @@ GuiElement() {
     def_scorebarbg := getIndexOfSubstringInString(o_scorebarbg, def_scorebarbg, "|")
     def_circlenumber := getIndexOfSubstringInString(o_circlenumbers, def_circlenumber, "|")
     def_hitsound := getIndexOfSubstringInString(o_hitsounds, def_hitsound, "|")
+    def_followpoint := getIndexOfSubstringInString(o_followpoints, def_followpoint, "|")
 
     ; Add Background to GUI
     Gui, ElementForm: Add, Picture, % "x" x_bg " y" y_bg " w" w_bg " h" h_bg " +" SS_CENTERIMAGE, %formBG%
@@ -461,6 +465,7 @@ GuiElement() {
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_scorebarbg " +vScorebarBGElementOptionType +Hidden1", %o_scorebarbg%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_circlenumber " +vCircleNumberElementOptionType +Hidden1", %o_circlenumbers%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_hitsound " +vHitsoundElementOptionType +Hidden1", %o_hitsounds%
+    Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_followpoint " +vFollowPointElementOptionType +Hidden1", %o_followpoints%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[2] " w" w_ddl " +Choose" def_mania " +gGetElementManiaType +vManiaElementOptionType +Hidden1", %o_mania%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[3] " w" w_ddl " +Choose" def_ctrail " +vCursorElementOptionTrail +gCheckCursorTrailSolidState", %o_ctrail%
     Gui, ElementForm: Add, DropDownList, % "x" a_x[2] " y" a_y[3] " w" w_ddl " +Choose1 +vManiaElementArrowOptionColor +Hidden1", %o_mania_arrow_color%
@@ -1024,6 +1029,7 @@ toggleElementForm(name, vis := 0) {
         GuiControl, %visCmd%, ScorebarBGElementOptionType
         GuiControl, %visCmd%, CircleNumberElementOptionType
         GuiControl, %visCmd%, HitsoundElementOptionType
+        GuiControl, %visCmd%, FollowPointElementOptionType
         GuiControl, %visCmd%, ManiaElementOptionType
         GuiControl, %visCmd%, ManiaElementArrowOptionColor
         GuiControl, %visCmd%, ManiaELementBarOptionColor
@@ -1057,6 +1063,9 @@ toggleElementForm(name, vis := 0) {
     } else if (name = "hitsounds") {
         GuiControl, %visCmd%, OtherElementOptionTypeText
         GuiControl, %visCmd%, HitsoundElementOptionType
+    } else if (name = "follow points") {
+        GuiControl, %visCmd%, OtherElementOptionTypeText
+        GuiControl, %visCmd%, FollowPointElementOptionType
     } else if (name = "mania") {
         GuiControl, %visCmd%, OtherElementOptionTypeText
         GuiControl, %visCmd%, OtherElementOptionColorText
@@ -1433,6 +1442,7 @@ InitEnv() {
     defineScorebarBGs()
     defineCircleNumbers()
     defineHitsounds()
+    defineFollowPoints()
     defineManiaArrows()
     defineManiaBars()
     defineManiaDots()
@@ -1566,6 +1576,7 @@ defineGlobals() {
     l_sliderballs := []                                         ; List of Sliderballs
     l_scorebarbgs := []                                         ; List of ScorebarBGs
     l_circlenumbers := []                                       ; List of CircleNumbers
+    l_followpoints := []                                        ; List of FollowPoints
     l_maniaarrows := []                                         ; list of ManiaArrows
     l_maniabars := []                                           ; List of ManiaBars
     l_maniadots := []                                           ; List of ManiaDots
@@ -1580,7 +1591,7 @@ defineGlobals() {
     bg_debug_form := "93D7FF"                                   ; Distinct BG Color for Forms
 
     ; Non-Object-Based Menu Options
-    menu_element_types := "Cursor||Hitburst|Hitsounds|Reverse Arrow|Sliderball|Scorebar BG|Circle Numbers|Mania"
+    menu_element_types := "Cursor||Hitburst|Hitsounds|Reverse Arrow|Sliderball|Scorebar BG|Circle Numbers|Mania|Follow Points"
     menu_mania_types := "Arrow|Bar|Dot"
 }
 
@@ -1711,6 +1722,21 @@ defineCircleNumbers() {
     l_circlenumbers.push(new CircleNumber("Default", "DEFAULT", 1))
     l_circlenumbers.push(new CircleNumber("Squared", "SQUARED", 0))
     l_circlenumbers.push(new CircleNumber("Dots", "DOTS", 0))
+}
+
+; Define FollowPoint Objects
+defineFollowPoints() {
+    global                                                      ; Set global Scope inside Function
+    /*
+        To define a new FollowPoint, follow the following pattern:
+        ho_<type> := new FollowPoint(name, dir, original)
+
+        See defineCursors() & defineGuiSections() for more information
+    */
+
+    ; Add FollowPoint to list of FollowPoint Objects
+    l_followpoints.push(new FollowPoint("Off", "OFF", 0))
+    l_followpoints.push(new FollowPoint("On", "ON", 1))
 }
 
 ; Define Hitsound Pack Objects
@@ -2305,6 +2331,23 @@ applyForm() {
             ; Copy Hitsound Pack Files to Destination
             resetSkin("hitsounds")                              ; Reset Hitsound elements, to avoid bad-mixes
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1              ; Update Hitsounds
+        } else if (etype = "follow points") {
+            local d_opt1 := ""                                  ; Directory of Option 1
+
+            ; Get Directories for Options
+            for i, j in l_followpoints {
+                if (j.name = FollowPointElementOptionType)
+                    d_opt1 := j.elementsDir "\" j.followpointDir "\" j.dir
+            }
+
+            ; Verify Paths Exist
+            if (!FileExist(src "\" d_opt1)) {
+                modalMsgBox(n_app ":`tApply Error", "Cannot locate path:`t" src "\" d_opt1, "ElementForm")
+                return
+            }
+
+            ; Copy Hitsound Pack Files to Destination
+            FileCopy, %src%\%d_opt1%\*.*, %dst%, 1              ; Update FollowPoints
         } else if (etype = "mania") {
             local mtype := ManiaElementOptionType               ; Get Mania Type
             local d_opt1                                        ; Directory of Selected Mania Pack
@@ -3011,6 +3054,25 @@ Class Hitsound Extends Element {
     ; Constructor
     __new(n, d, o) {
         base.__new("hitsound", hitsoundDir, o)
+        this.name := n
+        this.dir := d
+    }
+}
+
+; ##--------------------------------------------##
+; #|        Class: Element: Follow Point        |#
+; ##--------------------------------------------##
+Class FollowPoint Extends Element {
+    ; Instance Variables
+    name :=                                                     ; String: FollowPoint Name (type)
+    dir :=                                                      ; String: Name of the FollowPoint's Directory
+
+    ; Static Variables
+    Static followpointDir := "FOLLOWPOINTS"                     ; Name of the FollowPoint Pack's Directory
+
+    ; Constructor
+    __new(n, d, o) {
+        base.__new("followpoint", followpointDir, o)
         this.name := n
         this.dir := d
     }
