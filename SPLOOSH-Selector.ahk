@@ -2136,6 +2136,10 @@ resetSkin(type) {
     if (type = "gameplay") {                                    ; If type is gameplay
         FileCopy, %src%\%d_default_gameplay%\*.*, %dst%, 1      ; Copy reset-gameplay elements to dst
         FileDelete, %dst%\cursormiddle@2x.png                   ; Delete CursorMiddle
+        if (!UIColorOptionSaveIni) && (var_selected_form = "UIColor") {     ; If Overwrite Skin.ini is unchecked
+            updateUIColorColors(UIColorOptionSaveIni)                       ; Update UIColor Combo/Slider Colors
+            updateTreeViewBackground()                                      ; Update TreeView BG Colors
+        }
     } else if (type = "uicolor") {                              ; If type is uicolor
         FileCopy, %src%\%d_default_uicolor%\*.*, %dst%, 1       ; Copy reset-uicolor elements to dst
     } else if (type = "hitsounds") {                            ; If type is hitsounds
