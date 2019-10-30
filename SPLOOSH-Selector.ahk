@@ -658,7 +658,7 @@ GetUIColorForm() {
     Gui, UIColorForm: Submit, NoHide                            ; Get +vVar values without hiding GUI
     toggleForm("ALL")                                           ; Hide all forms
     toggleForm("UIColor", 1)                                    ; Show UIColorForm
-    updateUIColorColors(UIColorOptionSaveIni)                   ; Update selected UIColors
+    updateUIColorColors(!UIColorOptionSaveIni)                   ; Update selected UIColors
     updateTreeViewBackground()                                  ; Update Combo Colors
     var_selected_form := "UIColor"                              ; Update Selected Form
 }
