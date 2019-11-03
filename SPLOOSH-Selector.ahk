@@ -1890,7 +1890,7 @@ definePlayers() {
     po_azer.require := 1
 
     ; azr8 & GayzMcGee
-    local po_azr8 := new Player("azr8 + GayzMcGee", "AZR8 + MCGEE", 0)
+    local po_azr8 := new Player("azr8 + GayzMcGee", "GAYZR8", 0)
     po_azr8.add("Fire", "FIRE", 0)
     po_azr8.add("ICE", "ICE", 0)
 	po_azr8.require := 1
@@ -1952,6 +1952,12 @@ definePlayers() {
     po_idke.add("New with Slider Ends", "NEW\+SLIDERENDS", 0)
 	po_idke.require := 1
 
+    ; Karhy
+    local po_karthy := new Player("Karthy", "KARTHY", 0)
+    po_karthy.add("azr8", "KARTHY AZR8", 0)
+    po_karthy.add("v5", "KARTHY V5", 0)
+    po_karthy.require := 1
+
     ; Mathi
     local po_mathi := new Player("Mathi", "MATHI", 0)
     po_mathi.add("Flat Hitcircle", "-SHADER", 0)
@@ -1994,6 +2000,7 @@ definePlayers() {
     local po_whitecat := new Player("WhiteCat", "WHITECAT", 0)
     po_whitecat.add("DT", "DT", 0)
     po_whitecat.add("No Mod", "NOMOD", 0)
+    po_whitecat.add("Coffee", "COFFEE", 0)
     po_whitecat.require := 1
 
     ; Xilver & Recia
@@ -2040,7 +2047,7 @@ definePlayers() {
     l_players.push(new Player("hvick225", "HVICK225", 0))
     l_players.push(po_idke)
     l_players.push(new Player("Informous", "INFORMOUS", 0))
-    l_players.push(new Player("Karthy", "KARTHY", 0))
+    l_players.push(po_karthy)
     l_players.push(new Player("Koi Fish", "KOI FISH", 0))
     l_players.push(po_mathi)
     l_players.push(new Player("Monko2k", "MONKO2K", 0))
