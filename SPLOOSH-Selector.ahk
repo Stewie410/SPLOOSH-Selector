@@ -1735,8 +1735,14 @@ defineFollowPoints() {
     */
 
     ; Add FollowPoint to list of FollowPoint Objects
-    l_followpoints.push(new FollowPoint("Off", "OFF", 0))
-    l_followpoints.push(new FollowPoint("On", "ON", 1))
+    l_followpoints.push(new FollowPoint("Blue", "BLUE", 0))
+    l_followpoints.push(new FollowPoint("Default", "DEFAULT", 1))
+    l_followpoints.push(new FollowPoint("Green", "GREEN", 0))
+    l_followpoints.push(new FollowPoint("None", "NONE", 0))
+    l_followpoints.push(new FollowPoint("Pink", "PINK", 0))
+    l_followpoints.push(new FollowPoint("Red", "RED", 0))
+    l_followpoints.push(new FollowPoint("Turquoise", "TURQUOISE", 0))
+    l_followpoints.push(new FollowPoint("Yellow", "YELLOW", 0))
 }
 
 ; Define Hitsound Pack Objects
