@@ -1591,7 +1591,7 @@ defineGlobals() {
     bg_debug_form := "93D7FF"                                   ; Distinct BG Color for Forms
 
     ; Non-Object-Based Menu Options
-    menu_element_types := "Cursor||Hitburst|Hitsounds|Reverse Arrow|Sliderball|Scorebar BG|Circle Numbers|Mania|Follow Points"
+    menu_element_types := "Cursors||Hitbursts|Hitsounds|Reverse Arrows|Sliderballs|Scorebar BGs|Circle Numbers|Mania|Follow Points"
     menu_mania_types := "Arrow|Bar|Dot"
 }
 
