@@ -2065,7 +2065,6 @@ definePlayers() {
     l_players.push(new Player("RyuK", "RYUK", 0))
     l_players.push(new Player("Seysant", "SEYSANT", 0))
     l_players.push(new Player("Sotarks", "SOTARKS", 0))
-    l_players.push(new Player("Sweden", "SWEDEN", 0))
     l_players.push(po_talala)
     l_players.push(new Player("Toy", "TOY", 0))
     l_players.push(new Player("Tranquil-ity", "TRANQUIL-ITY", 0))
