@@ -1762,6 +1762,7 @@ defineHitsounds() {
     l_hitsounds.push(new Hitsound("SDVX 2", "SDVX 2", 0))
     l_hitsounds.push(new Hitsound("Slim", "SLIM", 0))
     l_hitsounds.push(new Hitsound("Ticks", "TICKS", 0))
+    l_hitsounds.push(new Hitsound("Tofu", "TOFU", 0))
     l_hitsounds.push(new Hitsound("Wood", "WOOD", 0))
 }
 
@@ -3022,7 +3023,7 @@ Class ScorebarBG Extends Element {
     dir :=                                                      ; String: Name of the ScorebarBG's Directory
 
     ; Static Variables
-    Static scorebarbgDir := "SCOREBAR BG"                       ; Name of the ScorebarBG Directory
+    Static scorebarbgDir := "SCOREBAR BGS"                      ; Name of the ScorebarBG Directory
 
     ; Constructor
     __new(n, d, o) {
