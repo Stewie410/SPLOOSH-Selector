@@ -223,10 +223,12 @@ GuiSideBar() {
 	local resetAllNormal := d_asset "\resetAllNormal.png"			; ResetAllNormal image
 	local resetGameplayNormal := d_asset "\resetGameplayNormal.png"	; ResetGameplayNormal image
 	local resetUIColorNormal := d_asset "\resetUIColorNormal.png"	; ResetUIColorNormal image
+    local resetHitsoundNormal := d_asset "\resetHitsoundNormal.png" ; ResetHitsoundNormal image
 	local applyHover := d_asset "\applyHover.png"					; ApplyHover image
 	local resetAllHover := d_asset "\resetAllHover.png"				; ResetAllHover image
 	local resetGameplayHover := d_asset "\resetGameplayHover.png"	; ResetGameplayHover image
 	local resetUIColorHover := d_asset "\resetUIColorHover.png"		; ResetUIColorHover image
+    local resetHitsoundHover := d_asset "\resetHitsoundHover.png"   ; ResetHitsoundHover image
 
 	; Get g[xy] positions
 	Loop, %gy_items%
@@ -246,7 +248,8 @@ GuiSideBar() {
 	Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[3] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +HWNDhSidebarResetGameplayHover +Hidden1", %resetGameplayHover%
 	Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[4] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +gResetUIColor +HWNDhSidebarResetUIColorNormal", %resetUIColorNormal%
 	Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[4] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +HWNDhSidebarResetUIColorHover +Hidden1", %resetUIColorHover%
-    Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[5] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE, %resetUIColorNormal%
+    Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[5] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +gResetHitsound +HWNDhSidebarResetHitsoundNormal", %resetHitsoundNormal%
+    Gui, SideBar: Add, Picture, % "x" g_x[1] " y" g_y[5] " w" w_gbutton " h" h_gbutton " +" SS_CENTERIMAGE " +HWNDhSidebarResetHitsoundHover +Hidden1", %resetHitsoundHover%
 }
 
 ; ##----------------------------##
@@ -715,7 +718,7 @@ ResetUIColor() {
 }
 
 ; SideBar --> Reset Hitsounds
-ResetHitsounds() {
+ResetHitsound() {
     global                                                      ; Set global Scope inside Function
     Gui, TopBar: Submit, NoHide                                 ; Get +vVar values without hiding GUI
     Gui, SideBar: Submit, NoHide                                ; Get vVar values without hiding GUI
@@ -1342,6 +1345,7 @@ WM_MOUSEMOVE(wParam, lParam, Msg, Hwnd) {
     list_buttons.push({key: hSidebarResetAllNormal, hwnd: hSidebarResetAllHover, ui: "Side"})
     list_buttons.push({key: hSidebarResetGameplayNormal, hwnd: hSidebarResetGameplayHover, ui: "Side"})
     list_buttons.push({key: hSidebarResetUIColorNormal, hwnd: hSidebarResetUIColorHover, ui: "Side"})
+    list_buttons.push({key: hSidebarResetHitsoundNormal, hwnd: hSidebarResetHitsoundHover, ui: "Side"})
 
     ; Get Mouse info
     MouseGetPos, x_mouse, y_mouse, win_mouse, ctrl_mouse, 3
@@ -1412,6 +1416,8 @@ InitEnv() {
     file_list.push({name: "resetGameplayHover", type: "png"})
     file_list.push({name: "resetUIColorNormal", type: "png"})
     file_list.push({name: "resetUIColorHover", type: "png"})
+    file_list.push({name: "resetHitsoundNormal", type: "png"})
+    file_list.push({name: "resetHitsoundHover", type: "png"})
     file_list.push({name: "sidebarResetOutline", type: "png"})
     file_list.push({name: "formBG", type: "png"})
     file_list.push({name: "hsbImg", type: "png"})
@@ -3669,6 +3675,50 @@ Extract_resetUIColorHover(_Filename, _DumpData = 0) {
 	h := DllCall("CreateFile", Ptr, &_Filename, "Uint", 0x40000000, "Uint", 0, "UInt", 0, "UInt", 4, "Uint", 0, "UInt", 0), DllCall("WriteFile", Ptr, h, Ptr, &Out_Data, "UInt", 5447, "UInt", 0, "UInt", 0), DllCall("CloseHandle", Ptr, h)
 	if (_DumpData)
 		VarSetCapacity(Out_Data, 5447, 0), VarSetCapacity(Out_Data, 0), HasData := 0
+}
+
+; ##----------------------------------------------------------------##
+; #|        Embedded Assets: Reset Hitsound Button: Normal          |#
+; ##----------------------------------------------------------------##
+Extract_resetHitsoundNormal(_Filename, _DumpData = 0) {
+	;This function "extracts" the file to the location+name you pass to it.
+	Static HasData = 1, Out_Data, Ptr, ExtractedData
+	Static 1 = "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"
+	if (!HasData)
+		return -1
+	if (!ExtractedData){
+		ExtractedData := True, Ptr := A_IsUnicode ? "Ptr" : "UInt", VarSetCapacity(TD, 6501 * (A_IsUnicode ? 2 : 1))
+		Loop, 1
+			TD .= %A_Index%, %A_Index% := ""
+		VarSetCapacity(Out_Data, Bytes := 4745, 0), DllCall("Crypt32.dll\CryptStringToBinary" (A_IsUnicode ? "W" : "A"), Ptr, &TD, "UInt", 0, "UInt", 1, Ptr, &Out_Data, A_IsUnicode ? "UIntP" : "UInt*", Bytes, "Int", 0, "Int", 0, "CDECL Int"), TD := ""
+	}
+    if (FileExist(_Filename))
+		FileDelete, %_Filename%
+	h := DllCall("CreateFile", Ptr, &_Filename, "Uint", 0x40000000, "Uint", 0, "UInt", 0, "UInt", 4, "Uint", 0, "UInt", 0), DllCall("WriteFile", Ptr, h, Ptr, &Out_Data, "UInt", 4745, "UInt", 0, "UInt", 0), DllCall("CloseHandle", Ptr, h)
+	if (_DumpData)
+		VarSetCapacity(Out_Data, 4745, 0), VarSetCapacity(Out_Data, 0), HasData := 0
+}
+
+; ##--------------------------------------------------------##
+; #|        Embedded Assets: Reset Hitsound: Hover          |#
+; ##--------------------------------------------------------##
+Extract_resetHitsoundHover(_Filename, _DumpData = 0) {
+	;This function "extracts" the file to the location+name you pass to it.
+	Static HasData = 1, Out_Data, Ptr, ExtractedData
+	Static 1 = "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"
+	if (!HasData)
+		return -1
+	if (!ExtractedData){
+		ExtractedData := True, Ptr := A_IsUnicode ? "Ptr" : "UInt", VarSetCapacity(TD, 6438 * (A_IsUnicode ? 2 : 1))
+		Loop, 1
+			TD .= %A_Index%, %A_Index% := ""
+		VarSetCapacity(Out_Data, Bytes := 4699, 0), DllCall("Crypt32.dll\CryptStringToBinary" (A_IsUnicode ? "W" : "A"), Ptr, &TD, "UInt", 0, "UInt", 1, Ptr, &Out_Data, A_IsUnicode ? "UIntP" : "UInt*", Bytes, "Int", 0, "Int", 0, "CDECL Int"), TD := ""
+	}
+	if (FileExist(_Filename))
+		FileDelete, %_Filename%
+	h := DllCall("CreateFile", Ptr, &_Filename, "Uint", 0x40000000, "Uint", 0, "UInt", 0, "UInt", 4, "Uint", 0, "UInt", 0), DllCall("WriteFile", Ptr, h, Ptr, &Out_Data, "UInt", 4699, "UInt", 0, "UInt", 0), DllCall("CloseHandle", Ptr, h)
+	if (_DumpData)
+		VarSetCapacity(Out_Data, 4699, 0), VarSetCapacity(Out_Data, 0), HasData := 0
 }
 
 ; ##------------------------------------------------------------##
