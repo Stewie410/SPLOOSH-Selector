@@ -1329,6 +1329,7 @@ WM_MOUSEMOVE(wParam, lParam, Msg, Hwnd) {
     global                                                      ; Set global Scope inside Function
 
     ; Define Local Variables
+    ;local x_mouse, y_mouse, ctrl_mouse, win_mouse
     local activeForm := var_selected_form                       ; Currently Visible Form
     local x_mouse := ""                                         ; Mouse's X Position
     local y_mouse := ""                                         ; Mouse's Y Position
@@ -2194,7 +2195,7 @@ applyForm() {
     if (form = "element") {
         local etype := ElementType                              ; Define %etype% as current ElementType
         StringLower, etype, etype                               ; Convert %etype% to all lowercase
-        if (etype = "cursor") {
+        if (etype = "cursors") {
             local d_opt1 := ""                                  ; Directory of Option1
             local d_opt2 := ""                                  ; Directory of Option2
             local d_opt3 := ""                                  ; Directory of Option3
@@ -2245,7 +2246,7 @@ applyForm() {
 			; If SolidTrail enabled, Copy to Destination
 			if (d_opt4)
 				FileCopy, %src%\%d_opt4%\*.*, %dst%, 1
-        } else if (etype = "hitburst") {
+        } else if (etype = "hitbursts") {
             local d_opt1 := ""                                  ; Directory of Option 1
 
             ; Get Directories for Options
@@ -2262,7 +2263,7 @@ applyForm() {
 
             ; Copy Base Hitburst to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
-        } else if (etype = "reverse arrow") {
+        } else if (etype = "reverse arrows") {
             local d_opt1 := ""                                  ; Directory of Option 1
 
             ; Get Directories for Options
@@ -2279,7 +2280,7 @@ applyForm() {
 
             ; Copy Base Hitburst to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
-        } else if (etype = "sliderball") {
+        } else if (etype = "sliderballs") {
             local d_opt1 := ""                                  ; Directory of Option 1
 
             ; Get Directories for Options
@@ -2296,7 +2297,7 @@ applyForm() {
 
             ; Copy Base Hitburst to Destination
             FileCopy, %src%\%d_opt1%\*.*, %dst%, 1
-        } else if (etype = "scorebar bg") {
+        } else if (etype = "scorebar bgs") {
             local d_opt1 := ""                                  ; Directory of Option 1
 
             ; Get Directories for Options
